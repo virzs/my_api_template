@@ -4,13 +4,13 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import db from './config/db';
+import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 
 @Module({
   controllers: [AppController],
   providers: [AppService],
   imports: [
-    UsersModule,
     ConfigModule.forRoot({
       envFilePath: ['development.env', 'production.env'],
       ignoreEnvFile: false,
@@ -23,6 +23,8 @@ import { UsersModule } from './modules/users/users.module';
       useFactory: (config) => config.get('MongoConfig'),
       inject: [ConfigService],
     }),
+    UsersModule,
+    AuthModule,
   ],
 })
 export class AppModule {}

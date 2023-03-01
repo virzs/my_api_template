@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import DefaultDTOValidationPipe from './public/pipe/dtoValid';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,6 +16,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('doc', app, document);
 
-  await app.listen(3000);
+  // 全局默认参数验证
+  app.useGlobalPipes(new DefaultDTOValidationPipe());
+
+  await app.listen(5151);
 }
 bootstrap();
