@@ -12,7 +12,7 @@ import { UsersModule } from './modules/users/users.module';
   providers: [AppService],
   imports: [
     ConfigModule.forRoot({
-      envFilePath: ['development.env', 'production.env'],
+      envFilePath: ['dev.env', 'prod.env'],
       ignoreEnvFile: false,
       ignoreEnvVars: false,
       isGlobal: true,
