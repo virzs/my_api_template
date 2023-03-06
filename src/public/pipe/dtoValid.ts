@@ -34,12 +34,9 @@ class DefaultDTOValidationPipe implements PipeTransform<any> {
     const delObj = plainToClass(metatype, deleteUndefined);
     const errors = await validate(delObj);
 
-    console.log(errors, value, delObj);
-
     if (errors.length > 0) {
-      console.log('error', Object.values(errors[0].constraints)[0]);
+      console.error('request error', errors);
       const msg = Object.values(errors[0].constraints)[0]; // 只需要取第一个错误信息并返回即可
-      console.error(`Validation failed: ${msg}`);
       throw new BadRequestException(`Validation failed: ${msg}`);
     }
     return deleteUndefined;
