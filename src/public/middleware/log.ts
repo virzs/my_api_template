@@ -1,6 +1,7 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { Logger } from '../../utils/log4';
+import { logTemplate } from '../template/log';
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
@@ -27,18 +28,17 @@ export function logger(req: Request, res: Response, next: () => any) {
   const ip = req.headers['x-forwarded-for'] || req.ip;
   next();
   // 组装日志信息
-  const logFormat = `
-  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-    Request original url: ${req.originalUrl}
-    Method: ${req.method}
-    IP: ${ip}
-    Status code: ${code}
-    Cookies: ${JSON.stringify(req.cookies)}
-    Params: ${JSON.stringify(req.params)}
-    Query: ${JSON.stringify(req.query)}
-    Body: ${JSON.stringify(req.body)}
-  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-  `;
+  const logFormat = logTemplate({
+    url: req.originalUrl,
+    method: req.method,
+    ip: ip,
+    statusCode: code,
+    cookies: req.cookies,
+    params: req.params,
+    query: req.query,
+    body: req.body,
+  });
+
   // 根据状态码，进行日志类型区分
   if (code >= 500) {
     Logger.error(logFormat);

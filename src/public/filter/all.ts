@@ -6,10 +6,11 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Logger } from '../../utils/log4';
+import { filterLogTemplate } from '../template/log';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-  catch(exception: unknown, host: ArgumentsHost) {
+  catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
     const request = ctx.getRequest();
@@ -19,18 +20,17 @@ export class AllExceptionsFilter implements ExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const logFormat = ` <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    Request original url: ${request.originalUrl}
-    Method: ${request.method}
-    IP: ${request.ip}
-    Status code: ${status}
-    Response: ${exception} \n  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    `;
-    Logger.error(logFormat);
-    response.status(status).json({
-      code: status,
-      error: 'Service Error',
-      msg: `Service Error: ${exception}`,
-    });
+    const ip = request.headers['x-forwarded-for'] || request.ip;
+
+    Logger.error(
+      filterLogTemplate({
+        url: request.originalUrl,
+        method: request.method,
+        ip: ip,
+        statusCode: status,
+        response: exception,
+      }),
+    );
+    response.status(status).json(exception.getResponse());
   }
 }

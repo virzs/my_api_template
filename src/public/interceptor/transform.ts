@@ -7,6 +7,7 @@ import {
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Logger } from '../../utils/log4';
+import { transformLogTemplate } from '../template/log';
 
 @Injectable()
 export class TransformInterceptor implements NestInterceptor {
@@ -15,14 +16,14 @@ export class TransformInterceptor implements NestInterceptor {
     const ip = req.headers['x-forwarded-for'] || req.ip;
     return next.handle().pipe(
       map((data) => {
-        const logFormat = `
-  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    Request original url: ${req.originalUrl}
-    Method: ${req.method}
-    IP: ${ip}
-    User: ${JSON.stringify(req.user)}
-    Response data:\n ${JSON.stringify(data.data)}
-  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<`;
+        const logFormat = transformLogTemplate({
+          url: req.originalUrl,
+          method: req.method,
+          ip: ip,
+          user: req.user,
+          response: data.data,
+        });
+
         Logger.info(logFormat);
         Logger.access(logFormat);
         return data;
