@@ -1,0 +1,32 @@
+import {
+  CallHandler,
+  ExecutionContext,
+  Injectable,
+  NestInterceptor,
+} from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { Logger } from '../../utils/log4';
+
+@Injectable()
+export class TransformInterceptor implements NestInterceptor {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    const req = context.getArgByIndex(1).req;
+    const ip = req.headers['x-forwarded-for'] || req.ip;
+    return next.handle().pipe(
+      map((data) => {
+        const logFormat = `
+  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    Request original url: ${req.originalUrl}
+    Method: ${req.method}
+    IP: ${ip}
+    User: ${JSON.stringify(req.user)}
+    Response data:\n ${JSON.stringify(data.data)}
+  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<`;
+        Logger.info(logFormat);
+        Logger.access(logFormat);
+        return data;
+      }),
+    );
+  }
+}
