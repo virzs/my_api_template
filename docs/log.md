@@ -1,5 +1,6 @@
 # 日志系统
 
+- /src/config/log4.ts
 - /src/public/filter/all.ts
 - /src/public/filter/http.ts
 - /src/public/interceptor/transform.ts
