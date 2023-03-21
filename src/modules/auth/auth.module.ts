@@ -7,10 +7,11 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UsersModule } from '../users/users.module';
 import { jwtConfig } from 'src/config/jwt';
+import { RefreshTokenService } from '../refresh-token/refresh-token.service';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, RefreshTokenService],
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UsersSchema }]),
     JwtModule.register({

@@ -31,6 +31,14 @@ export class AllExceptionsFilter implements ExceptionFilter {
         response: exception,
       }),
     );
-    response.status(status).json(exception.getResponse());
+    response.status(status).json(
+      exception.getResponse
+        ? exception.getResponse()
+        : {
+            statusCode: status,
+            error: 'Service Error',
+            message: `${exception}`,
+          },
+    );
   }
 }

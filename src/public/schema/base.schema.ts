@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
  */
 @Schema({ timestamps: true })
 class BaseSchema {
-  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Users' })
+  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Users' })
   creator: string;
 
   @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Users' })
