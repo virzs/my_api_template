@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Headers, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from 'src/dtos/user';
 import { AuthService } from './auth.service';
@@ -18,5 +18,11 @@ export class AuthController {
   @Post('login')
   login(@Body() body: LoginDto) {
     return this.authService.login(body);
+  }
+
+  @ApiOperation({ description: '刷新token' })
+  @Post('refresh-token')
+  refreshToken(@Headers() headers) {
+    return this.authService.refreshToken(headers);
   }
 }

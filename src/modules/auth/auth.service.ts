@@ -3,6 +3,7 @@ import {
   CACHE_MANAGER,
   Inject,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -10,16 +11,15 @@ import * as bcrypt from 'bcrypt';
 import { LoginDto } from 'src/dtos/user';
 import { User } from 'src/schemas/user';
 import { JwtService } from '@nestjs/jwt';
-import { RefreshToken } from '../../schemas/refreshToken';
 import { RefreshTokenService } from '../refresh-token/refresh-token.service';
 import { Cache } from 'cache-manager';
-import { Logger } from '../../utils/log4';
+import { jwtConfig } from 'src/config/jwt';
+import { v4 as uuidV4 } from 'uuid';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private readonly usersModel: Model<any>,
-    @InjectModel(RefreshToken.name)
     private readonly refreshTokenService: RefreshTokenService,
     private readonly jwtService: JwtService,
     @Inject(CACHE_MANAGER)
@@ -70,21 +70,97 @@ export class AuthService {
     const { password, username } = body;
     const user = await this.validateUser(username, password);
 
-    const access_token = this.jwtService.sign(user);
+    const uuid = uuidV4();
 
-    Logger.info(this.refreshTokenService.createRefreshToken);
+    const access_token = this.jwtService.sign({ user, uuid });
 
-    const refresh_token = '111';
+    const refresh_token = this.refreshTokenService.createRefreshToken(user);
 
     if (!user) {
       throw new BadRequestException('用户名或密码错误');
     }
 
-    this.cacheManager.set(user._id.toString(), refresh_token, 60);
+    const ttl = this.refreshTokenService.getTTL();
+
+    // 获取当前用户所有的refreshToken
+    const cache: string[] = await this.cacheManager.get(
+      `refreshToken:${user._id.toString()}`,
+    );
+
+    // 将新的refreshToken存入缓存，并限制最大设备数
+    this.cacheManager.set(
+      `refreshToken:${user._id.toString()}`,
+      [...(cache ? cache : []), { refresh_token, uuid }].slice(
+        -jwtConfig.refreshToken.maxDevices,
+      ),
+      ttl,
+    );
 
     return {
       ...user,
       access_token,
+    };
+  }
+
+  async refreshToken(headers: any) {
+    const { authorization } = headers;
+
+    const decoded = await this.jwtService.verifyAsync(authorization);
+
+    const cache: any[] = await this.cacheManager.get(
+      `refreshToken:${decoded.user._id.toString()}`,
+    );
+
+    if (!cache) {
+      throw new UnauthorizedException('登录已过期');
+    }
+
+    const refreshToken = cache.find((item) => item.uuid === decoded.uuid);
+
+    if (!refreshToken) {
+      throw new UnauthorizedException('登录已过期');
+    }
+
+    const isExpired = await this.refreshTokenService.isRefreshTokenExpired(
+      refreshToken.refresh_token,
+    );
+
+    const isExpiresSoon =
+      await this.refreshTokenService.isRefreshTokenExpiresSoon(
+        refreshToken.refresh_token,
+      );
+
+    if (isExpired) {
+      throw new UnauthorizedException('登录已过期');
+    }
+
+    const newUUid = uuidV4();
+
+    const newAccessToken = this.jwtService.sign({
+      user: decoded.user,
+      uuid: newUUid,
+    });
+
+    const newTTL = this.refreshTokenService.getTTL();
+
+    this.cacheManager.set(
+      `refreshToken:${decoded.user._id.toString()}`,
+      cache.map((item) => {
+        if (item.uuid === decoded.uuid) {
+          item.uuid = newUUid;
+        }
+        if (isExpiresSoon) {
+          item.refresh_token = this.refreshTokenService.createRefreshToken(
+            decoded.user,
+          );
+        }
+        return item;
+      }),
+      newTTL,
+    );
+
+    return {
+      access_token: newAccessToken,
     };
   }
 }

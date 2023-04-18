@@ -4,6 +4,7 @@ export const jwtConfig = {
     expiresIn: '1h',
   },
   refreshToken: {
-    expiresIn: 1000,
+    expiresIn: '10days',
+    maxDevices: 3, // 最大设备数
   },
 };

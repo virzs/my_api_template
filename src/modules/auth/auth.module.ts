@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
-import { RefreshToken, RefreshTokenSchema } from 'src/schemas/refreshToken';
 import { User, UsersSchema } from 'src/schemas/user';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -18,10 +17,7 @@ import { RefreshTokenService } from '../refresh-token/refresh-token.service';
       secret: jwtConfig.accessToken.secret,
       signOptions: { expiresIn: jwtConfig.accessToken.expiresIn },
     }),
-    MongooseModule.forFeature([
-      { name: User.name, schema: UsersSchema },
-      { name: RefreshToken.name, schema: RefreshTokenSchema },
-    ]),
+    MongooseModule.forFeature([{ name: User.name, schema: UsersSchema }]),
     UsersModule,
   ],
 })

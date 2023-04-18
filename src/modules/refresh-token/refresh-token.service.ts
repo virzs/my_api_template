@@ -1,74 +1,37 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
 import { jwtConfig } from 'src/config/jwt';
-import { RefreshToken, RefreshTokenDocument } from 'src/schemas/refreshToken';
-import { User } from 'src/schemas/user';
+import * as ms from 'ms';
 
 @Injectable()
 export class RefreshTokenService {
-  constructor(
-    private readonly jwtService: JwtService,
-    @InjectModel(RefreshToken.name)
-    private refreshTokenModel: Model<RefreshTokenDocument>,
-  ) {}
+  constructor(private readonly jwtService: JwtService) {}
 
-  async createRefreshToken(user: User) {
-    const refreshToken = new this.refreshTokenModel();
-    refreshToken.user = user;
-    refreshToken.expires = new Date(
-      Date.now() + 1000 * jwtConfig.refreshToken.expiresIn,
-    );
-    await refreshToken.save();
-    return this.jwtService.sign({ id: refreshToken.id });
+  createRefreshToken(user: any) {
+    const token = this.jwtService.sign(user, {
+      expiresIn: jwtConfig.refreshToken.expiresIn,
+    });
+    return token;
   }
 
-  async saveRefreshToken(token: string) {
-    try {
-      const decoded = await this.jwtService.verifyAsync(token);
-      if (typeof decoded === 'object' && decoded.hasOwnProperty('id')) {
-        const tokenExists = await this.refreshTokenModel.findById(
-          decoded['id'],
-        );
-        if (tokenExists) {
-          return token;
-        }
-      }
-      throw new UnauthorizedException();
-    } catch (e) {
-      throw new UnauthorizedException();
-    }
+  async isRefreshTokenExpired(refreshToken: any) {
+    const currentDate = Math.floor(Date.now() / 1000);
+    const decoded = await this.jwtService.verifyAsync(refreshToken);
+    const refreshTokenExpiration = new Date(decoded.exp);
+
+    return refreshTokenExpiration.getTime() < currentDate;
   }
 
-  async deleteRefreshToken(id: number) {
-    return await this.refreshTokenModel.findByIdAndDelete(id);
+  async isRefreshTokenExpiresSoon(refreshToken: any) {
+    const currentDate = Math.floor(Date.now() / 1000);
+    const decoded = await this.jwtService.verifyAsync(refreshToken);
+    const refreshTokenExpiration = new Date(decoded.exp);
+    const refreshTTL = this.getTTL();
+
+    return refreshTokenExpiration.getTime() - currentDate < refreshTTL * 1000;
   }
 
-  async findRefreshTokenById(id: number) {
-    return await this.refreshTokenModel.findById(id).populate('user');
-  }
-
-  async validateRefreshToken(token: string) {
-    try {
-      const decoded = await this.jwtService.verifyAsync(token);
-      if (typeof decoded === 'object' && decoded.hasOwnProperty('id')) {
-        const tokenExists = await this.refreshTokenModel.findById(
-          decoded['id'],
-        );
-        if (tokenExists && !this.isRefreshTokenExpired(tokenExists)) {
-          return tokenExists.user;
-        }
-      }
-      throw new UnauthorizedException();
-    } catch (e) {
-      throw new UnauthorizedException();
-    }
-  }
-
-  async isRefreshTokenExpired(refreshToken: RefreshTokenDocument) {
-    const currentDate = new Date();
-    const refreshTokenExpiration = new Date(refreshToken.expires);
-    return refreshTokenExpiration < currentDate;
+  getTTL() {
+    return Math.floor(ms(jwtConfig.refreshToken.expiresIn) / 1000);
   }
 }
