@@ -15,6 +15,7 @@ import { RefreshTokenService } from '../refresh-token/refresh-token.service';
 import { Cache } from 'cache-manager';
 import { jwtConfig } from 'src/config/jwt';
 import { v4 as uuidV4 } from 'uuid';
+import { RedisConstants } from 'src/common/constants/redis';
 
 @Injectable()
 export class AuthService {
@@ -84,12 +85,12 @@ export class AuthService {
 
     // 获取当前用户所有的refreshToken
     const cache: string[] = await this.cacheManager.get(
-      `refreshToken:${user._id.toString()}`,
+      `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${user._id.toString()}`,
     );
 
     // 将新的refreshToken存入缓存，并限制最大设备数
     this.cacheManager.set(
-      `refreshToken:${user._id.toString()}`,
+      `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${user._id.toString()}`,
       [...(cache ? cache : []), { refresh_token, uuid }].slice(
         -jwtConfig.refreshToken.maxDevices,
       ),
@@ -108,7 +109,7 @@ export class AuthService {
     const decoded = await this.jwtService.verifyAsync(authorization);
 
     const cache: any[] = await this.cacheManager.get(
-      `refreshToken:${decoded.user._id.toString()}`,
+      `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${decoded.user._id.toString()}`,
     );
 
     if (!cache) {
@@ -144,7 +145,7 @@ export class AuthService {
     const newTTL = this.refreshTokenService.getTTL();
 
     this.cacheManager.set(
-      `refreshToken:${decoded.user._id.toString()}`,
+      `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${decoded.user._id.toString()}`,
       cache.map((item) => {
         if (item.uuid === decoded.uuid) {
           item.uuid = newUUid;
