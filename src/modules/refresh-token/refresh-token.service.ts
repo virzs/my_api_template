@@ -28,7 +28,7 @@ export class RefreshTokenService {
     const refreshTokenExpiration = new Date(decoded.exp);
     const refreshTTL = this.getTTL();
 
-    return refreshTokenExpiration.getTime() - currentDate < refreshTTL * 1000;
+    return refreshTokenExpiration.getTime() - currentDate < refreshTTL / 10;
   }
 
   getTTL() {
