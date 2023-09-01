@@ -8,6 +8,8 @@ import redis from './config/redis';
 import type { RedisClientOptions } from 'redis';
 import { redisStore } from 'cache-manager-redis-yet';
 import { PermissionModule } from './modules/system/permission/permission.module';
+import { EmailModule } from './modules/system/email/email.module';
+import email from './config/email';
 
 @Module({
   imports: [
@@ -16,7 +18,7 @@ import { PermissionModule } from './modules/system/permission/permission.module'
       ignoreEnvFile: false,
       ignoreEnvVars: false,
       isGlobal: true,
-      load: [db, redis],
+      load: [db, redis, email],
     }),
     // mongoDB 连接配置
     MongooseModule.forRootAsync({
@@ -41,6 +43,7 @@ import { PermissionModule } from './modules/system/permission/permission.module'
     UsersModule,
     AuthModule,
     PermissionModule,
+    EmailModule,
   ],
 })
 export class AppModule {}
