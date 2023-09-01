@@ -1,18 +1,15 @@
 import { CacheModule, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import db from './config/db';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import redis from './config/redis';
 import type { RedisClientOptions } from 'redis';
 import { redisStore } from 'cache-manager-redis-yet';
+import { PermissionModule } from './modules/system/permission/permission.module';
 
 @Module({
-  controllers: [AppController],
-  providers: [AppService],
   imports: [
     ConfigModule.forRoot({
       envFilePath: ['dev.env', 'prod.env'],
@@ -43,6 +40,7 @@ import { redisStore } from 'cache-manager-redis-yet';
     }),
     UsersModule,
     AuthModule,
+    PermissionModule,
   ],
 })
 export class AppModule {}

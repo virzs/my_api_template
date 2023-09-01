@@ -144,6 +144,10 @@ export class AuthService {
 
     const newTTL = this.refreshTokenService.getTTL();
 
+    const newRefreshToken = this.refreshTokenService.createRefreshToken(
+      decoded.user,
+    );
+
     this.cacheManager.set(
       `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${decoded.user._id.toString()}`,
       cache.map((item) => {
@@ -151,9 +155,7 @@ export class AuthService {
           item.uuid = newUUid;
         }
         if (isExpiresSoon) {
-          item.refresh_token = this.refreshTokenService.createRefreshToken(
-            decoded.user,
-          );
+          item.refresh_token = newRefreshToken;
         }
         return item;
       }),
@@ -162,6 +164,7 @@ export class AuthService {
 
     return {
       access_token: newAccessToken,
+      refresh_token: newRefreshToken,
     };
   }
 }
