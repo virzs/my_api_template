@@ -11,7 +11,6 @@ export class EmailService {
   async sendEmail(to: string) {
     const emailConfig = this.configService.get('email');
 
-    // kffzspwqskhqvpqo
     const transporter = nodeMailer.createTransport({
       host: emailConfig.host,
       port: emailConfig.port,
