@@ -9,6 +9,7 @@ import type { RedisClientOptions } from 'redis';
 import { redisStore } from 'cache-manager-redis-yet';
 import { PermissionModule } from './modules/system/permission/permission.module';
 import { EmailModule } from './modules/system/email/email.module';
+import { RoleModule } from './modules/system/role/role.module';
 import email from './config/email';
 
 @Module({
@@ -44,6 +45,7 @@ import email from './config/email';
     AuthModule,
     PermissionModule,
     EmailModule,
+    RoleModule,
   ],
 })
 export class AppModule {}

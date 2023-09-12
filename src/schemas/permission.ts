@@ -20,10 +20,6 @@ export class Permission extends BaseSchema {
   @Prop({ type: Number })
   type: number;
 
-  //   权限等级 0: 模块 1: 功能 2: 操作
-  @Prop({ type: Number, default: 0 })
-  level: number;
-
   //   上级权限，关联当前 schema
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Permission' })
   parent: Permission;
