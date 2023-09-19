@@ -5,6 +5,7 @@ import { PageDto } from 'src/dtos/page';
 import { Response } from 'src/utils/response';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -44,4 +45,6 @@ export class UsersService {
     const result = await this.usersModel.findByIdAndDelete(id);
     return result;
   }
+
+  async changePassword(body: ChangePasswordDto) {}
 }

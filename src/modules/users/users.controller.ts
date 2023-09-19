@@ -4,6 +4,7 @@ import { UsersService } from './users.service';
 import { PageDto } from 'src/dtos/page';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @ApiTags('用户')
 @Controller('users')
@@ -28,5 +29,12 @@ export class UsersController {
   @ApiOperation({ summary: '更新' })
   update(@Param('id') id: string, @Body() body: UpdateUserDto) {
     return this.usersService.update(id, body);
+  }
+
+  // 修改密码
+  @Put('/change/password')
+  @ApiOperation({ summary: '修改密码' })
+  changePassword(@Body() body: ChangePasswordDto) {
+    return this.usersService.changePassword(body);
   }
 }

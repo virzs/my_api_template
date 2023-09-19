@@ -16,6 +16,7 @@ import { Cache } from 'cache-manager';
 import { jwtConfig } from 'src/config/jwt';
 import { v4 as uuidV4 } from 'uuid';
 import { RedisConstants } from 'src/common/constants/redis';
+import { RegisterDto } from './dtos/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -48,8 +49,17 @@ export class AuthService {
     return rest;
   }
 
-  async register(body: LoginDto) {
-    const { password, username, ...rest } = body;
+  async register(body: RegisterDto) {
+    const { password, username, email, captcha, ...rest } = body;
+
+    const cacheCaptcha: any = await this.cacheManager.get(
+      `${RedisConstants.EMAIL_REGISTER_CAPTCHA_KEY}:${email}`,
+    );
+    if (!cacheCaptcha) throw new BadRequestException('验证码错误');
+
+    if (cacheCaptcha.captcha !== captcha)
+      throw new BadRequestException('验证码错误');
+
     const user = await this.usersModel.findOne({ username });
     if (user) throw new BadRequestException('用户名已存在');
 
@@ -62,6 +72,7 @@ export class AuthService {
       username,
       password: hashedPassword,
       salt,
+      email,
     });
 
     return { message: '注册成功' };
