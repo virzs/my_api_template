@@ -47,4 +47,31 @@ export class UsersService {
   }
 
   async changePassword(body: ChangePasswordDto) {}
+
+  async getPermissions(user) {
+    const { _id } = user;
+
+    const result = await this.usersModel
+      .findById(_id, { password: 0, salt: 0 })
+      .populate({
+        path: 'roles',
+        populate: {
+          path: 'permissions',
+        },
+      })
+      .lean();
+
+    if (result.type === 0) {
+      return true;
+    }
+
+    const permissions = result.roles
+      .map((i) => i.permissions)
+      .flat()
+      .filter((item, index, self) => {
+        return index === self.findIndex((t) => t._id === item._id);
+      });
+
+    return permissions;
+  }
 }

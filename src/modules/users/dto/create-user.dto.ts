@@ -25,7 +25,7 @@ export class BaseUserDto {
   status: number;
 
   @ApiProperty({ description: '角色' })
-  @IsArray({ each: true })
+  @IsArray()
   @Expose()
   roles: string[];
 }

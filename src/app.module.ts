@@ -11,6 +11,10 @@ import { PermissionModule } from './modules/system/permission/permission.module'
 import { EmailModule } from './modules/system/email/email.module';
 import { RoleModule } from './modules/system/role/role.module';
 import email from './config/email';
+import { LoginGuard } from './public/guard/login.guard';
+import { JwtService } from '@nestjs/jwt';
+import { APP_GUARD } from '@nestjs/core';
+import { PermissionGuard } from './public/guard/permission.guard';
 
 @Module({
   imports: [
@@ -46,6 +50,17 @@ import email from './config/email';
     PermissionModule,
     EmailModule,
     RoleModule,
+  ],
+  providers: [
+    JwtService,
+    {
+      provide: APP_GUARD,
+      useClass: LoginGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionGuard,
+    },
   ],
 })
 export class AppModule {}

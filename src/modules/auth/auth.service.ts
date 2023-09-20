@@ -57,7 +57,7 @@ export class AuthService {
     );
     if (!cacheCaptcha) throw new BadRequestException('验证码错误');
 
-    if (cacheCaptcha.captcha !== captcha)
+    if (cacheCaptcha.captcha !== captcha.toString())
       throw new BadRequestException('验证码错误');
 
     const user = await this.usersModel.findOne({ username });
@@ -111,6 +111,7 @@ export class AuthService {
     return {
       ...user,
       access_token,
+      refresh_token,
     };
   }
 

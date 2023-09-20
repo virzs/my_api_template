@@ -3,6 +3,7 @@ import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from 'src/dtos/user';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dtos/register.dto';
+import { RequireLogin } from 'src/public/decorator/require_login.decorator';
 
 @ApiTags('授权')
 @Controller('auth')
@@ -19,6 +20,7 @@ export class AuthController {
   @ApiOperation({ description: '用户登录' })
   @ApiBody({ type: LoginDto })
   @Post('login')
+  @RequireLogin()
   login(@Body() body: LoginDto) {
     return this.authService.login(body);
   }
