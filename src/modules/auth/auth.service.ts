@@ -29,13 +29,11 @@ export class AuthService {
   ) {}
 
   // 验证用户密码
-  async validateUser(username: string, password: string): Promise<any> {
-    // 根据用户名查找用户
-    const user = await this.usersModel
-      .findOne({ username }, { salt: 0 })
-      .lean();
+  async validateUser(email: string, password: string): Promise<any> {
+    // 根据邮箱查找用户
+    const user = await this.usersModel.findOne({ email }, { salt: 0 }).lean();
     if (!user) {
-      throw new BadRequestException('用户名或密码错误');
+      throw new BadRequestException('邮箱或密码错误');
     }
 
     const { password: userPassword, ...rest } = user;
@@ -43,14 +41,14 @@ export class AuthService {
     // 比较密码是否匹配
     const match = await bcrypt.compare(password, userPassword);
     if (!match) {
-      throw new BadRequestException('用户名或密码错误');
+      throw new BadRequestException('邮箱或密码错误');
     }
 
     return rest;
   }
 
   async register(body: RegisterDto) {
-    const { password, username, email, captcha, ...rest } = body;
+    const { password, email, captcha, ...rest } = body;
 
     const cacheCaptcha: any = await this.cacheManager.get(
       `${RedisConstants.EMAIL_REGISTER_CAPTCHA_KEY}:${email}`,
@@ -60,8 +58,8 @@ export class AuthService {
     if (cacheCaptcha.captcha !== captcha.toString())
       throw new BadRequestException('验证码错误');
 
-    const user = await this.usersModel.findOne({ username });
-    if (user) throw new BadRequestException('用户名已存在');
+    const user = await this.usersModel.findOne({ email });
+    if (user) throw new BadRequestException('邮箱已存在');
 
     // 生成盐值和加密后的密码
     const salt = await bcrypt.genSalt();
@@ -69,7 +67,6 @@ export class AuthService {
 
     await this.usersModel.create({
       ...rest,
-      username,
       password: hashedPassword,
       salt,
       email,
@@ -79,8 +76,8 @@ export class AuthService {
   }
 
   async login(body: LoginDto) {
-    const { password, username } = body;
-    const user = await this.validateUser(username, password);
+    const { password, email } = body;
+    const user = await this.validateUser(email, password);
 
     const uuid = uuidV4();
 
@@ -89,7 +86,7 @@ export class AuthService {
     const refresh_token = this.refreshTokenService.createRefreshToken(user);
 
     if (!user) {
-      throw new BadRequestException('用户名或密码错误');
+      throw new BadRequestException('邮箱或密码错误');
     }
 
     const ttl = this.refreshTokenService.getTTL();

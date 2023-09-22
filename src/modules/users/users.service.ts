@@ -32,7 +32,12 @@ export class UsersService {
   }
 
   async detail(id: string) {
-    const result = await this.usersModel.findById(id).populate('roles');
+    const result = await this.usersModel.findById(id).populate({
+      path: 'roles',
+      populate: {
+        path: 'permissions',
+      },
+    });
     return result;
   }
 

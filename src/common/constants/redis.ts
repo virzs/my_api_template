@@ -8,4 +8,13 @@ export class RedisConstants {
    * 注册验证码 key
    */
   static readonly EMAIL_REGISTER_CAPTCHA_KEY = 'email:register-captcha';
+  /**
+   * 修改密码验证码
+   */
+  static readonly EMAIL_CHANGE_PASSWORD_CAPTCHA_KEY =
+    'email:change-password-captcha';
+  /**
+   * 角色权限缓存
+   */
+  static readonly ROLE_PERMISSIONS_KEY = 'role:permissions';
 }
