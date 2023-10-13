@@ -30,11 +30,4 @@ export class UsersController {
   update(@Param('id') id: string, @Body() body: UpdateUserDto) {
     return this.usersService.update(id, body);
   }
-
-  // 修改密码
-  @Put('/change/password')
-  @ApiOperation({ summary: '修改密码' })
-  changePassword(@Body() body: ChangePasswordDto) {
-    return this.usersService.changePassword(body);
-  }
 }

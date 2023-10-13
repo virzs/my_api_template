@@ -11,8 +11,8 @@ export class RedisConstants {
   /**
    * 修改密码验证码
    */
-  static readonly EMAIL_CHANGE_PASSWORD_CAPTCHA_KEY =
-    'email:change-password-captcha';
+  static readonly EMAIL_RESET_PASSWORD_CAPTCHA_KEY =
+    'email:reset-password-captcha';
   /**
    * 角色权限缓存
    */

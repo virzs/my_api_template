@@ -16,5 +16,5 @@ export class ChangePasswordDto {
   @ApiProperty({ description: '验证码' })
   @IsNumber()
   @Expose()
-  code: string;
+  captcha: string;
 }

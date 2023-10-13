@@ -1,5 +1,6 @@
 import {
   BadGatewayException,
+  BadRequestException,
   CACHE_MANAGER,
   Inject,
   Injectable,
@@ -12,6 +13,8 @@ import { SendEmailDto } from './dtos/send.dto';
 import * as dayjs from 'dayjs';
 import EmailUtil from './email.util';
 import { RedisConstants } from 'src/common/constants/redis';
+import ResetPwdCaptchaTemplate from 'src/public/template/email/resetPwdCaptcha';
+import { UsersService } from 'src/modules/users/users.service';
 
 @Injectable()
 export class EmailService {
@@ -19,6 +22,7 @@ export class EmailService {
     private readonly configService: ConfigService,
     @Inject(CACHE_MANAGER)
     private cacheManager: Cache,
+    private readonly userService: UsersService,
   ) {}
 
   async sendEmail(to: string) {
@@ -39,16 +43,13 @@ export class EmailService {
     return info;
   }
 
-  async sendRegisterEmail({ email }: SendEmailDto) {
-    const emailConfig = this.configService.get('email');
-    const transporter = EmailUtil.init(emailConfig);
-
-    const cacheKey = `${RedisConstants.EMAIL_REGISTER_CAPTCHA_KEY}:${email}`;
+  async getCaptcha(cacheKey, email: string) {
+    const key = `${cacheKey}:${email}`;
 
     // 随机6位数字
     const captcha = Math.random().toString().slice(-6);
     // 获取缓存中的验证码
-    const cache: any = await this.cacheManager.get(cacheKey);
+    const cache: any = await this.cacheManager.get(key);
 
     if (cache) {
       const { lastRequestTime } = cache;
@@ -60,19 +61,67 @@ export class EmailService {
         );
     }
 
+    return { key, value: captcha };
+  }
+
+  async sendRegisterEmail({ email }: SendEmailDto) {
+    const emailConfig = this.configService.get('email');
+    const transporter = EmailUtil.init(emailConfig);
+
+    // 随机6位数字
+    const captcha = await this.getCaptcha(
+      RedisConstants.EMAIL_REGISTER_CAPTCHA_KEY,
+      email,
+    );
+
     const info = await transporter.sendMail({
       from: emailConfig.user,
       to: email,
-      ...CaptchaTemplate(captcha),
+      ...CaptchaTemplate(captcha.value),
     });
 
     if (info.messageId) {
       await this.cacheManager.set(
-        cacheKey,
+        captcha.key,
         { captcha: captcha, lastRequestTime: new Date() },
         5 * 60 * 1000,
       );
-      Logger.info(`Message sent:`, info.messageId, 'Cache set', cacheKey);
+      Logger.info(`Message sent:`, info.messageId, 'Cache set', captcha.key);
+      return 'success';
+    }
+
+    return info;
+  }
+
+  async sendResetPasswordEmail({ email }: SendEmailDto) {
+    const user = await this.userService.findByEmail(email);
+
+    if (!user) {
+      throw new BadRequestException('该邮箱未注册');
+    }
+
+    const emailConfig = this.configService.get('email');
+    const transporter = EmailUtil.init(emailConfig);
+
+    // 随机6位数字
+    const captcha = await this.getCaptcha(
+      RedisConstants.EMAIL_RESET_PASSWORD_CAPTCHA_KEY,
+      email,
+    );
+
+    const info = await transporter.sendMail({
+      from: emailConfig.user,
+      to: email,
+      ...ResetPwdCaptchaTemplate(captcha.value),
+    });
+
+    if (info.messageId) {
+      await this.cacheManager.set(
+        captcha.key,
+        { captcha: captcha, lastRequestTime: new Date() },
+        5 * 60 * 1000,
+      );
+      Logger.info(`Message sent:`, info.messageId, 'Cache set', captcha.key);
       return 'success';
     }
 

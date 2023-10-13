@@ -1,11 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PageDto } from 'src/dtos/page';
 import { Response } from 'src/utils/response';
-import { CreateUserDto } from './dto/create-user.dto';
+import { BaseUserDto, CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { ResetPassowrdDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -51,7 +52,15 @@ export class UsersService {
     return result;
   }
 
-  async changePassword(body: ChangePasswordDto) {}
+  async resetPassword(body: ResetPassowrdDto) {
+    const { email, captcha, password } = body;
+
+    const user = await this.usersModel.findOne({ email });
+
+    if (!user) {
+      throw new BadRequestException('邮箱不存在');
+    }
+  }
 
   async getPermissions(user) {
     const { _id } = user;
@@ -78,5 +87,10 @@ export class UsersService {
       });
 
     return permissions;
+  }
+
+  async findByEmail(email: string) {
+    const result = await this.usersModel.findOne({ email });
+    return result;
   }
 }
