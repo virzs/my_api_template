@@ -44,6 +44,9 @@ $ pnpm run test:e2e
 $ pnpm run test:cov
 ```
 
+## cli
+[NestJS Cli](https://docs.nestjs.com/cli/overview)
+
 ## License
 
 Nest is [MIT licensed](LICENSE).
