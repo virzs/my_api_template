@@ -17,4 +17,8 @@ export class RedisConstants {
    * 角色权限缓存
    */
   static readonly ROLE_PERMISSIONS_KEY = 'role:permissions';
+  /**
+   * token黑名单
+   */
+  static readonly AUTH_TOKEN_BLACKLIST_KEY = 'auth:token-blacklist';
 }

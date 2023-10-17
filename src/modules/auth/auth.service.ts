@@ -177,4 +177,33 @@ export class AuthService {
       refresh_token: isExpiresSoon ? newRefreshToken : postRefreshToken,
     };
   }
+
+  async logout(accessToken: string, refreshToken: string) {
+    const accessCache = await this.cacheManager.get(`
+    ${RedisConstants.AUTH_TOKEN_BLACKLIST_KEY}:${accessToken}`);
+    const refreshCache = await this.cacheManager.get(`
+    ${RedisConstants.AUTH_TOKEN_BLACKLIST_KEY}:${refreshToken}`);
+
+    if (refreshCache && accessCache) {
+      return { message: '退出登录成功' };
+    }
+
+    const accessTTL = this.jwtService.decode(accessToken)['exp'];
+    const refreshTTL = this.jwtService.decode(refreshToken)['exp'];
+
+    const accessExp = accessTTL - Math.floor(Date.now() / 1000);
+    const refreshExp = refreshTTL - Math.floor(Date.now() / 1000);
+
+    this.cacheManager.set(
+      `${RedisConstants.AUTH_TOKEN_BLACKLIST_KEY}:${accessToken}`,
+      accessToken,
+      accessExp,
+    );
+    this.cacheManager.set(
+      `${RedisConstants.AUTH_TOKEN_BLACKLIST_KEY}:${refreshToken}`,
+      refreshToken,
+      refreshExp,
+    );
+    return { message: '退出登录成功' };
+  }
 }

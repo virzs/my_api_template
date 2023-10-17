@@ -5,6 +5,7 @@ import { RegisterDto } from './dtos/register.dto';
 import { RequireLogin } from 'src/public/decorator/require_login.decorator';
 import { LoginDto } from './dtos/login.dto';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
+import { LogoutDto } from './dtos/logout.dto';
 
 @ApiTags('授权')
 @Controller('auth')
@@ -33,5 +34,15 @@ export class AuthController {
   @Post('refresh-token')
   refreshToken(@Body() body: RefreshTokenDto) {
     return this.authService.refreshToken(body);
+  }
+
+  @ApiOperation({ summary: '退出登录' })
+  @ApiBody({ type: LogoutDto })
+  @Post('logout')
+  logout(
+    @Headers('authorization') authorization: string,
+    @Body() body: LogoutDto,
+  ) {
+    return this.authService.logout(authorization, body.refreshToken);
   }
 }
