@@ -1,9 +1,10 @@
 import { Body, Controller, Headers, Post, Request } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { LoginDto } from 'src/dtos/user';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dtos/register.dto';
 import { RequireLogin } from 'src/public/decorator/require_login.decorator';
+import { LoginDto } from './dtos/login.dto';
+import { RefreshTokenDto } from './dtos/refresh-token.dto';
 
 @ApiTags('授权')
 @Controller('auth')
@@ -28,8 +29,9 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: '刷新token' })
+  @ApiBody({ type: RefreshTokenDto })
   @Post('refresh-token')
-  refreshToken(@Headers() headers) {
-    return this.authService.refreshToken(headers);
+  refreshToken(@Body() body: RefreshTokenDto) {
+    return this.authService.refreshToken(body);
   }
 }

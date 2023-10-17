@@ -8,7 +8,6 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
-import { LoginDto } from 'src/dtos/user';
 import { User } from 'src/schemas/user';
 import { JwtService } from '@nestjs/jwt';
 import { RefreshTokenService } from '../refresh-token/refresh-token.service';
@@ -17,6 +16,8 @@ import { jwtConfig } from 'src/config/jwt';
 import { v4 as uuidV4 } from 'uuid';
 import { RedisConstants } from 'src/common/constants/redis';
 import { RegisterDto } from './dtos/register.dto';
+import { LoginDto } from './dtos/login.dto';
+import { RefreshTokenDto } from './dtos/refresh-token.dto';
 
 @Injectable()
 export class AuthService {
@@ -112,10 +113,10 @@ export class AuthService {
     };
   }
 
-  async refreshToken(headers: any) {
-    const { authorization } = headers;
+  async refreshToken(body: RefreshTokenDto) {
+    const { refreshToken: postRefreshToken } = body;
 
-    const decoded = await this.jwtService.verifyAsync(authorization);
+    const decoded = await this.jwtService.verifyAsync(postRefreshToken);
 
     const cache: any[] = await this.cacheManager.get(
       `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${decoded.user._id.toString()}`,
@@ -173,7 +174,7 @@ export class AuthService {
 
     return {
       access_token: newAccessToken,
-      refresh_token: newRefreshToken,
+      refresh_token: isExpiresSoon ? newRefreshToken : postRefreshToken,
     };
   }
 }

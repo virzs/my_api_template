@@ -7,6 +7,11 @@ import * as ms from 'ms';
 export class RefreshTokenService {
   constructor(private readonly jwtService: JwtService) {}
 
+  /**
+   * 创建refreshToken
+   * @param user
+   * @returns
+   */
   createRefreshToken(user: any) {
     const token = this.jwtService.sign(user, {
       expiresIn: jwtConfig.refreshToken.expiresIn,
@@ -22,7 +27,12 @@ export class RefreshTokenService {
     return refreshTokenExpiration.getTime() < currentDate;
   }
 
-  async isRefreshTokenExpiresSoon(refreshToken: any) {
+  /**
+   * 判断refreshToken是否即将过期
+   * @param refreshToken
+   * @returns
+   */
+  async isRefreshTokenExpiresSoon(refreshToken: string) {
     const currentDate = Math.floor(Date.now() / 1000);
     const decoded = await this.jwtService.verifyAsync(refreshToken);
     const refreshTokenExpiration = new Date(decoded.exp);
