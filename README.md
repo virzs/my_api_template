@@ -59,9 +59,23 @@ YAML `/doc-yaml`
 `main.ts` 下加入
 
 ```ts
-  const document = SwaggerModule.createDocument(app, config);
+const document = SwaggerModule.createDocument(app, config);
 
-+ fs.writeFileSync('./api-json.json', JSON.stringify(document));
++fs.writeFileSync('./api-json.json', JSON.stringify(document));
+```
+
+## 常见问题
+
+1. 启动报错，检查 redis 配置，`redis-cli shutdown` 关闭 redis 服务，`redis-server` 启动 redis 服务
+
+```powershell
+> Error: connect ECONNREFUSED ::1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1494:16)
+```
+
+```powershell
+> redis-cli shutdown
+> redis-server
 ```
 
 ## License
