@@ -45,7 +45,24 @@ $ pnpm run test:cov
 ```
 
 ## cli
+
 [NestJS Cli](https://docs.nestjs.com/cli/overview)
+
+## 接口文档
+
+WEB `/doc`
+JSON `/doc-json`
+YAML `/doc-yaml`
+
+获取接口文档 json 文件
+
+`main.ts` 下加入
+
+```ts
+  const document = SwaggerModule.createDocument(app, config);
+
++ fs.writeFileSync('./api-json.json', JSON.stringify(document));
+```
 
 ## License
 
