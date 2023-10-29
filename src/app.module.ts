@@ -16,6 +16,13 @@ import { JwtService } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { PermissionGuard } from './public/guard/permission.guard';
 import { ProjectModule } from './modules/system/project/project.module';
+import { EngineModule } from './modules/navigate/engine/engine.module';
+import { WebsiteModule } from './modules/navigate/website/website.module';
+import { WebsiteClassifyModule } from './modules/navigate/website-classify/website-classify.module';
+import { BackgroundModule } from './modules/navigate/background/background.module';
+import { UserSettingModule } from './modules/navigate/user-setting/user-setting.module';
+import { ResourceModule } from './modules/resource/resource.module';
+import { TDPrintModule } from './modules/3d-print/3d-print.module';
 
 @Module({
   imports: [
@@ -52,6 +59,13 @@ import { ProjectModule } from './modules/system/project/project.module';
     EmailModule,
     RoleModule,
     ProjectModule,
+    EngineModule,
+    WebsiteModule,
+    WebsiteClassifyModule,
+    BackgroundModule,
+    UserSettingModule,
+    ResourceModule,
+    TDPrintModule,
   ],
   providers: [
     JwtService,

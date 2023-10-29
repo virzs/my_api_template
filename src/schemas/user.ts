@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import BaseSchema from 'src/public/schema/base.schema';
 import { Role } from './role';
+import { Project } from './project';
 
 @Schema({ timestamps: true })
 export class User extends BaseSchema {
@@ -31,6 +32,10 @@ export class User extends BaseSchema {
   // 类型 0: 管理员 1: 普通用户
   @Prop({ type: Number, default: 1 })
   type: string;
+
+  // 项目
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Project' }] })
+  projects: Project[];
 }
 
 export const UsersSchema = SchemaFactory.createForClass(User);

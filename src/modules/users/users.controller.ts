@@ -4,7 +4,6 @@ import { UsersService } from './users.service';
 import { PageDto } from 'src/dtos/page';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ChangePasswordDto } from './dto/change-password.dto';
 
 @ApiTags('用户')
 @Controller('users')
