@@ -13,11 +13,12 @@ export class BrandService {
     @InjectModel('3DPrintBrand') private readonly brandModel: Model<Brand>,
   ) {}
 
-  async page(params: BrandPageDto) {
+  async page(params: BrandPageDto, user: string) {
     const { page = 1, pageSize = 10, type } = params;
 
     const results = await this.brandModel
       .find({
+        creator: user,
         ...(type ? { type } : {}),
       })
       .skip((page - 1) * pageSize)
@@ -26,15 +27,16 @@ export class BrandService {
       .populate('updater', { password: 0, salt: 0 })
       .exec();
 
-    const total = await this.brandModel.countDocuments({ type });
+    const total = await this.brandModel.countDocuments({
+      creator: user,
+      ...(type ? { type } : {}),
+    });
 
     return Response.page(results, { page, pageSize, total });
   }
 
-  async create(body: BrandDto, user: RouteUser) {
-    const { _id } = user;
-
-    const result = await this.brandModel.create({ ...body, creator: _id });
+  async create(body: BrandDto, user: string) {
+    const result = await this.brandModel.create({ ...body, creator: user });
     return result;
   }
 
@@ -43,12 +45,10 @@ export class BrandService {
     return result;
   }
 
-  async update(id: string, body: BrandDto, user: RouteUser) {
-    const { _id } = user;
-
+  async update(id: string, body: BrandDto, user: string) {
     const result = await this.brandModel.findByIdAndUpdate(id, {
       ...body,
-      updater: _id,
+      updater: user,
     });
     return result;
   }

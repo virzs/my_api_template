@@ -28,14 +28,14 @@ export class BrandController {
   @Get('/')
   @ApiOperation({ summary: '品牌' })
   @ApiQuery({ type: BrandPageDto })
-  getPage(@Query() query: BrandPageDto) {
-    return this.brandService.page(query);
+  getPage(@Query() query: BrandPageDto, @User('_id') user: string) {
+    return this.brandService.page(query, user);
   }
 
   @Post('/')
   @ApiOperation({ summary: '新增' })
   @ApiBody({ type: BrandDto })
-  create(@Body() body: BrandDto, @User() user: RouteUser) {
+  create(@Body() body: BrandDto, @User('_id') user: string) {
     return this.brandService.create(body, user);
   }
 
@@ -46,7 +46,7 @@ export class BrandController {
   update(
     @Param('id') id: string,
     @Body() body: BrandDto,
-    @User() user: RouteUser,
+    @User('_id') user: string,
   ) {
     return this.brandService.update(id, body, user);
   }
