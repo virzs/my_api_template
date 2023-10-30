@@ -11,8 +11,10 @@ export interface RouteUser {
 
 // 获取 请求中的 user 对象
 export const User = createParamDecorator(
-  (data: unknown, ctx: ExecutionContext): RouteUser => {
+  (data: string, ctx: ExecutionContext): RouteUser => {
     const request = ctx.switchToHttp().getRequest();
-    return request.user;
+    const user = request.user;
+
+    return data ? user?.[data] : user;
   },
 );
