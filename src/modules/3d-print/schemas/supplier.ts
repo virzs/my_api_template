@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import BaseSchema from 'src/public/schema/base.schema';
 
 @Schema({ timestamps: true })
-export class Brand extends BaseSchema {
+export class Supplier extends BaseSchema {
   @Prop({ type: String, required: true, unique: true })
   name: string;
 
@@ -23,4 +23,4 @@ export class Brand extends BaseSchema {
   url: string;
 }
 
-export const BrandSchema = SchemaFactory.createForClass(Brand);
+export const SupplierSchema = SchemaFactory.createForClass(Supplier);

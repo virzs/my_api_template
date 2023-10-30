@@ -8,10 +8,10 @@ import { RequireLogin } from 'src/public/decorator/require_login.decorator';
 export class ConstantController {
   constructor(private readonly constantService: ConstantService) {}
 
-  @Get('/brandType')
+  @Get('/supplierType')
   @ApiOperation({ summary: '品牌类型' })
   @RequireLogin()
-  async getBranddType() {
-    return this.constantService.getBranddType();
+  async getSupplierType() {
+    return this.constantService.getSupplierType();
   }
 }

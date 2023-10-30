@@ -3,7 +3,7 @@ import { Expose } from 'class-transformer';
 import { IsNumberString, IsOptional } from 'class-validator';
 import { PageDto } from 'src/dtos/page';
 
-export class BrandPageDto extends PageDto {
+export class SupplierPageDto extends PageDto {
   @ApiProperty({ description: '类型' })
   @IsNumberString(undefined, {
     message: '类型必须是数字',

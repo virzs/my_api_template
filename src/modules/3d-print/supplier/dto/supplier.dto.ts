@@ -9,7 +9,7 @@ import {
   IsUrl,
 } from 'class-validator';
 
-export class BrandDto {
+export class SupplierDto {
   @ApiProperty({ description: '品牌名称' })
   @IsString({ message: '品牌名称必须是字符串' })
   @Expose()

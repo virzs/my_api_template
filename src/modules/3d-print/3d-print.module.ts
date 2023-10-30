@@ -1,10 +1,17 @@
 import { Module } from '@nestjs/common';
 import { MaterialModule } from './material/material.module';
 import { ModelModule } from './model/model.module';
-import { BrandModule } from './brand/brand.module';
 import { ConstantModule } from './constant/constant.module';
+import { OrderModule } from './order/order.module';
+import { SupplierModule } from './supplier/supplier.module';
 
 @Module({
-  imports: [BrandModule, MaterialModule, ModelModule, ConstantModule],
+  imports: [
+    SupplierModule,
+    MaterialModule,
+    ModelModule,
+    ConstantModule,
+    OrderModule,
+  ],
 })
 export class TDPrintModule {}

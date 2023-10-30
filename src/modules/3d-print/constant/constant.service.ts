@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class ConstantService {
-  async getBranddType() {
+  async getSupplierType() {
     return [
       {
         id: 0,
