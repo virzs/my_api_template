@@ -17,6 +17,7 @@ export class SupplierDto {
 
   @ApiProperty({ description: '品牌英文名称' })
   @IsString({ message: '品牌英文名称必须是字符串' })
+  @IsOptional()
   @Expose()
   nameEn: string;
 

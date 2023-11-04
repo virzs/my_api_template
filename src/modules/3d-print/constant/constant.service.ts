@@ -26,4 +26,25 @@ export class ConstantService {
       },
     ];
   }
+
+  async getFilamentStatus() {
+    return [
+      {
+        id: 0,
+        name: '未开封',
+      },
+      {
+        id: 1,
+        name: '使用中',
+      },
+      {
+        id: 2,
+        name: '闲置中',
+      },
+      {
+        id: 3,
+        name: '已耗尽',
+      },
+    ];
+  }
 }

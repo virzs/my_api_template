@@ -5,6 +5,8 @@ import { ConstantModule } from './constant/constant.module';
 import { OrderModule } from './order/order.module';
 import { SupplierModule } from './supplier/supplier.module';
 import { FilamentModule } from './filament/filament.module';
+import { FilamentTypeModule } from './filament-type/filament-type.module';
+import { SupplierFilamentTypeModule } from './supplier-filament-type/supplier-filament-type.module';
 
 @Module({
   imports: [
@@ -14,6 +16,8 @@ import { FilamentModule } from './filament/filament.module';
     ConstantModule,
     OrderModule,
     FilamentModule,
+    FilamentTypeModule,
+    SupplierFilamentTypeModule,
   ],
 })
 export class TDPrintModule {}

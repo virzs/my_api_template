@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose from 'mongoose';
 import BaseSchema from 'src/public/schema/base.schema';
 
 @Schema({ timestamps: true })
@@ -21,6 +22,11 @@ export class Supplier extends BaseSchema {
 
   @Prop({ type: String })
   url: string;
+
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: '3DPrintFilament' }],
+  })
+  filament: string[];
 }
 
 export const SupplierSchema = SchemaFactory.createForClass(Supplier);

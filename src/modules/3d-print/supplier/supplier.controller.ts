@@ -20,13 +20,13 @@ import { SupplierPageDto } from './dto/page.dto';
 import { SupplierDto } from './dto/supplier.dto';
 import { User } from 'src/public/decorator/route-user.decoratpr';
 
-@ApiTags('3D打印/品牌')
+@ApiTags('3D打印/供应商')
 @Controller('3dPrint/supplier')
 export class SupplierController {
   constructor(private readonly supplierService: SupplierService) {}
 
   @Get('/')
-  @ApiOperation({ summary: '品牌' })
+  @ApiOperation({ summary: '分页' })
   @ApiQuery({ type: SupplierPageDto })
   getPage(@Query() query: SupplierPageDto, @User('_id') user: string) {
     return this.supplierService.page(query, user);
