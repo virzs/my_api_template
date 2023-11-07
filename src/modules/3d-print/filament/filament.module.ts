@@ -12,7 +12,7 @@ import { FilamentSchema } from '../schemas/filament';
       {
         name: '3DPrintFilament',
         schema: FilamentSchema,
-        collection: '3d-print-supplier',
+        collection: '3d-print-filament',
       },
     ]),
   ],
