@@ -25,6 +25,13 @@ export class SupplierService {
       .limit(pageSize)
       .populate('creator', { password: 0, salt: 0 })
       .populate('updater', { password: 0, salt: 0 })
+      .populate('filamentType', {
+        creator: 0,
+        createdAt: 0,
+        updater: 0,
+        updatedAt: 0,
+        __v: 0,
+      })
       .exec();
 
     const total = await this.supplierModel.countDocuments({
