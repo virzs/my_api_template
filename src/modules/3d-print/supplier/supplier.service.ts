@@ -41,7 +41,18 @@ export class SupplierService {
   }
 
   async detail(id: string) {
-    const result = await this.supplierModel.findById(id);
+    const result = await this.supplierModel
+      .findById(id)
+      .populate('creator', { password: 0, salt: 0 })
+      .populate('updater', { password: 0, salt: 0 })
+      .populate('filamentType', {
+        creator: 0,
+        createdAt: 0,
+        updater: 0,
+        updatedAt: 0,
+        __v: 0,
+      })
+      .exec();
     return result;
   }
 

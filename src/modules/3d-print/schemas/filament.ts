@@ -37,10 +37,6 @@ export class Filament extends BaseSchema {
   })
   type: string;
 
-  //   是否为模板耗材，true 相同品牌 类型的耗材自动带入模板信息
-  @Prop({ type: Boolean, default: false })
-  isTemplate: boolean;
-
   @Prop({ type: String })
   description: string;
 

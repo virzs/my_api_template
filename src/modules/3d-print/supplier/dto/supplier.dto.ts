@@ -49,4 +49,10 @@ export class SupplierDto {
   @IsOptional()
   @Expose()
   url: string;
+
+  @ApiProperty({ description: '耗材类型' })
+  @IsArray()
+  @IsOptional()
+  @Expose()
+  filamentType: string[];
 }

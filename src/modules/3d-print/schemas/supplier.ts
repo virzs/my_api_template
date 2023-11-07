@@ -27,6 +27,13 @@ export class Supplier extends BaseSchema {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: '3DPrintFilament' }],
   })
   filament: string[];
+
+  @Prop({
+    type: [
+      { type: mongoose.Schema.Types.ObjectId, ref: '3DPrintFilamentType' },
+    ],
+  })
+  filamentType: string[];
 }
 
 export const SupplierSchema = SchemaFactory.createForClass(Supplier);
