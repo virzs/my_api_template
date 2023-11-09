@@ -16,5 +16,6 @@ import { FilamentSchema } from '../schemas/filament';
       },
     ]),
   ],
+  exports: [FilamentService],
 })
 export class FilamentModule {}

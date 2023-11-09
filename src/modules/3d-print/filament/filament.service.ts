@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Filament } from '../schemas/filament';
+import { The3dPrintFilament } from '../schemas/filament';
 import { FilamentPageDto } from './dto/page.dto';
 import { Response } from 'src/utils/response';
 import { FilamentDto, FilamentListDto } from './dto/filament.dto';
@@ -9,8 +9,8 @@ import { FilamentDto, FilamentListDto } from './dto/filament.dto';
 @Injectable()
 export class FilamentService {
   constructor(
-    @InjectModel('3DPrintFilament')
-    private readonly filamentModel: Model<Filament>,
+    @InjectModel(The3dPrintFilament.name)
+    private readonly filamentModel: Model<The3dPrintFilament>,
   ) {}
 
   async page(params: FilamentPageDto) {

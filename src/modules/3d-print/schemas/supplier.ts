@@ -1,9 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import BaseSchema from 'src/public/schema/base.schema';
+import { The3dPrintFilament } from './filament';
+import { The3dPrintFilamentType } from './filament-type';
 
 @Schema({ timestamps: true })
-export class Supplier extends BaseSchema {
+export class The3dPrintSupplier extends BaseSchema {
   @Prop({ type: String, required: true, unique: true })
   name: string;
 
@@ -24,16 +26,21 @@ export class Supplier extends BaseSchema {
   url: string;
 
   @Prop({
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: '3DPrintFilament' }],
+    type: [
+      { type: mongoose.Schema.Types.ObjectId, ref: The3dPrintFilament.name },
+    ],
   })
-  filament: string[];
+  filament: The3dPrintFilament[];
 
   @Prop({
     type: [
-      { type: mongoose.Schema.Types.ObjectId, ref: '3DPrintFilamentType' },
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: The3dPrintFilamentType.name,
+      },
     ],
   })
-  filamentType: string[];
+  filamentType: The3dPrintFilamentType[];
 }
 
-export const SupplierSchema = SchemaFactory.createForClass(Supplier);
+export const SupplierSchema = SchemaFactory.createForClass(The3dPrintSupplier);

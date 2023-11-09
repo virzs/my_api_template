@@ -1,47 +1,44 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import BaseSchema from 'src/public/schema/base.schema';
+import { The3dPrintFilamentType } from './filament-type';
+import { The3dPrintFilamentPrice } from './filament-price';
 
 @Schema({ timestamps: true })
-export class Filament extends BaseSchema {
-  @Prop({ type: String, required: true })
-  name: string;
-
+export class The3dPrintFilament extends BaseSchema {
   //   供应商
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: '3DPrintSupplier' })
   supplier: string;
 
-  @Prop({ type: String, required: true })
-  color: string;
-
-  //   实际重量
-  @Prop({ type: Number, required: true })
-  actualWeight: number;
+  // 耗材颜色
+  // TODO 耗材颜色用数据库里的颜色表
 
   //   标称重量
   @Prop({ type: Number, default: 1000 })
   nominalWeight: number;
 
-  @Prop({ type: Number, required: true })
-  price: number;
-
-  //   供应商 耗材编号
-  @Prop({ type: String })
-  serialNumber: string;
-
   //   耗材种类
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
-    ref: '3DPrintSupplierFilamentType',
+    ref: The3dPrintFilamentType.name,
     required: true,
   })
-  type: string;
+  type: The3dPrintFilamentType;
+
+  // 耗材每个颜色对应的价格
+  @Prop({
+    type: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: The3dPrintFilamentPrice.name,
+      },
+    ],
+    required: true,
+  })
+  price: The3dPrintFilamentPrice[];
 
   @Prop({ type: String })
   description: string;
-
-  @Prop({ type: Number, required: true, default: 0 })
-  status: number;
 }
 
-export const FilamentSchema = SchemaFactory.createForClass(Filament);
+export const FilamentSchema = SchemaFactory.createForClass(The3dPrintFilament);

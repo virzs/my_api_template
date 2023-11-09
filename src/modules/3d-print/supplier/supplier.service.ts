@@ -1,16 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Supplier } from '../schemas/supplier';
 import { SupplierPageDto } from './dto/page.dto';
 import { Response } from 'src/utils/response';
 import { SupplierDto } from './dto/supplier.dto';
+import { FilamentService } from '../filament/filament.service';
+import { The3dPrintSupplier } from '../schemas/supplier';
 
 @Injectable()
 export class SupplierService {
   constructor(
-    @InjectModel('3DPrintSupplier')
-    private readonly supplierModel: Model<Supplier>,
+    @InjectModel(The3dPrintSupplier.name)
+    private readonly supplierModel: Model<The3dPrintSupplier>,
+    private readonly filamentService: FilamentService,
   ) {}
 
   async page(params: SupplierPageDto, user: string) {
@@ -48,6 +50,7 @@ export class SupplierService {
   }
 
   async detail(id: string) {
+    const filament = await this.filamentService.list({ supplier: id });
     const result = await this.supplierModel
       .findById(id)
       .populate('creator', { password: 0, salt: 0 })
@@ -59,7 +62,11 @@ export class SupplierService {
         updatedAt: 0,
         __v: 0,
       })
+      .populate('filament')
       .exec();
+
+    result.filament = filament;
+
     return result;
   }
 
@@ -87,6 +94,14 @@ export class SupplierService {
           updatedAt: 0,
         },
       )
+      .populate('filamentType', {
+        creator: 0,
+        createdAt: 0,
+        updater: 0,
+        updatedAt: 0,
+        __v: 0,
+      })
+      .populate('filament')
       .exec();
 
     return result;

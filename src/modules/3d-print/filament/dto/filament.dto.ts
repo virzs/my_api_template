@@ -1,29 +1,18 @@
-import { Optional } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsMongoId, IsNumber, IsString, Min } from 'class-validator';
+import {
+  IsMongoId,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 
 export class FilamentDto {
-  @ApiProperty({ description: '名称' })
-  @IsString()
-  @Expose()
-  name: string;
-
   @ApiProperty({ description: '供应商' })
   @IsMongoId()
   @Expose()
   supplier: string;
-
-  @ApiProperty({ description: '颜色' })
-  @IsString()
-  @Expose()
-  color: string;
-
-  @ApiProperty({ description: '实际重量' })
-  @IsNumber()
-  @Min(0)
-  @Expose()
-  actualWeight: number;
 
   @ApiProperty({ description: '标称重量' })
   @IsNumber()
@@ -31,17 +20,11 @@ export class FilamentDto {
   @Expose()
   nominalWeight: number;
 
-  @ApiProperty({ description: '价格' })
+  @ApiProperty({ description: '标价' })
   @IsNumber()
   @Min(0)
   @Expose()
   price: number;
-
-  @ApiProperty({ description: '供应商耗材编号' })
-  @IsString()
-  @Optional()
-  @Expose()
-  serialNumber: string;
 
   @ApiProperty({ description: '耗材种类' })
   @IsMongoId()
@@ -50,21 +33,15 @@ export class FilamentDto {
 
   @ApiProperty({ description: '描述' })
   @IsString()
-  @Optional()
+  @IsOptional()
   @Expose()
-  description: string;
-
-  @ApiProperty({ description: '状态' })
-  @IsNumber()
-  @Optional()
-  @Expose()
-  status: number;
+  description?: string;
 }
 
 export class FilamentListDto {
   @ApiProperty({ description: '供应商' })
   @IsMongoId()
-  @Optional()
+  @IsOptional()
   @Expose()
   supplier: string;
 }
