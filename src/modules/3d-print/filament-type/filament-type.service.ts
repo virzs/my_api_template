@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { Model } from 'mongoose';
-import { FilamentType } from '../schemas/filament-type';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilamentTypeDto } from './dto/type.dto';
+import { The3dPrintFilamentType } from '../schemas/filament-type';
 
 @Injectable()
 export class FilamentTypeService {
   constructor(
-    @InjectModel('3DPrintFilamentType')
-    private readonly filamentTypeModel: Model<FilamentType>,
+    @InjectModel(The3dPrintFilamentType.name)
+    private readonly filamentTypeModel: Model<The3dPrintFilamentType>,
   ) {}
 
   async list() {

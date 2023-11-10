@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { SupplierService } from './supplier.service';
 import { SupplierController } from './supplier.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { SupplierSchema } from '../schemas/supplier';
+import { SupplierSchema, The3dPrintSupplier } from '../schemas/supplier';
 import { FilamentModule } from '../filament/filament.module';
 
 @Module({
@@ -11,9 +11,8 @@ import { FilamentModule } from '../filament/filament.module';
   imports: [
     MongooseModule.forFeature([
       {
-        name: '3DPrintSupplier',
+        name: The3dPrintSupplier.name,
         schema: SupplierSchema,
-        collection: '3d-print-supplier',
       },
     ]),
     FilamentModule,

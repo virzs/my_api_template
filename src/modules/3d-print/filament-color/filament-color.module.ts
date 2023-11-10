@@ -2,7 +2,10 @@ import { Module } from '@nestjs/common';
 import { FilamentColorService } from './filament-color.service';
 import { FilamentColorController } from './filament-color.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { FilamentColorSchema } from '../schemas/filament-color';
+import {
+  FilamentColorSchema,
+  The3dPrintFilamentColor,
+} from '../schemas/filament-color';
 
 @Module({
   controllers: [FilamentColorController],
@@ -10,9 +13,8 @@ import { FilamentColorSchema } from '../schemas/filament-color';
   imports: [
     MongooseModule.forFeature([
       {
-        name: '3DPrintFilamentColor',
+        name: The3dPrintFilamentColor.name,
         schema: FilamentColorSchema,
-        collection: '3d-print-filament-color',
       },
     ]),
   ],

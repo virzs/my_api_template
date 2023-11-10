@@ -1,11 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import {
+  IsHexColor,
   IsMongoId,
   IsNumber,
   IsOptional,
   IsString,
   Min,
+  ValidateIf,
+  ValidateNested,
 } from 'class-validator';
 
 export class FilamentDto {
@@ -20,12 +23,6 @@ export class FilamentDto {
   @Expose()
   nominalWeight: number;
 
-  @ApiProperty({ description: '标价' })
-  @IsNumber()
-  @Min(0)
-  @Expose()
-  price: number;
-
   @ApiProperty({ description: '耗材种类' })
   @IsMongoId()
   @Expose()
@@ -36,6 +33,31 @@ export class FilamentDto {
   @IsOptional()
   @Expose()
   description?: string;
+
+  @ApiProperty({ description: '价格' })
+  @ValidateNested()
+  @Expose()
+  price: FilamentPriceDto[];
+}
+
+class FilamentPriceDto {
+  @ApiProperty({ description: '价格' })
+  @IsNumber()
+  @ValidateIf((o) => o._id === undefined)
+  @Expose()
+  price: number;
+
+  @ApiProperty({ description: '颜色' })
+  @IsHexColor()
+  @ValidateIf((o) => o._id === undefined)
+  @Expose()
+  color: string;
+
+  @ApiProperty({ description: 'id' })
+  @IsMongoId()
+  @ValidateIf((o) => o.price === undefined && o.color === undefined)
+  @Expose()
+  _id?: string;
 }
 
 export class FilamentListDto {

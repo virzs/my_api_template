@@ -20,7 +20,7 @@ export class The3dPrintFilament extends BaseSchema {
   //   耗材种类
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
-    ref: The3dPrintFilamentType.name,
+    ref: 'The3dPrintFilamentType',
     required: true,
   })
   type: The3dPrintFilamentType;
@@ -30,7 +30,7 @@ export class The3dPrintFilament extends BaseSchema {
     type: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: The3dPrintFilamentPrice.name,
+        ref: 'The3dPrintFilamentPrice',
       },
     ],
     required: true,

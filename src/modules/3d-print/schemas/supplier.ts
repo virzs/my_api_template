@@ -36,7 +36,7 @@ export class The3dPrintSupplier extends BaseSchema {
     type: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: The3dPrintFilamentType.name,
+        ref: 'The3dPrintFilamentType',
       },
     ],
   })
