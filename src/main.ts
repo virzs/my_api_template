@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import * as os from 'os';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './public/filter/all';
 import { HttpExceptionFilter } from './public/filter/http';
@@ -35,7 +36,30 @@ async function bootstrap() {
   //过滤其他类型异常
   app.useGlobalFilters(new AllExceptionsFilter());
 
-  await app.listen(5151);
-  Logger.info(`http://localhost:${5151}`, '服务启动成功');
+  const ifaces = os.networkInterfaces();
+  let ip = '';
+  for (const dev in ifaces) {
+    ifaces[dev].forEach(function (details) {
+      if (details.family === 'IPv4' && (dev === 'en0' || dev === 'WLAN')) {
+        ip = details.address;
+      }
+    });
+  }
+
+  const port = process.env.PORT || 5151;
+
+  await app.listen(port);
+
+  Logger.info(`
+  服务启动成功
+
+  Local:   http://localhost:${port}
+  Network: http://${ip}:${port}
+
+  API 文档
+
+  Local:   http://localhost:${port}/doc
+  Network: http://${ip}:${port}/doc
+  `);
 }
 bootstrap();
