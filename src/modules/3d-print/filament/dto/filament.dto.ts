@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import {
-  IsHexColor,
   IsMongoId,
   IsNumber,
   IsOptional,
@@ -10,6 +9,26 @@ import {
   ValidateIf,
   ValidateNested,
 } from 'class-validator';
+
+class FilamentInfoDto {
+  @ApiProperty({ description: '价格' })
+  @IsNumber()
+  @ValidateIf((o) => o._id === undefined)
+  @Expose()
+  price: number;
+
+  @ApiProperty({ description: '颜色' })
+  @IsMongoId()
+  @ValidateIf((o) => o._id === undefined)
+  @Expose()
+  color: string;
+
+  @ApiProperty({ description: 'id' })
+  @IsMongoId()
+  @ValidateIf((o) => o.price === undefined && o.color === undefined)
+  @Expose()
+  _id?: string;
+}
 
 export class FilamentDto {
   @ApiProperty({ description: '供应商' })
@@ -34,30 +53,10 @@ export class FilamentDto {
   @Expose()
   description?: string;
 
-  @ApiProperty({ description: '价格' })
+  @ApiProperty({ description: '价格', type: [FilamentInfoDto] })
   @ValidateNested()
   @Expose()
-  price: FilamentPriceDto[];
-}
-
-class FilamentPriceDto {
-  @ApiProperty({ description: '价格' })
-  @IsNumber()
-  @ValidateIf((o) => o._id === undefined)
-  @Expose()
-  price: number;
-
-  @ApiProperty({ description: '颜色' })
-  @IsHexColor()
-  @ValidateIf((o) => o._id === undefined)
-  @Expose()
-  color: string;
-
-  @ApiProperty({ description: 'id' })
-  @IsMongoId()
-  @ValidateIf((o) => o.price === undefined && o.color === undefined)
-  @Expose()
-  _id?: string;
+  info: FilamentInfoDto[];
 }
 
 export class FilamentListDto {

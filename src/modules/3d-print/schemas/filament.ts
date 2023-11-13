@@ -2,12 +2,12 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import BaseSchema from 'src/public/schema/base.schema';
 import { The3dPrintFilamentType } from './filament-type';
-import { The3dPrintFilamentPrice } from './filament-price';
 import { The3dPrintSupplierName } from './supplier';
 import {
-  The3dPrintFilamentPriceName,
+  The3dPrintFilamentInfoName,
   The3dPrintFilamentTypeName,
 } from './ref-names';
+import { The3dPrintFilamentInfo } from './filament-info';
 
 @Schema({ timestamps: true })
 export class The3dPrintFilament extends BaseSchema {
@@ -35,12 +35,12 @@ export class The3dPrintFilament extends BaseSchema {
     type: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: The3dPrintFilamentPriceName,
+        ref: The3dPrintFilamentInfoName,
       },
     ],
     required: true,
   })
-  price: The3dPrintFilamentPrice[];
+  price: The3dPrintFilamentInfo[];
 
   @Prop({ type: String })
   description: string;

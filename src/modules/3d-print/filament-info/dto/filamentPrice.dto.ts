@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IsHexColor, IsMongoId, IsNumber, IsOptional } from 'class-validator';
 
-export class FilamentPriceDto {
+export class FilamentInfoDto {
   @ApiProperty({ description: '价格' })
   @IsNumber()
   @Expose()

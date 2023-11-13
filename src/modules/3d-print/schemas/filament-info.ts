@@ -7,7 +7,7 @@ import {
 } from './ref-names';
 
 @Schema({ timestamps: true })
-export class The3dPrintFilamentPrice extends BaseSchema {
+export class The3dPrintFilamentInfo extends BaseSchema {
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: The3dPrintFilamentName,
@@ -26,6 +26,6 @@ export class The3dPrintFilamentPrice extends BaseSchema {
   color: string;
 }
 
-export const FilamentPriceSchema = SchemaFactory.createForClass(
-  The3dPrintFilamentPrice,
+export const FilamentInfoSchema = SchemaFactory.createForClass(
+  The3dPrintFilamentInfo,
 );
