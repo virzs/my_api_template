@@ -19,9 +19,10 @@ import {
 import { SupplierPageDto } from './dto/page.dto';
 import { SupplierDto } from './dto/supplier.dto';
 import { User } from 'src/public/decorator/route-user.decoratpr';
+import { The3dPrintModuleBaseUtil } from '../util';
 
 @ApiTags('3D打印/供应商')
-@Controller('3dPrint/supplier')
+@Controller(`${The3dPrintModuleBaseUtil}/supplier`)
 export class SupplierController {
   constructor(private readonly supplierService: SupplierService) {}
 

@@ -11,9 +11,10 @@ import { FilamentTypeService } from './filament-type.service';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FilamentTypeDto } from './dto/type.dto';
 import { User } from 'src/public/decorator/route-user.decoratpr';
+import { The3dPrintModuleBaseUtil } from '../util';
 
 @ApiTags('3D打印/耗材类型')
-@Controller('3dPrint/filament-type')
+@Controller(`${The3dPrintModuleBaseUtil}/filament-type`)
 export class FilamentTypeController {
   constructor(private readonly filamentTypeService: FilamentTypeService) {}
 

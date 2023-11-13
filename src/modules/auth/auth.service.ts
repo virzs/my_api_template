@@ -123,13 +123,13 @@ export class AuthService {
     );
 
     if (!cache) {
-      throw new UnauthorizedException('登录已过期');
+      throw new UnauthorizedException('登录已过期 no cache');
     }
 
     const refreshToken = cache.find((item) => item.uuid === decoded.uuid);
 
     if (!refreshToken) {
-      throw new UnauthorizedException('登录已过期');
+      throw new UnauthorizedException('登录已过期 no refresh token');
     }
 
     const isExpired = await this.refreshTokenService.isRefreshTokenExpired(
@@ -142,7 +142,7 @@ export class AuthService {
       );
 
     if (isExpired) {
-      throw new UnauthorizedException('登录已过期');
+      throw new UnauthorizedException('登录已过期 expired');
     }
 
     const newUUid = uuidV4();

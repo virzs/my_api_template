@@ -13,9 +13,10 @@ import { ApiBody, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { FilamentPageDto } from './dto/page.dto';
 import { FilamentDto } from './dto/filament.dto';
 import { User } from 'src/public/decorator/route-user.decoratpr';
+import { The3dPrintModuleBaseUtil } from '../util';
 
 @ApiTags('3D打印/耗材')
-@Controller('3dPrint/filament')
+@Controller(`${The3dPrintModuleBaseUtil}/filament`)
 export class FilamentController {
   constructor(private readonly filamentService: FilamentService) {}
 
