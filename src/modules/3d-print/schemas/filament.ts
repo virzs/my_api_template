@@ -3,11 +3,16 @@ import mongoose from 'mongoose';
 import BaseSchema from 'src/public/schema/base.schema';
 import { The3dPrintFilamentType } from './filament-type';
 import { The3dPrintFilamentPrice } from './filament-price';
+import { The3dPrintSupplierName } from './supplier';
+import {
+  The3dPrintFilamentPriceName,
+  The3dPrintFilamentTypeName,
+} from './ref-names';
 
 @Schema({ timestamps: true })
 export class The3dPrintFilament extends BaseSchema {
   //   供应商
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: '3DPrintSupplier' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: The3dPrintSupplierName })
   supplier: string;
 
   // 耗材颜色
@@ -20,7 +25,7 @@ export class The3dPrintFilament extends BaseSchema {
   //   耗材种类
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'The3dPrintFilamentType',
+    ref: The3dPrintFilamentTypeName,
     required: true,
   })
   type: The3dPrintFilamentType;
@@ -30,7 +35,7 @@ export class The3dPrintFilament extends BaseSchema {
     type: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'The3dPrintFilamentPrice',
+        ref: The3dPrintFilamentPriceName,
       },
     ],
     required: true,

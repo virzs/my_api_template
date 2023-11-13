@@ -3,6 +3,12 @@ import mongoose from 'mongoose';
 import BaseSchema from 'src/public/schema/base.schema';
 import { The3dPrintFilament } from './filament';
 import { The3dPrintFilamentType } from './filament-type';
+import {
+  The3dPrintFilamentName,
+  The3dPrintFilamentTypeName,
+} from './ref-names';
+
+export const The3dPrintSupplierName = 'The3dPrintSupplier';
 
 @Schema({ timestamps: true })
 export class The3dPrintSupplier extends BaseSchema {
@@ -27,7 +33,7 @@ export class The3dPrintSupplier extends BaseSchema {
 
   @Prop({
     type: [
-      { type: mongoose.Schema.Types.ObjectId, ref: The3dPrintFilament.name },
+      { type: mongoose.Schema.Types.ObjectId, ref: The3dPrintFilamentName },
     ],
   })
   filament: The3dPrintFilament[];
@@ -36,7 +42,7 @@ export class The3dPrintSupplier extends BaseSchema {
     type: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'The3dPrintFilamentType',
+        ref: The3dPrintFilamentTypeName,
       },
     ],
   })
