@@ -11,6 +11,9 @@ class BaseSchema {
 
   @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Users' })
   updater: string;
+
+  @Prop({ type: Boolean, default: false })
+  isDelete: boolean;
 }
 
 export default BaseSchema;

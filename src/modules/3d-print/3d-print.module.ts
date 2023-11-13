@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { MaterialModule } from './material/material.module';
 import { ModelModule } from './model/model.module';
 import { ConstantModule } from './constant/constant.module';
 import { OrderModule } from './order/order.module';
@@ -12,7 +11,6 @@ import { FilamentInfoModule } from './filament-info/filament-info.module';
 @Module({
   imports: [
     SupplierModule,
-    MaterialModule,
     ModelModule,
     ConstantModule,
     OrderModule,

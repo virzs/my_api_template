@@ -12,7 +12,9 @@ export class FilamentTypeService {
   ) {}
 
   async list() {
-    const results = await this.filamentTypeModel.find().exec();
+    const results = await this.filamentTypeModel
+      .find({ isDelete: false })
+      .exec();
     return results;
   }
 
@@ -33,12 +35,18 @@ export class FilamentTypeService {
   }
 
   async delete(id: string) {
-    const result = await this.filamentTypeModel.findByIdAndDelete(id);
+    const result = await this.filamentTypeModel.findByIdAndUpdate(id, {
+      isDelete: true,
+    });
     return result;
   }
 
   async detail(id: string) {
-    const result = await this.filamentTypeModel.findById(id).exec();
+    const result = await this.filamentTypeModel
+      .findById(id, {
+        isDelete: false,
+      })
+      .exec();
     return result;
   }
 }

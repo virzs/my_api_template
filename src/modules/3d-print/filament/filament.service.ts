@@ -17,7 +17,7 @@ export class FilamentService {
     const { page = 1, pageSize = 10 } = params;
 
     const results = await this.filamentModel
-      .find()
+      .find({ isDelete: false })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .populate('creator', { password: 0, salt: 0 })
@@ -39,7 +39,7 @@ export class FilamentService {
 
   async detail(id: string) {
     const result = await this.filamentModel
-      .findById(id)
+      .findById(id, { isDelete: false })
       .populate('creator', { password: 0, salt: 0 })
       .populate('updater', { password: 0, salt: 0 })
       .populate('supplier')
@@ -69,7 +69,9 @@ export class FilamentService {
   }
 
   async delete(id: string) {
-    const result = await this.filamentModel.findByIdAndDelete(id);
+    const result = await this.filamentModel.findByIdAndUpdate(id, {
+      isDelete: true,
+    });
     return result;
   }
 

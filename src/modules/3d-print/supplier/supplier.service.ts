@@ -21,7 +21,7 @@ export class SupplierService {
     const results = await this.supplierModel
       .find({
         creator: user,
-        ...(type ? { type } : {}),
+        ...(type ? { type, isDelete: false } : { isDelete: false }),
       })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
@@ -52,7 +52,7 @@ export class SupplierService {
   async detail(id: string) {
     const filament = await this.filamentService.list({ supplier: id });
     const result = await this.supplierModel
-      .findById(id)
+      .findById(id, { isDelete: false })
       .populate('creator', { password: 0, salt: 0 })
       .populate('updater', { password: 0, salt: 0 })
       .populate('filamentType', {
@@ -79,14 +79,16 @@ export class SupplierService {
   }
 
   async delete(id: string) {
-    const result = await this.supplierModel.findByIdAndDelete(id);
+    const result = await this.supplierModel.findByIdAndUpdate(id, {
+      isDelete: true,
+    });
     return result;
   }
 
   async list() {
     const result = await this.supplierModel
       .find(
-        {},
+        { isDelete: false },
         {
           creator: 0,
           updater: 0,
