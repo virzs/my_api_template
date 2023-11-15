@@ -40,7 +40,7 @@ export class The3dPrintFilament extends BaseSchema {
     ],
     required: true,
   })
-  price: The3dPrintFilamentInfo[];
+  info: The3dPrintFilamentInfo[];
 
   @Prop({ type: String })
   description: string;

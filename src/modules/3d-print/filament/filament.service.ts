@@ -5,12 +5,14 @@ import { The3dPrintFilament } from '../schemas/filament';
 import { FilamentPageDto } from './dto/page.dto';
 import { Response } from 'src/utils/response';
 import { FilamentDto, FilamentListDto } from './dto/filament.dto';
+import { FilamentInfoService } from '../filament-info/filament-info.service';
 
 @Injectable()
 export class FilamentService {
   constructor(
     @InjectModel(The3dPrintFilament.name)
     private readonly filamentModel: Model<The3dPrintFilament>,
+    private readonly filamentinfoService: FilamentInfoService,
   ) {}
 
   async page(params: FilamentPageDto) {
@@ -43,6 +45,7 @@ export class FilamentService {
       .populate('creator', { password: 0, salt: 0 })
       .populate('updater', { password: 0, salt: 0 })
       .populate('supplier')
+      .populate('info')
       .populate('type', {
         creator: 0,
         createdAt: 0,
@@ -57,6 +60,18 @@ export class FilamentService {
 
   async create(body: FilamentDto, user: string) {
     const result = await this.filamentModel.create({ ...body, creator: user });
+
+    if (result._id) {
+      const info = await this.filamentinfoService.createOrUpdate(
+        result._id.toString(),
+        body.info,
+      );
+
+      result.info = info;
+
+      return result;
+    }
+
     return result;
   }
 
@@ -65,6 +80,10 @@ export class FilamentService {
       ...body,
       updater: user,
     });
+    const info = await this.filamentinfoService.createOrUpdate(id, body.info);
+
+    result.info = info;
+
     return result;
   }
 
@@ -72,6 +91,11 @@ export class FilamentService {
     const result = await this.filamentModel.findByIdAndUpdate(id, {
       isDelete: true,
     });
+
+    await this.filamentinfoService.deleteByIds(
+      result.info as unknown as string[],
+    );
+
     return result;
   }
 

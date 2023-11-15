@@ -19,3 +19,10 @@ export class FilamentInfoDto {
   @Expose()
   _id?: string;
 }
+
+export class FilamentInfoWithParentDto extends FilamentInfoDto {
+  @ApiProperty({ description: '耗材id' })
+  @IsMongoId()
+  @Expose()
+  filament: string;
+}

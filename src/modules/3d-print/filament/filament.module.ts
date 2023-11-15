@@ -3,6 +3,7 @@ import { FilamentService } from './filament.service';
 import { FilamentController } from './filament.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FilamentSchema, The3dPrintFilament } from '../schemas/filament';
+import { FilamentInfoModule } from '../filament-info/filament-info.module';
 
 @Module({
   controllers: [FilamentController],
@@ -15,6 +16,7 @@ import { FilamentSchema, The3dPrintFilament } from '../schemas/filament';
         collection: '3d-print-filament',
       },
     ]),
+    FilamentInfoModule,
   ],
   exports: [FilamentService],
 })
