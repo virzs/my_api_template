@@ -17,5 +17,6 @@ import { FilamentModule } from '../filament/filament.module';
     ]),
     FilamentModule,
   ],
+  exports: [SupplierService],
 })
 export class SupplierModule {}

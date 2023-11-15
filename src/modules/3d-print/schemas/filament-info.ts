@@ -1,7 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
 import BaseSchema from 'src/public/schema/base.schema';
-import { The3dPrintFilamentColorName } from './ref-names';
 
 @Schema({ timestamps: true })
 export class The3dPrintFilamentInfo extends BaseSchema {
@@ -9,8 +7,7 @@ export class The3dPrintFilamentInfo extends BaseSchema {
   price: number;
 
   @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: The3dPrintFilamentColorName,
+    type: String,
     required: true,
   })
   color: string;
@@ -19,3 +16,7 @@ export class The3dPrintFilamentInfo extends BaseSchema {
 export const FilamentInfoSchema = SchemaFactory.createForClass(
   The3dPrintFilamentInfo,
 );
+
+FilamentInfoSchema.pre('find', function () {
+  this.where({ isDelete: false });
+});

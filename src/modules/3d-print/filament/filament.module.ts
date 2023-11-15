@@ -4,6 +4,7 @@ import { FilamentController } from './filament.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FilamentSchema, The3dPrintFilament } from '../schemas/filament';
 import { FilamentInfoModule } from '../filament-info/filament-info.module';
+import { SupplierSchema, The3dPrintSupplier } from '../schemas/supplier';
 
 @Module({
   controllers: [FilamentController],
@@ -13,7 +14,12 @@ import { FilamentInfoModule } from '../filament-info/filament-info.module';
       {
         name: The3dPrintFilament.name,
         schema: FilamentSchema,
-        collection: '3d-print-filament',
+      },
+    ]),
+    MongooseModule.forFeature([
+      {
+        name: The3dPrintSupplier.name,
+        schema: SupplierSchema,
       },
     ]),
     FilamentInfoModule,
