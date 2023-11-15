@@ -23,6 +23,7 @@ import { BackgroundModule } from './modules/navigate/background/background.modul
 import { UserSettingModule } from './modules/navigate/user-setting/user-setting.module';
 import { ResourceModule } from './modules/resource/resource.module';
 import { TDPrintModule } from './modules/3d-print/3d-print.module';
+import { QiniuModule } from './modules/system/qiniu/qiniu.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { TDPrintModule } from './modules/3d-print/3d-print.module';
     UserSettingModule,
     ResourceModule,
     TDPrintModule,
+    QiniuModule,
   ],
   providers: [
     JwtService,
