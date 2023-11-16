@@ -32,6 +32,14 @@ export class FilamentInfoService {
       }),
     );
 
+    const infos = await this.filamentInfoModel.find({ filament: filamentId });
+    // 如果 body 里面没有的，就设置 isDelete 为 true
+    const ids = infos.map((item) => item._id.toString());
+    const deleteIds = ids.filter(
+      (id) => !body.map((item) => item._id).includes(id),
+    );
+    await this.deleteByIds(deleteIds);
+
     return results;
   }
 
