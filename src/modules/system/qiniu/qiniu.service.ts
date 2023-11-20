@@ -11,5 +11,20 @@ export class QiniuService {
 
     qiniu.conf.ACCESS_KEY = config.accessKey;
     qiniu.conf.SECRET_KEY = config.secretKey;
+
+    return qiniu;
+  }
+
+  async getPutPolicy() {
+    const q = await this.getQiniu();
+
+    const options = {
+      scope: '',
+      expires: 7200,
+    };
+
+    const putPolicy = new q.rs.PutPolicy(options);
+
+    return putPolicy.uploadToken();
   }
 }
