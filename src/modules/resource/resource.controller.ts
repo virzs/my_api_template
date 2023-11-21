@@ -20,7 +20,6 @@ export class ResourceController {
   @Post('/:dir')
   @ApiOperation({ summary: '上传文件' })
   @UseInterceptors(FileInterceptor('file'))
-  @RequireLogin()
   async uploadFile(
     @Param('dir') dir: string,
     @UploadedFile() file: Express.Multer.File,
@@ -32,7 +31,6 @@ export class ResourceController {
   // 获取访问链接
   @Get('/:id')
   @ApiOperation({ summary: '获取访问链接' })
-  @RequireLogin()
   async getVisitUrl(@Param('id') id: string) {
     const result = await this.resourceService.getVisitUrl(id);
     return result;
