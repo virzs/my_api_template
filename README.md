@@ -78,6 +78,22 @@ const document = SwaggerModule.createDocument(app, config);
 > redis-server
 ```
 
+2. 查询中间件
+
+```ts
+import { baseSchemaPreFind } from 'src/public/schema/base.schema';
+
+xxxSchema.pre('find', baseSchemaPreFind);
+```
+
+3. 返回数据中不显示某些字段
+
+```ts
+import { baseSchemaToJSON } from 'src/public/schema/base.schema';
+
+xxxSchema.methods.toJSON = baseSchemaToJSON;
+```
+
 ## License
 
 Nest is [MIT licensed](LICENSE).
@@ -87,3 +103,7 @@ Nest is [MIT licensed](LICENSE).
 - 登录
 - 权限
 - 七牛云对象存储
+
+```
+
+```

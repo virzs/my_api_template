@@ -7,5 +7,6 @@ import { ConfigModule } from '@nestjs/config';
   controllers: [QiniuController],
   providers: [QiniuService],
   imports: [ConfigModule],
+  exports: [QiniuService],
 })
 export class QiniuModule {}

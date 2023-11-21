@@ -24,6 +24,7 @@ import { UserSettingModule } from './modules/navigate/user-setting/user-setting.
 import { ResourceModule } from './modules/resource/resource.module';
 import { TDPrintModule } from './modules/3d-print/3d-print.module';
 import { QiniuModule } from './modules/system/qiniu/qiniu.module';
+import qiniu from './config/qiniu';
 
 @Module({
   imports: [
@@ -32,7 +33,7 @@ import { QiniuModule } from './modules/system/qiniu/qiniu.module';
       ignoreEnvFile: false,
       ignoreEnvVars: false,
       isGlobal: true,
-      load: [db, redis, email],
+      load: [db, redis, email, qiniu],
     }),
     // mongoDB 连接配置
     MongooseModule.forRootAsync({
