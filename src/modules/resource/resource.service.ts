@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { QiniuService } from '../system/qiniu/qiniu.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { ResourceName } from 'src/schemas/ref-names';
@@ -19,5 +19,20 @@ export class ResourceService {
     const dbResult = await this.resourceModel.create(result);
 
     return dbResult;
+  }
+
+  //   获取访问链接
+  async getVisitUrl(id: string) {
+    const resource = await this.resourceModel.findById(id);
+
+    if (!resource) {
+      throw new BadRequestException('资源不存在');
+    }
+
+    const resut = await this.qiniuService.getVisitUrl(
+      `${resource.dir}/${resource.key}`,
+    );
+
+    return resut;
   }
 }

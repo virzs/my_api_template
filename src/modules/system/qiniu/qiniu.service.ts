@@ -82,4 +82,21 @@ export class QiniuService {
       return putFile;
     }
   }
+
+  // 获取访问链接
+  async getVisitUrl(key: string) {
+    const config = await this.getConfig();
+    const mac = await this.getMac();
+
+    const bucketManager = new qiniu.rs.BucketManager(mac, null);
+    const publicBucketDomain = config.bucketDomain;
+    const deadline = Number((Date.now() / 1000 + 3600).toFixed(0));
+    const publicDownloadUrl = bucketManager.privateDownloadUrl(
+      publicBucketDomain,
+      key,
+      deadline,
+    );
+
+    return publicDownloadUrl;
+  }
 }

@@ -1,5 +1,6 @@
 import {
   Controller,
+  Get,
   Param,
   Post,
   UploadedFile,
@@ -25,6 +26,15 @@ export class ResourceController {
     @UploadedFile() file: Express.Multer.File,
   ) {
     const result = await this.resourceService.uploadFile(dir, file);
+    return result;
+  }
+
+  // 获取访问链接
+  @Get('/:id')
+  @ApiOperation({ summary: '获取访问链接' })
+  @RequireLogin()
+  async getVisitUrl(@Param('id') id: string) {
+    const result = await this.resourceService.getVisitUrl(id);
     return result;
   }
 }
