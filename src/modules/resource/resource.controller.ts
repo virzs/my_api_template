@@ -7,7 +7,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ResourceService } from './resource.service';
-import { RequireLogin } from 'src/public/decorator/require_login.decorator';
 import { FileInterceptor } from '@nestjs/platform-express/multer';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 

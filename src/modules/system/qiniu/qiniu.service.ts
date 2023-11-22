@@ -27,6 +27,13 @@ export class QiniuService {
     return mac;
   }
 
+  async getBucketManager() {
+    const mac = await this.getMac();
+
+    const bucketManager = new qiniu.rs.BucketManager(mac, null);
+    return bucketManager;
+  }
+
   async getPutPolicy(key: string) {
     const config = await this.getConfig();
     const q = await this.getQiniu();
@@ -77,6 +84,7 @@ export class QiniuService {
         key: hashName,
         mimetype: file.mimetype,
         dir: dir,
+        size: file.size,
       };
     } else {
       return putFile;
@@ -86,9 +94,8 @@ export class QiniuService {
   // 获取访问链接
   async getVisitUrl(key: string) {
     const config = await this.getConfig();
-    const mac = await this.getMac();
 
-    const bucketManager = new qiniu.rs.BucketManager(mac, null);
+    const bucketManager = await this.getBucketManager();
     const publicBucketDomain = config.bucketDomain;
     const deadline = Number((Date.now() / 1000 + 3600).toFixed(0));
     const publicDownloadUrl = bucketManager.privateDownloadUrl(
@@ -98,5 +105,23 @@ export class QiniuService {
     );
 
     return publicDownloadUrl;
+  }
+
+  // 删除文件
+  async deleteFile(key: string) {
+    const bucketManager = await this.getBucketManager();
+    const config = await this.getConfig();
+
+    const res = await new Promise((resolve, reject) => {
+      bucketManager.delete(config.bucket, key, (err, respBody, respInfo) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(respInfo);
+        }
+      });
+    });
+
+    return res;
   }
 }

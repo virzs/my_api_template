@@ -35,4 +35,19 @@ export class ResourceService {
 
     return resut;
   }
+
+  // 根据 id 删除文件
+  async deleteFile(id: string) {
+    const resource = await this.resourceModel.findById(id);
+
+    if (!resource) {
+      throw new BadRequestException('资源不存在');
+    }
+
+    const result = await this.qiniuService.deleteFile(
+      `${resource.dir}/${resource.key}`,
+    );
+
+    return result;
+  }
 }

@@ -17,6 +17,9 @@ export class Resource extends BaseSchema {
 
   @Prop({ type: String, required: true })
   dir: string;
+
+  @Prop({ type: Number, required: true })
+  size: number;
 }
 
 export const ResourceSchema = SchemaFactory.createForClass(Resource);
