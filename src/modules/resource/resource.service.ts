@@ -16,9 +16,9 @@ export class ResourceService {
   async uploadFile(dir: string, file: Express.Multer.File) {
     const result = await this.qiniuService.uploadFile(dir, file);
 
-    const dbResult = await this.resourceModel.create(result);
+    const dbResult = (await this.resourceModel.create(result)).toJSON();
 
-    return dbResult;
+    return { ...dbResult, url: result.url };
   }
 
   //   获取访问链接

@@ -78,6 +78,8 @@ export class QiniuService {
 
     stream.destroy();
 
+    const url = await this.getVisitUrl(key);
+
     if (putFile.key) {
       return {
         name: file.originalname,
@@ -85,6 +87,7 @@ export class QiniuService {
         mimetype: file.mimetype,
         dir: dir,
         size: file.size,
+        url,
       };
     } else {
       return putFile;

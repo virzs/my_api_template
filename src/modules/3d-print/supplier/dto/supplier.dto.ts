@@ -7,7 +7,9 @@ import {
   IsOptional,
   IsString,
   IsUrl,
+  ValidateNested,
 } from 'class-validator';
+import { ResourceDto } from 'src/public/dto/resource.dto';
 
 export class SupplierDto {
   @ApiProperty({ description: '品牌名称' })
@@ -21,11 +23,11 @@ export class SupplierDto {
   @Expose()
   nameEn: string;
 
-  @ApiProperty({ description: '品牌logo' })
-  @IsString({ message: '品牌logo必须是字符串' })
+  @ApiProperty({ description: '品牌logo', type: ResourceDto })
+  @ValidateNested()
   @IsOptional()
   @Expose()
-  logo: string;
+  logo: ResourceDto;
 
   @ApiProperty({ description: '品牌描述' })
   @IsString({ message: '品牌描述必须是字符串' })

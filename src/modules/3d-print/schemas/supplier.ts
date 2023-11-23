@@ -7,6 +7,8 @@ import {
   The3dPrintFilamentName,
   The3dPrintFilamentTypeName,
 } from './ref-names';
+import { Resource } from 'src/schemas/resource';
+import { ResourceName } from 'src/schemas/ref-names';
 
 export const The3dPrintSupplierName = 'The3dPrintSupplier';
 
@@ -18,8 +20,8 @@ export class The3dPrintSupplier extends BaseSchema {
   @Prop({ type: String })
   nameEn: string;
 
-  @Prop({ type: String })
-  logo: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: ResourceName })
+  logo: Resource;
 
   @Prop({ type: String })
   description: string;

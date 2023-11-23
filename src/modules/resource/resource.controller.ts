@@ -16,13 +16,14 @@ export class ResourceController {
   constructor(private readonly resourceService: ResourceService) {}
 
   // 上传文件
-  @Post('/:dir')
+  @Post('/:dirs')
   @ApiOperation({ summary: '上传文件' })
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
-    @Param('dir') dir: string,
+    @Param('dirs') dir: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
+    console.log(dir);
     const result = await this.resourceService.uploadFile(dir, file);
     return result;
   }

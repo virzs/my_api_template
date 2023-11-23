@@ -34,6 +34,13 @@ export class SupplierService {
         updatedAt: 0,
         __v: 0,
       })
+      .populate('logo', {
+        creator: 0,
+        createdAt: 0,
+        updater: 0,
+        updatedAt: 0,
+        __v: 0,
+      })
       .exec();
 
     const total = await this.supplierModel.countDocuments({
@@ -45,7 +52,11 @@ export class SupplierService {
   }
 
   async create(body: SupplierDto, user: string) {
-    const result = await this.supplierModel.create({ ...body, creator: user });
+    const result = await this.supplierModel.create({
+      ...body,
+      creator: user,
+      logo: body.logo?._id,
+    });
     return result;
   }
 
@@ -63,6 +74,7 @@ export class SupplierService {
         __v: 0,
       })
       .populate('filament')
+      .populate('logo')
       .exec();
 
     result.filament = filament;
@@ -74,6 +86,7 @@ export class SupplierService {
     const result = await this.supplierModel.findByIdAndUpdate(id, {
       ...body,
       updater: user,
+      logo: body.logo?._id,
     });
     return result;
   }
