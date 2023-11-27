@@ -13,11 +13,14 @@ import { JwtService } from '@nestjs/jwt';
 import { RefreshTokenService } from '../refresh-token/refresh-token.service';
 import { Cache } from 'cache-manager';
 import { jwtConfig } from 'src/config/jwt';
-import { v4 as uuidV4 } from 'uuid';
 import { RedisConstants } from 'src/common/constants/redis';
 import { RegisterDto } from './dtos/register.dto';
 import { LoginDto } from './dtos/login.dto';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
+
+interface RedisTokenCache {
+  [key: string]: string;
+}
 
 @Injectable()
 export class AuthService {
@@ -76,13 +79,12 @@ export class AuthService {
     return { message: '注册成功' };
   }
 
-  async login(body: LoginDto) {
+  async login(body: LoginDto, headers) {
     const { password, email } = body;
+    const userAgent = headers['user-agent'];
     const user = await this.validateUser(email, password);
 
-    const uuid = uuidV4();
-
-    const access_token = this.jwtService.sign({ user, uuid });
+    const access_token = this.jwtService.sign({ user, userAgent });
 
     const refresh_token = this.refreshTokenService.createRefreshToken(user);
 
@@ -93,16 +95,24 @@ export class AuthService {
     const ttl = this.refreshTokenService.getTTL();
 
     // 获取当前用户所有的refreshToken
-    const cache: string[] = await this.cacheManager.get(
+    const cache: RedisTokenCache = await this.cacheManager.get(
       `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${user._id.toString()}`,
     );
 
     // 将新的refreshToken存入缓存，并限制最大设备数
+    const newCache = {
+      ...cache,
+      [userAgent]: refresh_token,
+    };
+    const cacheKeys = Object.keys(newCache);
+    if (cacheKeys.length > jwtConfig.refreshToken.maxDevices) {
+      // 删除最早的一个refreshToken
+      delete newCache[cacheKeys[0]];
+    }
+    console.log(newCache);
     this.cacheManager.set(
       `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${user._id.toString()}`,
-      [...(cache ? cache : []), { refresh_token, uuid }].slice(
-        -jwtConfig.refreshToken.maxDevices,
-      ),
+      newCache,
       ttl,
     );
 
@@ -113,14 +123,15 @@ export class AuthService {
     };
   }
 
-  async refreshToken(body: RefreshTokenDto) {
+  async refreshToken(body: RefreshTokenDto, headers) {
     const { refreshToken: postRefreshToken } = body;
+    const userAgent = headers['user-agent'];
 
     const decoded = await this.jwtService.verifyAsync(postRefreshToken);
 
     if (!decoded) throw new UnauthorizedException('登录已过期');
 
-    const cache: any[] = await this.cacheManager.get(
+    const cache: RedisTokenCache = await this.cacheManager.get(
       `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${decoded._id.toString()}`,
     );
 
@@ -128,30 +139,26 @@ export class AuthService {
       throw new UnauthorizedException('登录已过期 no cache');
     }
 
-    const refreshToken = cache.find((item) => item.uuid === decoded.uuid);
+    const refreshToken = cache[userAgent];
 
     if (!refreshToken) {
       throw new UnauthorizedException('登录已过期 no refresh token');
     }
 
     const isExpired = await this.refreshTokenService.isRefreshTokenExpired(
-      refreshToken.refresh_token,
+      refreshToken,
     );
 
     const isExpiresSoon =
-      await this.refreshTokenService.isRefreshTokenExpiresSoon(
-        refreshToken.refresh_token,
-      );
+      await this.refreshTokenService.isRefreshTokenExpiresSoon(refreshToken);
 
     if (isExpired) {
       throw new UnauthorizedException('登录已过期 expired');
     }
 
-    const newUUid = uuidV4();
-
     const newAccessToken = this.jwtService.sign({
       user: decoded.user,
-      uuid: newUUid,
+      userAgent,
     });
 
     const newTTL = this.refreshTokenService.getTTL();
@@ -162,15 +169,10 @@ export class AuthService {
 
     this.cacheManager.set(
       `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${decoded._id.toString()}`,
-      cache.map((item) => {
-        if (item.uuid === decoded.uuid) {
-          item.uuid = newUUid;
-        }
-        if (isExpiresSoon) {
-          item.refresh_token = newRefreshToken;
-        }
-        return item;
-      }),
+      {
+        ...cache,
+        [userAgent]: newRefreshToken,
+      },
       newTTL,
     );
 
@@ -180,7 +182,9 @@ export class AuthService {
     };
   }
 
-  async logout(accessToken: string, refreshToken: string) {
+  async logout(accessToken: string, refreshToken: string, headers) {
+    const userAgent = headers['user-agent'];
+
     const accessCache = await this.cacheManager.get(`
     ${RedisConstants.AUTH_TOKEN_BLACKLIST_KEY}:${accessToken}`);
     const refreshCache = await this.cacheManager.get(`

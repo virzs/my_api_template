@@ -25,16 +25,16 @@ export class AuthController {
   @ApiBody({ type: LoginDto })
   @Post('login')
   @RequireLogin()
-  login(@Body() body: LoginDto) {
-    return this.authService.login(body);
+  login(@Body() body: LoginDto, @Headers() headers) {
+    return this.authService.login(body, headers);
   }
 
   @ApiOperation({ summary: '刷新token' })
   @ApiBody({ type: RefreshTokenDto })
   @Post('refresh-token')
   @RequireLogin()
-  refreshToken(@Body() body: RefreshTokenDto) {
-    return this.authService.refreshToken(body);
+  refreshToken(@Body() body: RefreshTokenDto, @Headers() headers) {
+    return this.authService.refreshToken(body, headers);
   }
 
   @ApiOperation({ summary: '退出登录' })
@@ -43,7 +43,8 @@ export class AuthController {
   logout(
     @Headers('authorization') authorization: string,
     @Body() body: LogoutDto,
+    @Headers() headers,
   ) {
-    return this.authService.logout(authorization, body.refreshToken);
+    return this.authService.logout(authorization, body.refreshToken, headers);
   }
 }
