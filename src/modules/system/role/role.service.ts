@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { PageDto } from 'src/dtos/page';
+import { PageDto } from 'src/public/dto/page';
 import { Role } from 'src/schemas/role';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { Response } from 'src/utils/response';

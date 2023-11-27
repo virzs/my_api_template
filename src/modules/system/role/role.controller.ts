@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { RoleService } from './role.service';
 import { ApiBody, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { PageDto } from 'src/dtos/page';
+import { PageDto } from 'src/public/dto/page';
 import { CreateRoleDto } from './dto/create-role.dto';
 
 @ApiTags('角色')

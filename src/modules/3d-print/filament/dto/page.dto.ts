@@ -1,3 +1,3 @@
-import { PageDto } from 'src/dtos/page';
+import { PageDto } from 'src/public/dto/page';
 
 export class FilamentPageDto extends PageDto {}
