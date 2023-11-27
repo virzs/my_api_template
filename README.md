@@ -64,6 +64,10 @@ const document = SwaggerModule.createDocument(app, config);
 +fs.writeFileSync('./api-json.json', JSON.stringify(document));
 ```
 
+## 环境变量
+
+[ENV Doc](./docs//env.md)
+
 ## 常见问题
 
 1. 启动报错，检查 redis 配置，`redis-cli shutdown` 关闭 redis 服务，`redis-server` 启动 redis 服务
