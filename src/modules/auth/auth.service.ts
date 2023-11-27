@@ -118,8 +118,10 @@ export class AuthService {
 
     const decoded = await this.jwtService.verifyAsync(postRefreshToken);
 
+    if (!decoded) throw new UnauthorizedException('登录已过期');
+
     const cache: any[] = await this.cacheManager.get(
-      `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${decoded.user._id.toString()}`,
+      `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${decoded._id.toString()}`,
     );
 
     if (!cache) {
@@ -159,7 +161,7 @@ export class AuthService {
     );
 
     this.cacheManager.set(
-      `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${decoded.user._id.toString()}`,
+      `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${decoded._id.toString()}`,
       cache.map((item) => {
         if (item.uuid === decoded.uuid) {
           item.uuid = newUUid;
