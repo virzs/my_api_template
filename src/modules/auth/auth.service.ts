@@ -132,7 +132,7 @@ export class AuthService {
     if (!decoded) throw new UnauthorizedException('登录已过期');
 
     const cache: RedisTokenCache = await this.cacheManager.get(
-      `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${decoded._id.toString()}`,
+      `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${decoded.user._id.toString()}`,
     );
 
     console.log(cache);
@@ -144,7 +144,9 @@ export class AuthService {
     const refreshToken = cache[userAgent];
 
     if (!refreshToken) {
-      throw new UnauthorizedException('登录已过期 no refresh token');
+      throw new UnauthorizedException(
+        '登录已过期或 userAgent 变更 no refresh token or userAgent changed',
+      );
     }
 
     const isExpired = await this.refreshTokenService.isRefreshTokenExpired(
@@ -159,19 +161,19 @@ export class AuthService {
     }
 
     const newAccessToken = this.jwtService.sign({
-      user: decoded,
+      user: decoded.user,
       userAgent,
     });
 
     const newTTL = this.refreshTokenService.getTTL();
 
     const newRefreshToken = this.refreshTokenService.createRefreshToken({
-      user: decoded,
+      user: decoded.user,
       userAgent,
     });
 
     this.cacheManager.set(
-      `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${decoded._id.toString()}`,
+      `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${decoded.user._id.toString()}`,
       {
         ...cache,
         [userAgent]: newRefreshToken,
