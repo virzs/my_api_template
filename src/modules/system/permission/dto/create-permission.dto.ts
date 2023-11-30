@@ -45,9 +45,4 @@ export class CreatePermissionDto {
   @IsOptional()
   @Expose()
   parent: string;
-
-  @ApiProperty({ description: '权限等级' })
-  @IsIn([0, 1, 2])
-  @Expose()
-  level: number;
 }
