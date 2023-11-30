@@ -109,7 +109,7 @@ export class AuthService {
       // 删除最早的一个refreshToken
       delete newCache[cacheKeys[0]];
     }
-    console.log(newCache);
+
     this.cacheManager.set(
       `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${user._id.toString()}`,
       newCache,
@@ -135,6 +135,8 @@ export class AuthService {
       `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${decoded._id.toString()}`,
     );
 
+    console.log(cache);
+
     if (!cache) {
       throw new UnauthorizedException('登录已过期 no cache');
     }
@@ -157,15 +159,16 @@ export class AuthService {
     }
 
     const newAccessToken = this.jwtService.sign({
-      user: decoded.user,
+      user: decoded,
       userAgent,
     });
 
     const newTTL = this.refreshTokenService.getTTL();
 
-    const newRefreshToken = this.refreshTokenService.createRefreshToken(
-      decoded.user,
-    );
+    const newRefreshToken = this.refreshTokenService.createRefreshToken({
+      user: decoded,
+      userAgent,
+    });
 
     this.cacheManager.set(
       `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${decoded._id.toString()}`,
@@ -178,7 +181,7 @@ export class AuthService {
 
     return {
       access_token: newAccessToken,
-      refresh_token: isExpiresSoon ? newRefreshToken : postRefreshToken,
+      ...(isExpiresSoon ? { refresh_token: newRefreshToken } : {}),
     };
   }
 

@@ -42,6 +42,6 @@ export class RefreshTokenService {
   }
 
   getTTL() {
-    return Math.floor(ms(jwtConfig.refreshToken.expiresIn) / 1000);
+    return Math.floor(ms(jwtConfig.refreshToken.expiresIn));
   }
 }

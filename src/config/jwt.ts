@@ -1,10 +1,10 @@
 export const jwtConfig = {
   accessToken: {
     secret: 'xxxx',
-    expiresIn: '1h',
+    expiresIn: '10min',
   },
   refreshToken: {
-    expiresIn: '10days',
+    expiresIn: '7days',
     maxDevices: 3, // 最大设备数
   },
 };
