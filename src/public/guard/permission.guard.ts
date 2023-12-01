@@ -38,12 +38,13 @@ export class PermissionGuard implements CanActivate {
 
     const { route, user } = request;
 
-    if (!user) {
+    if (!user?.user) {
       return true;
     }
 
     const { path, methods } = route;
-    const permissions = await this.userService.getPermissions(user);
+    console.log(path, methods, user);
+    const permissions = await this.userService.getPermissions(user.user);
 
     if (permissions === true) {
       return permissions;

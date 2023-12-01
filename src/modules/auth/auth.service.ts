@@ -86,7 +86,10 @@ export class AuthService {
 
     const access_token = this.jwtService.sign({ user, userAgent });
 
-    const refresh_token = this.refreshTokenService.createRefreshToken(user);
+    const refresh_token = this.refreshTokenService.createRefreshToken({
+      user,
+      userAgent,
+    });
 
     if (!user) {
       throw new BadRequestException('邮箱或密码错误');
@@ -134,7 +137,7 @@ export class AuthService {
     console.log(decoded);
 
     const cache: RedisTokenCache = await this.cacheManager.get(
-      `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${decoded._id.toString()}`,
+      `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${decoded.user._id.toString()}`,
     );
 
     console.log(cache);
@@ -163,19 +166,19 @@ export class AuthService {
     }
 
     const newAccessToken = this.jwtService.sign({
-      user: decoded,
+      user: decoded.user,
       userAgent,
     });
 
     const newTTL = this.refreshTokenService.getTTL();
 
     const newRefreshToken = this.refreshTokenService.createRefreshToken({
-      user: decoded,
+      user: decoded.user,
       userAgent,
     });
 
     this.cacheManager.set(
-      `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${decoded._id.toString()}`,
+      `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${decoded.user._id.toString()}`,
       {
         ...cache,
         [userAgent]: newRefreshToken,
