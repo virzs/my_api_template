@@ -47,4 +47,10 @@ export class PermissionController {
   remove(@Param('id') id: string) {
     return this.permissionService.delete(id);
   }
+
+  @Get(':id')
+  @ApiOperation({ summary: '权限详情' })
+  findOne(@Param('id') id: string) {
+    return this.permissionService.detail(id);
+  }
 }

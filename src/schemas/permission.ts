@@ -1,5 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import BaseSchema from 'src/public/schema/base.schema';
+import BaseSchema, {
+  baseSchemaPreFind,
+  baseSchemaToJSON,
+} from 'src/public/schema/base.schema';
 import mongoose from 'mongoose';
 
 @Schema({ timestamps: true })
@@ -26,3 +29,7 @@ export class Permission extends BaseSchema {
 }
 
 export const PermissionSchema = SchemaFactory.createForClass(Permission);
+
+PermissionSchema.pre('find', baseSchemaPreFind);
+
+PermissionSchema.methods.toJSON = baseSchemaToJSON;

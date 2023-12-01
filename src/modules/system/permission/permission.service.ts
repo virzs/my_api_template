@@ -109,4 +109,8 @@ export class PermissionService {
   async delete(id: string) {
     return this.deleteAll(id);
   }
+
+  async detail(id: string) {
+    return this.permissionModel.findById(id).populate('parent');
+  }
 }
