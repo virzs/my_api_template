@@ -14,6 +14,10 @@ class BaseSchema {
 
   @Prop({ type: Boolean, default: false })
   isDelete: boolean;
+
+  createdAt: Date;
+
+  updatedAt: Date;
 }
 
 // 默认查询中间件函数

@@ -16,74 +16,34 @@ export class PermissionService {
     return await this.permissionModel.find().lean();
   }
 
-  async treeInfo() {
-    const t = await this.permissionModel
-      .aggregate([
-        // {
-        //   $graphLookup: {
-        //     from: 'permission',
-        //     startWith: '$_id',
-        //     connectFromField: '_id',
-        //     connectToField: 'parent',
-        //     as: 'children',
-        //     depthField: 'depth',
-        //     maxDepth: 10, // 设置最大深度，避免无限递归
-        //   },
-        // },
-        {
-          $match: {
-            parent: null,
-          },
-        },
-        {
-          $graphLookup: {
-            from: 'permission',
-            startWith: '$_id',
-            connectFromField: '_id',
-            connectToField: 'children',
-            as: 'children',
-            restrictSearchWithMatch: { _id: 1 },
-          },
-        },
-        {
-          $lookup: {
-            from: 'permission',
-            localField: '_id',
-            foreignField: 'parent',
-            as: 'children',
-          },
-        },
-        {
-          $unwind: {
-            path: '$children',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $lookup: {
-            from: 'permission',
-            localField: 'children._id',
-            foreignField: 'parent',
-            as: 'children.children',
-          },
-        },
-        {
-          $group: {
-            _id: '$_id',
-            name: { $first: '$name' },
-            description: { $first: '$description' },
-            url: { $first: '$url' },
-            method: { $first: '$method' },
-            type: { $first: '$type' },
-            level: { $first: '$level' },
-            parent: { $first: '$parent' },
-            children: { $push: '$children' },
-          },
-        },
-      ])
-      .exec();
+  async getTree(parentId = null, level = 0) {
+    const result = await this.permissionModel.find({ parent: parentId });
+    for (let i = 0; i < result.length; i++) {
+      result[i].level = level;
+      const children = await this.getTree(result[i]._id, level + 1);
+      if (children.length > 0) {
+        // children 排序，如果有 children 则按创建时间排到前面，如果没有 则按创建时间排序
+        children.sort((a, b) => {
+          if (a.children && b.children) {
+            return a.createdAt.getTime() - b.createdAt.getTime();
+          } else if (a.children && !b.children) {
+            return -1;
+          } else if (!a.children && b.children) {
+            return 1;
+          } else {
+            return a.createdAt.getTime() - b.createdAt.getTime();
+          }
+        });
+        result[i].children = children;
+      } else {
+        result[i].children = null;
+      }
+    }
+    return result;
+  }
 
-    return t;
+  async treeInfo() {
+    return await this.getTree();
   }
 
   async create(body: CreatePermissionDto) {
@@ -111,6 +71,6 @@ export class PermissionService {
   }
 
   async detail(id: string) {
-    return this.permissionModel.findById(id).populate('parent');
+    return this.permissionModel.findById(id);
   }
 }

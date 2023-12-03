@@ -4,6 +4,7 @@ import BaseSchema, {
   baseSchemaToJSON,
 } from 'src/public/schema/base.schema';
 import mongoose from 'mongoose';
+import { PermissionName } from './ref-names';
 
 @Schema({ timestamps: true })
 export class Permission extends BaseSchema {
@@ -24,8 +25,16 @@ export class Permission extends BaseSchema {
   type: number;
 
   //   上级权限，关联当前 schema
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Permission' })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: PermissionName })
   parent: Permission;
+
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: PermissionName }],
+  })
+  children: Permission[];
+
+  @Prop({ type: Number })
+  level?: number;
 }
 
 export const PermissionSchema = SchemaFactory.createForClass(Permission);

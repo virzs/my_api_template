@@ -23,7 +23,8 @@ export class CreatePermissionDto {
   description: string;
 
   @ApiProperty({ description: '权限地址' })
-  @ValidateIf((o) => !!o.parent)
+  // @ValidateIf((o) => !!o.parent)
+  @IsOptional()
   @IsString()
   @Expose()
   url: string;
