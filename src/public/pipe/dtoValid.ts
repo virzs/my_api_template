@@ -26,7 +26,7 @@ class DefaultDTOValidationPipe implements PipeTransform<any> {
     const deleteUndefined = instanceToPlain(object);
 
     for (const i in deleteUndefined) {
-      if (deleteUndefined[i] === undefined || deleteUndefined[i] === '') {
+      if (deleteUndefined[i] === undefined) {
         delete deleteUndefined[i];
       }
     }
