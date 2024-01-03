@@ -7,6 +7,7 @@ import { FilamentModule } from './filament/filament.module';
 import { FilamentTypeModule } from './filament-type/filament-type.module';
 import { FilamentColorModule } from './filament-color/filament-color.module';
 import { FilamentInfoModule } from './filament-info/filament-info.module';
+import { ModelTypeModule } from './model-type/model-type.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { FilamentInfoModule } from './filament-info/filament-info.module';
     FilamentTypeModule,
     FilamentColorModule,
     FilamentInfoModule,
+    ModelTypeModule,
   ],
 })
 export class TDPrintModule {}

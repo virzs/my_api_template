@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Query,
@@ -13,6 +12,7 @@ import { PermissionService } from './permission.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { TreeDto } from './dto/tree.dto';
 
 @ApiTags('权限')
 @Controller('system/permission')
@@ -21,8 +21,8 @@ export class PermissionController {
 
   @Get('tree')
   @ApiOperation({ summary: '权限' })
-  tree() {
-    return this.permissionService.treeInfo();
+  tree(@Query() query: TreeDto) {
+    return this.permissionService.treeInfo(query);
   }
 
   @Post('/')

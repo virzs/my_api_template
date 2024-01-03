@@ -4,6 +4,7 @@ import { Permission } from 'src/schemas/permission';
 import { Model } from 'mongoose';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
+import { TreeDto } from './dto/tree.dto';
 
 @Injectable()
 export class PermissionService {
@@ -16,11 +17,14 @@ export class PermissionService {
     return await this.permissionModel.find().lean();
   }
 
-  async getTree(parentId = null, level = 0) {
-    const result = await this.permissionModel.find({ parent: parentId });
+  async getTree(params?: TreeDto, parentId = null, level = 0) {
+    const result = await this.permissionModel.find({
+      parent: parentId,
+      name: new RegExp(params?.name ?? '', 'i'),
+    });
     for (let i = 0; i < result.length; i++) {
       result[i].level = level;
-      const children = await this.getTree(result[i]._id, level + 1);
+      const children = await this.getTree(params, result[i]._id, level + 1);
       if (children.length > 0) {
         // children 排序，如果有 children 则按创建时间排到前面，如果没有 则按创建时间排序
         children.sort((a, b) => {
@@ -42,8 +46,8 @@ export class PermissionService {
     return result;
   }
 
-  async treeInfo() {
-    return await this.getTree();
+  async treeInfo(query: TreeDto) {
+    return await this.getTree(query);
   }
 
   async create(body: CreatePermissionDto) {
