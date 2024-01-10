@@ -39,3 +39,12 @@ export class User extends BaseSchema {
 }
 
 export const UsersSchema = SchemaFactory.createForClass(User);
+
+UsersSchema.pre('find', function () {
+  this.where({ isDelete: false });
+});
+
+UsersSchema.methods.toJSON = function () {
+  const { password, salt, isDelete, __v, ...data } = this.toObject();
+  return data;
+};

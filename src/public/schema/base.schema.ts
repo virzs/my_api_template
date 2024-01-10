@@ -1,15 +1,24 @@
 import { Prop, Schema } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
+import { UsersName } from 'src/schemas/ref-names';
 
 /**
  * 默认 Schema 添加 创建人 创建时间 更新人 更新时间
  */
 @Schema({ timestamps: true })
 class BaseSchema {
-  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Users' })
+  @Prop({
+    required: false,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: UsersName,
+  })
   creator: string;
 
-  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Users' })
+  @Prop({
+    required: false,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: UsersName,
+  })
   updater: string;
 
   @Prop({ type: Boolean, default: false })
