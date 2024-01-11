@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import BaseSchema from 'src/public/schema/base.schema';
+import BaseSchema, { baseSchemaPreFind } from 'src/public/schema/base.schema';
 import { The3dPrintFilamentType } from './filament-type';
 import { The3dPrintSupplierName } from './supplier';
 import {
@@ -47,3 +47,5 @@ export class The3dPrintFilament extends BaseSchema {
 }
 
 export const FilamentSchema = SchemaFactory.createForClass(The3dPrintFilament);
+
+FilamentSchema.pre('find', baseSchemaPreFind);

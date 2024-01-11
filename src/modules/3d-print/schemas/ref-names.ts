@@ -4,3 +4,6 @@ export const The3dPrintFilamentTypeName = 'The3dPrintFilamentType';
 export const The3dPrintFilamentColorName = 'The3dPrintFilamentColor';
 export const The3dPrintModelName = 'The3dPrintModel';
 export const The3dPrintModelTypeName = 'The3dPrintModelType';
+export const The3dPrintOrderPlatformName = 'The3dPrintOrderPlatform';
+export const The3dPrintOrderName = 'The3dPrintOrder';
+export const The3dPrintOrderGoodName = 'The3dPrintOrderGood';

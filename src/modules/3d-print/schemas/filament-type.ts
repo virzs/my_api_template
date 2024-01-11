@@ -13,3 +13,15 @@ export class The3dPrintFilamentType extends BaseSchema {
 export const FilamentTypeSchema = SchemaFactory.createForClass(
   The3dPrintFilamentType,
 );
+
+FilamentTypeSchema.pre('find', function () {
+  this.where({
+    isDelete: false,
+  });
+});
+
+FilamentTypeSchema.methods.toJSON = function () {
+  const { isDelete, __v, creator, updater, createdAt, updatedAt, ...data } =
+    this.toObject();
+  return data;
+};

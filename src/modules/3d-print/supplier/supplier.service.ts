@@ -21,19 +21,13 @@ export class SupplierService {
     const results = await this.supplierModel
       .find({
         creator: user,
-        ...(type ? { type, isDelete: false } : { isDelete: false }),
+        ...(type ? { type } : {}),
       })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
-      .populate('creator', { password: 0, salt: 0 })
-      .populate('updater', { password: 0, salt: 0 })
-      .populate('filamentType', {
-        creator: 0,
-        createdAt: 0,
-        updater: 0,
-        updatedAt: 0,
-        __v: 0,
-      })
+      .populate('creator')
+      .populate('updater')
+      .populate('filamentType')
       .populate('logo', {
         creator: 0,
         createdAt: 0,
@@ -100,22 +94,8 @@ export class SupplierService {
 
   async list() {
     const result = await this.supplierModel
-      .find(
-        { isDelete: false },
-        {
-          creator: 0,
-          updater: 0,
-          createdAt: 0,
-          updatedAt: 0,
-        },
-      )
-      .populate('filamentType', {
-        creator: 0,
-        createdAt: 0,
-        updater: 0,
-        updatedAt: 0,
-        __v: 0,
-      })
+      .find()
+      .populate('filamentType')
       .populate('filament')
       .exec();
 
