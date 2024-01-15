@@ -24,6 +24,7 @@ import { UserSettingModule } from './modules/navigate/user-setting/user-setting.
 import { ResourceModule } from './modules/resource/resource.module';
 import { TDPrintModule } from './modules/3d-print/3d-print.module';
 import { QiniuModule } from './modules/system/qiniu/qiniu.module';
+import { ReptileModule } from './modules/reptile/reptile.module';
 import qiniu from './config/qiniu';
 
 @Module({
@@ -69,6 +70,7 @@ import qiniu from './config/qiniu';
     ResourceModule,
     TDPrintModule,
     QiniuModule,
+    ReptileModule,
   ],
   providers: [
     JwtService,
