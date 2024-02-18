@@ -16,6 +16,10 @@ export class Project extends BaseSchema {
   //   是否启用
   @Prop({ type: Boolean, default: true })
   enable: boolean;
+
+  // 是否强制需要邀请码注册
+  @Prop({ type: Boolean, default: false })
+  forceInvitationCode: boolean;
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);

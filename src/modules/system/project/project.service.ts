@@ -25,4 +25,6 @@ export class ProjectService {
 
     return Response.page(projects, { page, pageSize, total });
   }
+
+  async create() {}
 }
