@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import BaseSchema, { baseSchemaPreFind } from 'src/public/schema/base.schema';
 import { Role } from '../../../schemas/role';
-import { Project } from '../../../schemas/project';
+import { Project } from '../../system/project/schemas/project';
 
 @Schema({ timestamps: true })
 export class User extends BaseSchema {

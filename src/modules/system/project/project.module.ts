@@ -2,7 +2,8 @@ import { Module } from '@nestjs/common';
 import { ProjectService } from './project.service';
 import { ProjectController } from './project.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ProjectSchema } from 'src/schemas/project';
+import { ProjectSchema } from 'src/modules/system/project/schemas/project';
+import { ProjectName } from './schemas/ref-names';
 
 @Module({
   controllers: [ProjectController],
@@ -10,9 +11,8 @@ import { ProjectSchema } from 'src/schemas/project';
   imports: [
     MongooseModule.forFeature([
       {
-        name: 'Project',
+        name: ProjectName,
         schema: ProjectSchema,
-        collection: 'project',
       },
     ]),
   ],

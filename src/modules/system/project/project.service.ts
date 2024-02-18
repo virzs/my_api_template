@@ -2,13 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PageDto } from 'src/public/dto/page';
-import { Project } from 'src/schemas/project';
+import { Project } from 'src/modules/system/project/schemas/project';
 import { Response } from 'src/utils/response';
+import { ProjectName } from './schemas/ref-names';
 
 @Injectable()
 export class ProjectService {
   constructor(
-    @InjectModel(Project.name) private readonly projectModel: Model<Project>,
+    @InjectModel(ProjectName) private readonly projectModel: Model<Project>,
   ) {}
 
   async list(query: PageDto) {
