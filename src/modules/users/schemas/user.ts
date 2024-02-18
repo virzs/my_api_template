@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import BaseSchema from 'src/public/schema/base.schema';
-import { Role } from './role';
-import { Project } from './project';
+import BaseSchema, { baseSchemaPreFind } from 'src/public/schema/base.schema';
+import { Role } from '../../../schemas/role';
+import { Project } from '../../../schemas/project';
 
 @Schema({ timestamps: true })
 export class User extends BaseSchema {
@@ -31,7 +31,7 @@ export class User extends BaseSchema {
 
   // 类型 0: 管理员 1: 普通用户
   @Prop({ type: Number, default: 1 })
-  type: string;
+  type: number;
 
   // 项目
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Project' }] })
@@ -40,9 +40,7 @@ export class User extends BaseSchema {
 
 export const UsersSchema = SchemaFactory.createForClass(User);
 
-UsersSchema.pre('find', function () {
-  this.where({ isDelete: false });
-});
+UsersSchema.pre('find', baseSchemaPreFind);
 
 UsersSchema.methods.toJSON = function () {
   const { password, salt, isDelete, __v, ...data } = this.toObject();

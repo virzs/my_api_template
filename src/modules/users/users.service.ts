@@ -3,14 +3,17 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PageDto } from 'src/public/dto/page';
 import { Response } from 'src/utils/response';
-import { BaseUserDto, CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ChangePasswordDto } from './dto/change-password.dto';
 import { ResetPassowrdDto } from './dto/reset-password.dto';
+import { UsersName } from './schemas/ref-names';
+import { User } from './schemas/user';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel('Users') private readonly usersModel: Model<any>) {}
+  constructor(
+    @InjectModel(UsersName) private readonly usersModel: Model<User>,
+  ) {}
 
   async getNormalUser(query: PageDto) {
     const { page = 1, pageSize = 10 } = query;

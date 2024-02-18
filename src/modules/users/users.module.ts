@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UsersSchema } from 'src/schemas/user';
+import { UsersSchema } from 'src/modules/users/schemas/user';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-import { UsersName } from 'src/schemas/ref-names';
+import { InvitationCodeModule } from './invitation-code/invitation-code.module';
+import { UsersName } from './schemas/ref-names';
 
 @Module({
   controllers: [UsersController],
@@ -15,6 +16,7 @@ import { UsersName } from 'src/schemas/ref-names';
         schema: UsersSchema,
       },
     ]),
+    InvitationCodeModule,
   ],
   exports: [UsersService],
 })

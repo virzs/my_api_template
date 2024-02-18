@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsNumber } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 import { LoginDto } from './login.dto';
 
 export class RegisterDto extends LoginDto {
@@ -8,4 +8,9 @@ export class RegisterDto extends LoginDto {
   @IsNumber()
   @Expose()
   captcha: number;
+
+  @ApiProperty({ description: '邀请码' })
+  @IsString()
+  @Expose()
+  invitationCode: string;
 }

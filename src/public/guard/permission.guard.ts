@@ -55,7 +55,7 @@ export class PermissionGuard implements CanActivate {
         .filter((i) => i[1])
         .map((d) => d[0]);
 
-      return i.path === path && routeMethods.includes(i.method.toLowerCase());
+      return i.url === path && routeMethods.includes(i.method.toLowerCase());
     });
 
     if (!hasPermission) {

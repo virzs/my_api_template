@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JwtModule } from '@nestjs/jwt';
-import { User, UsersSchema } from 'src/schemas/user';
+import { User, UsersSchema } from 'src/modules/users/schemas/user';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UsersModule } from '../users/users.module';
 import { jwtConfig } from 'src/config/jwt';
 import { RefreshTokenService } from '../refresh-token/refresh-token.service';
+import { InvitationCodeModule } from '../users/invitation-code/invitation-code.module';
 
 @Module({
   controllers: [AuthController],
@@ -19,6 +20,7 @@ import { RefreshTokenService } from '../refresh-token/refresh-token.service';
     }),
     MongooseModule.forFeature([{ name: User.name, schema: UsersSchema }]),
     UsersModule,
+    InvitationCodeModule,
   ],
 })
 export class AuthModule {}

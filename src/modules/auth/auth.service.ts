@@ -8,7 +8,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
-import { User } from 'src/schemas/user';
+import { User } from 'src/modules/users/schemas/user';
 import { JwtService } from '@nestjs/jwt';
 import { RefreshTokenService } from '../refresh-token/refresh-token.service';
 import { Cache } from 'cache-manager';
@@ -17,6 +17,7 @@ import { RedisConstants } from 'src/common/constants/redis';
 import { RegisterDto } from './dtos/register.dto';
 import { LoginDto } from './dtos/login.dto';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
+import { InvitationCodeService } from '../users/invitation-code/invitation-code.service';
 
 interface RedisTokenCache {
   [key: string]: string;
@@ -28,6 +29,7 @@ export class AuthService {
     @InjectModel(User.name) private readonly usersModel: Model<any>,
     private readonly refreshTokenService: RefreshTokenService,
     private readonly jwtService: JwtService,
+    private readonly invitationCodeService: InvitationCodeService,
     @Inject(CACHE_MANAGER)
     private cacheManager: Cache,
   ) {}
@@ -52,7 +54,7 @@ export class AuthService {
   }
 
   async register(body: RegisterDto) {
-    const { password, email, captcha, ...rest } = body;
+    const { password, email, captcha, invitationCode, ...rest } = body;
 
     const cacheCaptcha: any = await this.cacheManager.get(
       `${RedisConstants.EMAIL_REGISTER_CAPTCHA_KEY}:${email}`,
@@ -64,6 +66,16 @@ export class AuthService {
 
     const user = await this.usersModel.findOne({ email });
     if (user) throw new BadRequestException('邮箱已存在');
+
+    // 如果有邀请码，检查邀请码是否有效
+    if (invitationCode) {
+      const code = await this.invitationCodeService.checkCode(invitationCode);
+      if (!code) throw new BadRequestException('邀请码已失效');
+      if (code.useCount >= code.maxUse) {
+        throw new BadRequestException('邀请码已失效');
+      }
+      await this.invitationCodeService.updateUseCount(invitationCode);
+    }
 
     // 生成盐值和加密后的密码
     const salt = await bcrypt.genSalt();

@@ -1,12 +1,12 @@
 import { Prop, Schema } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
-import { UsersName } from 'src/schemas/ref-names';
+import mongoose, { Document } from 'mongoose';
+import { UsersName } from 'src/modules/users/schemas/ref-names';
 
 /**
  * 默认 Schema 添加 创建人 创建时间 更新人 更新时间
  */
 @Schema({ timestamps: true })
-class BaseSchema {
+class BaseSchema extends Document {
   @Prop({
     required: false,
     type: mongoose.Schema.Types.ObjectId,
