@@ -68,6 +68,12 @@ const document = SwaggerModule.createDocument(app, config);
 
 [ENV Doc](./docs//env.md)
 
+## 创建 Modules
+
+```bash
+nest g res modules/xxx
+```
+
 ## 常见问题
 
 1. 启动报错，检查 redis 配置，`redis-cli shutdown` 关闭 redis 服务，`redis-server` 启动 redis 服务
