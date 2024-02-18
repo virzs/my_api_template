@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { QiniuService } from '../system/qiniu/qiniu.service';
 import { InjectModel } from '@nestjs/mongoose';
-import { ResourceName } from 'src/schemas/ref-names';
 import { Model } from 'mongoose';
-import { Resource } from 'src/schemas/resource';
+import { Resource } from 'src/modules/resource/schemas/resource';
+import { ResourceName } from './schemas/ref-names';
 
 @Injectable()
 export class ResourceService {
@@ -13,7 +13,7 @@ export class ResourceService {
   ) {}
 
   // 上传文件
-  async uploadFile(dir: string, file: Express.Multer.File) {
+  async uploadFile(dir: string, file: Express.Multer.File): Promise<any> {
     const result = await this.qiniuService.uploadFile(dir, file);
 
     const dbResult = (await this.resourceModel.create(result)).toJSON();

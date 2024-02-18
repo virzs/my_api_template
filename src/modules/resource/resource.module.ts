@@ -3,7 +3,8 @@ import { ResourceService } from './resource.service';
 import { ResourceController } from './resource.controller';
 import { QiniuModule } from '../system/qiniu/qiniu.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Resource, ResourceSchema } from 'src/schemas/resource';
+import { ResourceSchema } from './schemas/resource';
+import { ResourceName } from './schemas/ref-names';
 
 @Module({
   controllers: [ResourceController],
@@ -12,7 +13,7 @@ import { Resource, ResourceSchema } from 'src/schemas/resource';
     QiniuModule,
     MongooseModule.forFeature([
       {
-        name: Resource.name,
+        name: ResourceName,
         schema: ResourceSchema,
       },
     ]),

@@ -7,8 +7,8 @@ import {
   The3dPrintFilamentName,
   The3dPrintFilamentTypeName,
 } from './ref-names';
-import { Resource } from 'src/schemas/resource';
-import { ResourceName } from 'src/schemas/ref-names';
+import { Resource } from 'src/modules/resource/schemas/resource';
+import { ResourceName } from 'src/modules/resource/schemas/ref-names';
 
 export const The3dPrintSupplierName = 'The3dPrintSupplier';
 
