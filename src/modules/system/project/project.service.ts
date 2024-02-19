@@ -27,21 +27,25 @@ export class ProjectService {
     return Response.page(projects, { page, pageSize, total });
   }
 
-  async create(body: ProjectDto) {
-    const result = await this.projectModel.create(body);
+  async create(body: ProjectDto, user: string) {
+    const result = await this.projectModel.create({ ...body, creator: user });
     return result;
   }
 
-  async update(id: string, body: ProjectDto) {
-    const result = await this.projectModel.findByIdAndUpdate(id, body, {
-      new: true,
-    });
+  async update(id: string, body: ProjectDto, user: string) {
+    const result = await this.projectModel.findByIdAndUpdate(
+      id,
+      { ...body, updater: user },
+      {
+        new: true,
+      },
+    );
     return result;
   }
 
   async detail() {
     // 当前始终只有一条，多项目配置以后看情况修改
     const project = await this.projectModel.findOne().exec();
-    return project;
+    return project ?? ({} as Project);
   }
 }

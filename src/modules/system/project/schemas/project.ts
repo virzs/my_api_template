@@ -10,7 +10,7 @@ export class Project extends BaseSchema {
   description: string;
 
   //  项目编码 唯一
-  @Prop({ type: String, required: true, unique: true })
+  @Prop({ type: String, unique: true })
   code: string;
 
   //   是否启用
