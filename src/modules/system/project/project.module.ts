@@ -16,5 +16,6 @@ import { ProjectName } from './schemas/ref-names';
       },
     ]),
   ],
+  exports: [ProjectService],
 })
 export class ProjectModule {}

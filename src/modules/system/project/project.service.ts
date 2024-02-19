@@ -5,6 +5,7 @@ import { PageDto } from 'src/public/dto/page';
 import { Project } from 'src/modules/system/project/schemas/project';
 import { Response } from 'src/utils/response';
 import { ProjectName } from './schemas/ref-names';
+import { ProjectDto } from './dto/project.dto';
 
 @Injectable()
 export class ProjectService {
@@ -26,5 +27,21 @@ export class ProjectService {
     return Response.page(projects, { page, pageSize, total });
   }
 
-  async create() {}
+  async create(body: ProjectDto) {
+    const result = await this.projectModel.create(body);
+    return result;
+  }
+
+  async update(id: string, body: ProjectDto) {
+    const result = await this.projectModel.findByIdAndUpdate(id, body, {
+      new: true,
+    });
+    return result;
+  }
+
+  async detail() {
+    // 当前始终只有一条，多项目配置以后看情况修改
+    const project = await this.projectModel.findOne().exec();
+    return project;
+  }
 }

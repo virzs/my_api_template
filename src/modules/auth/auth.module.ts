@@ -8,6 +8,7 @@ import { UsersModule } from '../users/users.module';
 import { jwtConfig } from 'src/config/jwt';
 import { RefreshTokenService } from '../refresh-token/refresh-token.service';
 import { InvitationCodeModule } from '../users/invitation-code/invitation-code.module';
+import { ProjectModule } from '../system/project/project.module';
 
 @Module({
   controllers: [AuthController],
@@ -21,6 +22,7 @@ import { InvitationCodeModule } from '../users/invitation-code/invitation-code.m
     MongooseModule.forFeature([{ name: User.name, schema: UsersSchema }]),
     UsersModule,
     InvitationCodeModule,
+    ProjectModule,
   ],
 })
 export class AuthModule {}

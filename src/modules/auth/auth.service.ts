@@ -18,6 +18,7 @@ import { RegisterDto } from './dtos/register.dto';
 import { LoginDto } from './dtos/login.dto';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
 import { InvitationCodeService } from '../users/invitation-code/invitation-code.service';
+import { ProjectService } from '../system/project/project.service';
 
 interface RedisTokenCache {
   [key: string]: string;
@@ -30,6 +31,7 @@ export class AuthService {
     private readonly refreshTokenService: RefreshTokenService,
     private readonly jwtService: JwtService,
     private readonly invitationCodeService: InvitationCodeService,
+    private readonly projectService: ProjectService,
     @Inject(CACHE_MANAGER)
     private cacheManager: Cache,
   ) {}
@@ -66,6 +68,11 @@ export class AuthService {
 
     const user = await this.usersModel.findOne({ email });
     if (user) throw new BadRequestException('邮箱已存在');
+
+    const project = await this.projectService.detail();
+
+    if (project?.forceInvitationCode && !invitationCode)
+      throw new BadRequestException('邀请码不能为空');
 
     // 如果有邀请码，检查邀请码是否有效
     if (invitationCode) {
