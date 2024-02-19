@@ -52,7 +52,7 @@ export class LoginGuard implements CanActivate {
         secret: jwtConfig.accessToken.secret,
       });
 
-      request.user = data.user;
+      request.user = data.user ?? data;
       return true;
     } catch (e) {
       throw new UnauthorizedException('token 失效，请重新登录');
