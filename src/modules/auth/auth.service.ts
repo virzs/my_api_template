@@ -235,8 +235,10 @@ export class AuthService {
       return { message: '退出登录成功' };
     }
 
-    const accessTTL = this.jwtService.decode(accessToken)['exp'];
-    const refreshTTL = this.jwtService.decode(refreshToken)['exp'];
+    const accessTTL = this.jwtService.decode(
+      accessToken.replace('Bearer ', ''),
+    )?.['exp'];
+    const refreshTTL = this.jwtService.decode(refreshToken)?.['exp'];
 
     const accessExp = accessTTL - Math.floor(Date.now() / 1000);
     const refreshExp = refreshTTL - Math.floor(Date.now() / 1000);
