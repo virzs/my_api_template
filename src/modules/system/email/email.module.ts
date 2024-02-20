@@ -8,5 +8,6 @@ import { UsersModule } from 'src/modules/users/users.module';
   imports: [ConfigModule, UsersModule],
   controllers: [EmailController],
   providers: [EmailService],
+  exports: [EmailService],
 })
 export class EmailModule {}

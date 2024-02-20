@@ -19,6 +19,8 @@ import { LoginDto } from './dtos/login.dto';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
 import { InvitationCodeService } from '../users/invitation-code/invitation-code.service';
 import { ProjectService } from '../system/project/project.service';
+import { SendEmailDto } from '../system/email/dtos/send.dto';
+import { EmailService } from '../system/email/email.service';
 
 interface RedisTokenCache {
   [key: string]: string;
@@ -32,6 +34,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly invitationCodeService: InvitationCodeService,
     private readonly projectService: ProjectService,
+    private readonly emailService: EmailService,
     @Inject(CACHE_MANAGER)
     private cacheManager: Cache,
   ) {}
@@ -96,6 +99,10 @@ export class AuthService {
     });
 
     return { message: '注册成功' };
+  }
+
+  async sendRegisterCaptcha(body: SendEmailDto) {
+    return this.emailService.sendRegisterEmail(body);
   }
 
   async login(body: LoginDto, headers) {

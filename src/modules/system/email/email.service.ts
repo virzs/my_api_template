@@ -83,7 +83,7 @@ export class EmailService {
     if (info.messageId) {
       await this.cacheManager.set(
         captcha.key,
-        { captcha: captcha, lastRequestTime: new Date() },
+        { captcha: captcha.value, lastRequestTime: new Date() },
         5 * 60 * 1000,
       );
       Logger.info(`Message sent:`, info.messageId, 'Cache set', captcha.key);

@@ -6,6 +6,7 @@ import { RequireLogin } from 'src/public/decorator/require_login.decorator';
 import { LoginDto } from './dtos/login.dto';
 import { RefreshTokenDto } from './dtos/refresh-token.dto';
 import { LogoutDto } from './dtos/logout.dto';
+import { SendEmailDto } from '../system/email/dtos/send.dto';
 
 @ApiTags('授权')
 @Controller('auth')
@@ -17,8 +18,15 @@ export class AuthController {
   @Post('register')
   @RequireLogin()
   register(@Body() body: RegisterDto, @Request() headers) {
-    console.log(headers);
     return this.authService.register(body);
+  }
+
+  @ApiOperation({ summary: '发送注册验证码' })
+  @ApiBody({ type: RegisterDto })
+  @RequireLogin()
+  @Post('register/captcha')
+  sendRegisterCaptcha(@Body() body: SendEmailDto) {
+    return this.authService.sendRegisterCaptcha(body);
   }
 
   @ApiOperation({ summary: '用户登录' })

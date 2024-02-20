@@ -9,6 +9,7 @@ import { jwtConfig } from 'src/config/jwt';
 import { RefreshTokenService } from '../refresh-token/refresh-token.service';
 import { InvitationCodeModule } from '../users/invitation-code/invitation-code.module';
 import { ProjectModule } from '../system/project/project.module';
+import { EmailModule } from '../system/email/email.module';
 
 @Module({
   controllers: [AuthController],
@@ -23,6 +24,7 @@ import { ProjectModule } from '../system/project/project.module';
     UsersModule,
     InvitationCodeModule,
     ProjectModule,
+    EmailModule,
   ],
 })
 export class AuthModule {}
