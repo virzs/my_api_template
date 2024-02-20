@@ -52,7 +52,7 @@ export class ProjectService {
   async publicDetail(): Promise<Partial<Project>> {
     const project = (await this.projectModel.findOne().exec()).toObject();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { forceInvitationCode, ...rest } = project ?? ({} as Project);
+    const { ...rest } = project ?? ({} as Project);
     return rest;
   }
 }
