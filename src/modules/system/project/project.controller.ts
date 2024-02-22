@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { ProjectService } from './project.service';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ProjectDto } from './dto/project.dto';
 import { User } from 'src/public/decorator/route-user.decoratpr';
 import { RequireLogin } from 'src/public/decorator/require_login.decorator';
@@ -35,6 +35,7 @@ export class ProjectController {
   @Get('/public')
   @RequireLogin()
   @ApiOperation({ summary: '公共项目详情' })
+  @ApiResponse({ type: ProjectDto })
   async publicDetail() {
     return await this.projectService.publicDetail();
   }

@@ -33,6 +33,7 @@ export class ProjectService {
   }
 
   async update(id: string, body: ProjectDto, user: string) {
+    console.log(body);
     const result = await this.projectModel.findByIdAndUpdate(
       id,
       { ...body, updater: user },
