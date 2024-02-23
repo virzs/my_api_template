@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import BaseSchema, { baseSchemaPreFind } from 'src/public/schema/base.schema';
 import { Role } from '../../../schemas/role';
 import { Project } from '../../system/project/schemas/project';
+import { Resource } from 'src/modules/resource/schemas/resource';
 
 @Schema({ timestamps: true })
 export class User extends BaseSchema {
@@ -18,8 +19,8 @@ export class User extends BaseSchema {
   @Prop({ type: String, required: true })
   email: string;
 
-  @Prop({ type: String })
-  avatar: string;
+  @Prop({ type: Resource })
+  avatar: Resource;
 
   // 账号状态 0:未验证邮箱 1:正常 2:禁用
   @Prop({ type: Number, default: 0 })
