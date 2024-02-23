@@ -1,4 +1,4 @@
-import { CacheModule, Module } from '@nestjs/common';
+import { CacheModule, MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import db from './config/db';
@@ -26,6 +26,7 @@ import { TDPrintModule } from './modules/3d-print/3d-print.module';
 import { QiniuModule } from './modules/system/qiniu/qiniu.module';
 import { ReptileModule } from './modules/reptile/reptile.module';
 import qiniu from './config/qiniu';
+import rateLimit from 'express-rate-limit';
 
 @Module({
   imports: [
@@ -84,4 +85,16 @@ import qiniu from './config/qiniu';
     },
   ],
 })
-export class AppModule {}
+export class AppModule {
+  // 单个ip请求速率限制
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(
+        rateLimit({
+          windowMs: 60 * 1000,
+          max: 100,
+        }),
+      )
+      .forRoutes('*');
+  }
+}
