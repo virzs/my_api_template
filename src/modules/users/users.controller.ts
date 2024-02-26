@@ -29,4 +29,10 @@ export class UsersController {
   update(@Param('id') id: string, @Body() body: UpdateUserDto) {
     return this.usersService.update(id, body);
   }
+
+  @Get('/:id')
+  @ApiOperation({ summary: '详情' })
+  detail(@Param('id') id: string) {
+    return this.usersService.detail(id);
+  }
 }
