@@ -121,6 +121,13 @@ export class AuthService {
       throw new BadRequestException('邮箱或密码错误');
     }
 
+    if (!user.enable) {
+      throw new BadRequestException('用户已被禁用');
+    }
+    if (user.isDelete) {
+      throw new BadRequestException('用户不存在');
+    }
+
     const ttl = this.refreshTokenService.getTTL();
 
     // 获取当前用户所有的refreshToken
@@ -223,11 +230,20 @@ export class AuthService {
     };
   }
 
-  async logout(accessToken: string, refreshToken: string, headers) {
+  async logout(accessToken: string, headers) {
     const userAgent = headers['user-agent'];
 
     const accessCache = await this.cacheManager.get(`
     ${RedisConstants.AUTH_TOKEN_BLACKLIST_KEY}:${accessToken}`);
+
+    const user: any = this.jwtService.decode(
+      accessToken.replace('Bearer ', ''),
+    );
+    const cached = await this.cacheManager.get(
+      `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${user._id.toString()}`,
+    );
+    const refreshToken = cached[userAgent];
+
     const refreshCache = await this.cacheManager.get(`
     ${RedisConstants.AUTH_TOKEN_BLACKLIST_KEY}:${refreshToken}`);
 

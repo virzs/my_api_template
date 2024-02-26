@@ -48,11 +48,7 @@ export class AuthController {
   @ApiOperation({ summary: '退出登录' })
   @ApiBody({ type: LogoutDto })
   @Post('logout')
-  logout(
-    @Headers('authorization') authorization: string,
-    @Body() body: LogoutDto,
-    @Headers() headers,
-  ) {
-    return this.authService.logout(authorization, body.refreshToken, headers);
+  logout(@Headers('authorization') authorization: string, @Headers() headers) {
+    return this.authService.logout(authorization, headers);
   }
 }
