@@ -19,13 +19,13 @@ export class UsersService {
     const { page = 1, pageSize = 10 } = query;
 
     const users = await this.usersModel
-      .find({ type: 0 }, { password: 0, salt: 0 })
+      .find({}, { password: 0, salt: 0 })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .populate('roles')
       .exec();
 
-    const total = await this.usersModel.countDocuments({ type: 0 });
+    const total = await this.usersModel.countDocuments({});
 
     return Response.page(users, { page, pageSize, total });
   }
@@ -94,6 +94,21 @@ export class UsersService {
 
   async findByEmail(email: string) {
     const result = await this.usersModel.findOne({ email });
+    return result;
+  }
+
+  // 启用或禁用账号 enable
+  async changeEnable(id: string) {
+    const user = await this.usersModel.findById(id);
+
+    if (!user) {
+      throw new BadRequestException('用户不存在');
+    }
+
+    const result = await this.usersModel.findByIdAndUpdate(id, {
+      enable: !user.enable,
+    });
+
     return result;
   }
 }

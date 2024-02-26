@@ -37,6 +37,10 @@ export class User extends BaseSchema {
   // 项目
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Project' }] })
   projects: Project[];
+
+  // 是否启用
+  @Prop({ type: Boolean, default: true })
+  enable: boolean;
 }
 
 export const UsersSchema = SchemaFactory.createForClass(User);

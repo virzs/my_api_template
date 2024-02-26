@@ -35,4 +35,10 @@ export class UsersController {
   detail(@Param('id') id: string) {
     return this.usersService.detail(id);
   }
+
+  @Put('/enable/:id')
+  @ApiOperation({ summary: '启用/禁用' })
+  changeEnable(@Param('id') id: string) {
+    return this.usersService.changeEnable(id);
+  }
 }
