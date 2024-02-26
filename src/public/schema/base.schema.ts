@@ -32,7 +32,7 @@ class BaseSchema extends Document {
 // 默认查询中间件函数
 // BaseSchema.pre('find', function () {});
 export const baseSchemaPreFind = function () {
-  this.where({ isDelete: false });
+  this.where({ isDelete: { $in: [false, null] } });
 };
 
 // 默认 toJSON 中间件函数
