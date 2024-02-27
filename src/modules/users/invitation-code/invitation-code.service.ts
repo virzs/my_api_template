@@ -29,9 +29,16 @@ export class InvitationCodeService {
 
   //   useCount++
   async updateUseCount(code: string) {
-    const result = await this.codeModel
-      .findOneAndUpdate({ code }, { $inc: { useCount: 1 } })
+    let result = await this.codeModel
+      .findOneAndUpdate({ code }, { $inc: { useCount: 1 } }, { new: true })
       .exec();
+
+    if (result && result.useCount >= result.maxUse) {
+      result = await this.codeModel
+        .findOneAndUpdate({ code }, { $set: { status: 1 } }, { new: true })
+        .exec();
+    }
+
     return result;
   }
 
