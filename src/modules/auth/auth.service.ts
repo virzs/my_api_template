@@ -81,9 +81,7 @@ export class AuthService {
     if (invitationCode) {
       const code = await this.invitationCodeService.checkCode(invitationCode);
       if (!code) throw new BadRequestException('邀请码已失效');
-      if (code.useCount >= code.maxUse) {
-        throw new BadRequestException('邀请码已失效');
-      }
+      // 更新邀请码使用次数
       await this.invitationCodeService.updateUseCount(invitationCode);
     }
 

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { InvitationCodeService } from './invitation-code.service';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/public/decorator/route-user.decoratpr';
@@ -21,24 +21,9 @@ export class InvitationCodeController {
     return this.invitationCodeService.create(user, body);
   }
 
-  @Put('/status')
-  @ApiOperation({ summary: '修改邀请码状态' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        code: {
-          type: 'string',
-          description: '邀请码',
-        },
-        status: {
-          type: 'number',
-          description: '状态',
-        },
-      },
-    },
-  })
-  changeStatus(@Body('code') code: string, @Body('status') status: number) {
-    return this.invitationCodeService.changeStatus(code, status);
+  @Put('/forbidden/:id')
+  @ApiOperation({ summary: '禁用' })
+  changeStatus(@Param('id') id: string) {
+    return this.invitationCodeService.changeStatus(id);
   }
 }

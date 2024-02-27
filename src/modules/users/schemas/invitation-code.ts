@@ -28,6 +28,10 @@ export class InvitationCode extends BaseSchema {
   //   使用次数
   @Prop({ type: Number, default: 0 })
   useCount: number;
+
+  // 有效期
+  @Prop({ type: Date })
+  expire: Date;
 }
 
 export const InvitationCodeSchema =

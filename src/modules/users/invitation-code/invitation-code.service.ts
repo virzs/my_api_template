@@ -36,22 +36,28 @@ export class InvitationCodeService {
   }
 
   //   change status
-  async changeStatus(code: string, status: number) {
+  async changeStatus(_id: string) {
     const result = await this.codeModel
-      .findOneAndUpdate(
-        {
-          code,
-        },
-        {
-          status,
-        },
-      )
+      .findByIdAndUpdate(_id, {
+        status: 2,
+      })
       .exec();
     return result;
   }
 
   async checkCode(code: string) {
-    const result = await this.codeModel.findOne({ code, status: 0 }).exec();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const result = await this.codeModel
+      .findOne({
+        code,
+        status: 0,
+        $or: [{ expire: { $exists: false } }, { expire: { $gte: today } }],
+        $expr: { $lt: ['$useCount', '$maxUse'] },
+      })
+      .exec();
+    console.log(code, result);
     return result;
   }
 
