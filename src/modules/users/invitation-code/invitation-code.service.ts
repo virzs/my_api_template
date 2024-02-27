@@ -3,7 +3,6 @@ import { InvitationCodeName } from '../schemas/ref-names';
 import { InvitationCode } from '../schemas/invitation-code';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { UsersService } from '../users.service';
 import { InvitationCodeDto } from './dto/invitation-code.dto';
 
 @Injectable()

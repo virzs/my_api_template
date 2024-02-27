@@ -15,7 +15,7 @@ export class InvitationCode extends BaseSchema {
 
   //   受邀请的用户
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: UsersName }] })
-  users: string;
+  users: string[];
 
   //   最大使用次数
   @Prop({ type: Number, default: 1 })

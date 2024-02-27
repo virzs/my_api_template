@@ -5,7 +5,7 @@ import * as cheerio from 'cheerio';
 @Injectable()
 export class BtbttService {
   async fetchList() {
-    const url = 'https://www.btbtt11.com/forum-index-fid-981.htm';
+    const url = 'https://www.btbtt17.com/forum-index-fid-981.htm';
 
     const result = await axios
       .get(url, {})
@@ -80,7 +80,7 @@ export class BtbttService {
   }
 
   async fetchDetail(id: string) {
-    const url = 'https://www.btbtt11.com/thread-index-fid-981-tid-4875619.htm';
+    const url = 'https://www.btbtt17.com/thread-index-fid-981-tid-4875619.htm';
 
     const result = await axios
       .get(url, {})
@@ -125,7 +125,7 @@ export class BtbttService {
                 // attach-dialog-fid-981-aid-6278834.htm
                 return {
                   name,
-                  href: `https://www.btbtt11.com/attach-download-fid-981-aid-${aid}.htm`,
+                  href: `https://www.btbtt17.com/attach-download-fid-981-aid-${aid}.htm`,
                   aid,
                 };
               })

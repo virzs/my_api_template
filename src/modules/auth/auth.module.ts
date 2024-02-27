@@ -7,7 +7,6 @@ import { AuthService } from './auth.service';
 import { UsersModule } from '../users/users.module';
 import { jwtConfig } from 'src/config/jwt';
 import { RefreshTokenService } from '../refresh-token/refresh-token.service';
-import { InvitationCodeModule } from '../users/invitation-code/invitation-code.module';
 import { ProjectModule } from '../system/project/project.module';
 import { EmailModule } from '../system/email/email.module';
 
@@ -22,7 +21,6 @@ import { EmailModule } from '../system/email/email.module';
     }),
     MongooseModule.forFeature([{ name: User.name, schema: UsersSchema }]),
     UsersModule,
-    InvitationCodeModule,
     ProjectModule,
     EmailModule,
   ],
