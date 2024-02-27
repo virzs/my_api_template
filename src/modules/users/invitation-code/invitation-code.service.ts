@@ -57,7 +57,7 @@ export class InvitationCodeService {
         $expr: { $lt: ['$useCount', '$maxUse'] },
       })
       .exec();
-    console.log(code, result);
+
     return result;
   }
 
