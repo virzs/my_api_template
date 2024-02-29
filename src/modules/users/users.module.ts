@@ -7,6 +7,7 @@ import { InvitationCodeName, UsersName } from './schemas/ref-names';
 import { InvitationCodeController } from './invitation-code/invitation-code.controller';
 import { InvitationCodeService } from './invitation-code/invitation-code.service';
 import { InvitationCodeSchema } from './schemas/invitation-code';
+import { RoleModule } from '../system/role/role.module';
 
 @Module({
   controllers: [InvitationCodeController, UsersController],
@@ -24,6 +25,7 @@ import { InvitationCodeSchema } from './schemas/invitation-code';
         schema: InvitationCodeSchema,
       },
     ]),
+    RoleModule,
   ],
   exports: [UsersService, InvitationCodeService],
 })

@@ -13,7 +13,10 @@ export class InvitationCodeService {
   ) {}
 
   async codeList(id: string) {
-    const result = await this.codeModel.find({ creator: id });
+    const result = await this.codeModel
+      .find({ creator: id })
+      .populate('roles')
+      .exec();
     return result;
   }
 

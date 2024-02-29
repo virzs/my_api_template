@@ -7,15 +7,21 @@ import BaseSchema, {
   baseSchemaToJSON,
 } from 'src/public/schema/base.schema';
 import { UsersName } from './ref-names';
+import { Role, RoleName } from 'src/modules/system/role/schemas/role';
+import { User } from './user';
 
 @Schema({ timestamps: true })
 export class InvitationCode extends BaseSchema {
   @Prop({ type: String, required: true, unique: true })
   code: string;
 
+  // 邀请人注册后默认拥有的角色
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: RoleName }] })
+  roles: Role[];
+
   //   受邀请的用户
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: UsersName }] })
-  users: string[];
+  users: User[];
 
   //   最大使用次数
   @Prop({ type: Number, default: 1 })
