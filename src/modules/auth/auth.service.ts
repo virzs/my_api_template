@@ -77,10 +77,12 @@ export class AuthService {
     if (project?.forceInvitationCode && !invitationCode)
       throw new BadRequestException('邀请码不能为空');
 
+    let codeData = null;
     // 如果有邀请码，检查邀请码是否有效
     if (invitationCode) {
       const code = await this.invitationCodeService.checkCode(invitationCode);
       if (!code) throw new BadRequestException('邀请码已失效');
+      codeData = code;
       // 更新邀请码使用次数
       await this.invitationCodeService.updateUseCount(invitationCode);
     }
@@ -94,6 +96,7 @@ export class AuthService {
       password: hashedPassword,
       salt,
       email,
+      roles: codeData?.roles,
     });
 
     return { message: '注册成功' };
