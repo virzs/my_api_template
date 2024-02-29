@@ -1,7 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import BaseSchema from 'src/public/schema/base.schema';
-import { Permission } from './permission';
+import { Permission } from '../../../../schemas/permission';
+
+export const RoleName = 'Role';
 
 @Schema({ timestamps: true })
 export class Role extends BaseSchema {

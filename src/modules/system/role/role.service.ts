@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { PageDto } from 'src/public/dto/page';
-import { Role } from 'src/schemas/role';
+import { Role } from 'src/modules/system/role/schemas/role';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { Response } from 'src/utils/response';
 
@@ -12,7 +12,7 @@ export class RoleService {
     @InjectModel(Role.name) private readonly roleModel: Model<Role>,
   ) {}
 
-  async list(query: PageDto) {
+  async page(query: PageDto) {
     const { page = 1, pageSize = 10 } = query;
 
     const roles = await this.roleModel
@@ -45,5 +45,10 @@ export class RoleService {
   async delete(id: string) {
     const result = await this.roleModel.findByIdAndDelete(id);
     return result;
+  }
+
+  async list() {
+    const roles = await this.roleModel.find();
+    return roles;
   }
 }

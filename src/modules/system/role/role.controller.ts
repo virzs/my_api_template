@@ -9,7 +9,13 @@ import {
   Query,
 } from '@nestjs/common';
 import { RoleService } from './role.service';
-import { ApiBody, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { PageDto } from 'src/public/dto/page';
 import { CreateRoleDto } from './dto/create-role.dto';
 
@@ -19,10 +25,17 @@ export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
   @Get('/')
-  @ApiOperation({ summary: '角色列表' })
+  @ApiOperation({ summary: '角色分页' })
   @ApiQuery({ type: PageDto })
-  list(@Query() query: PageDto) {
-    return this.roleService.list(query);
+  page(@Query() query: PageDto) {
+    return this.roleService.page(query);
+  }
+
+  @Get('/list')
+  @ApiOperation({ summary: '角色列表' })
+  @ApiResponse({ status: 200, type: [CreateRoleDto] })
+  list() {
+    return this.roleService.list();
   }
 
   @Get('/:id')

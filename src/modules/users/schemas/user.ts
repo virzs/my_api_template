@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import BaseSchema, { baseSchemaPreFind } from 'src/public/schema/base.schema';
-import { Role } from '../../../schemas/role';
+import { Role, RoleName } from '../../system/role/schemas/role';
 import { Project } from '../../system/project/schemas/project';
 import { Resource } from 'src/modules/resource/schemas/resource';
 
@@ -27,7 +27,7 @@ export class User extends BaseSchema {
   status: number;
 
   //  角色
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Role' }] })
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: RoleName }] })
   roles: Role[];
 
   // 类型 0: 管理员 1: 普通用户
