@@ -25,6 +25,7 @@ import { ResourceModule } from './modules/resource/resource.module';
 import { TDPrintModule } from './modules/3d-print/3d-print.module';
 import { QiniuModule } from './modules/system/qiniu/qiniu.module';
 import { ReptileModule } from './modules/reptile/reptile.module';
+import { VersionModule } from './modules/system/version/version.module';
 import qiniu from './config/qiniu';
 import rateLimit from 'express-rate-limit';
 
@@ -72,6 +73,7 @@ import rateLimit from 'express-rate-limit';
     TDPrintModule,
     QiniuModule,
     ReptileModule,
+    VersionModule,
   ],
   providers: [
     JwtService,
