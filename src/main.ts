@@ -36,6 +36,14 @@ async function bootstrap() {
   //过滤其他类型异常
   app.useGlobalFilters(new AllExceptionsFilter());
 
+  // 设置允许跨域
+  // https://tauri.localhost 是 tauri 项目的地址
+  app.enableCors({
+    origin: ['https://tauri.localhost'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type, Accept, authorization',
+  });
+
   const ifaces = os.networkInterfaces();
   let ip = '';
   for (const dev in ifaces) {
