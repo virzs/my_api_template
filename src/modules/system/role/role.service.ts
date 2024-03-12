@@ -32,6 +32,11 @@ export class RoleService {
     return role;
   }
 
+  async detailPermissions(id: string) {
+    const role = await this.roleModel.findById(id);
+    return role;
+  }
+
   async create(body: CreateRoleDto) {
     const result = await this.roleModel.create(body);
     return result;

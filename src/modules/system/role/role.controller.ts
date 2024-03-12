@@ -44,6 +44,12 @@ export class RoleController {
     return this.roleService.detail(id);
   }
 
+  @Get('/permissions/:id')
+  @ApiOperation({ summary: '角色权限id详情' })
+  detailPermissions(@Param('id') id: string) {
+    return this.roleService.detailPermissions(id);
+  }
+
   @Post('/')
   @ApiOperation({ summary: '创建角色' })
   @ApiBody({ type: CreateRoleDto })
