@@ -19,6 +19,8 @@ export class RoleService {
       .find()
       .skip((page - 1) * pageSize)
       .limit(pageSize)
+      .populate('creator')
+      .populate('updater')
       .populate('permissions')
       .exec();
 
@@ -28,7 +30,11 @@ export class RoleService {
   }
 
   async detail(id: string) {
-    const role = await this.roleModel.findById(id).populate('permissions');
+    const role = await this.roleModel
+      .findById(id)
+      .populate('creator')
+      .populate('updater')
+      .populate('permissions');
     return role;
   }
 
@@ -37,13 +43,16 @@ export class RoleService {
     return role;
   }
 
-  async create(body: CreateRoleDto) {
-    const result = await this.roleModel.create(body);
+  async create(body: CreateRoleDto, user: string) {
+    const result = await this.roleModel.create({ ...body, creator: user });
     return result;
   }
 
-  async update(id: string, body: CreateRoleDto) {
-    const result = await this.roleModel.findByIdAndUpdate(id, body);
+  async update(id: string, body: CreateRoleDto, user: string) {
+    const result = await this.roleModel.findByIdAndUpdate(id, {
+      ...body,
+      updater: user,
+    });
     return result;
   }
 
