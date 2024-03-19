@@ -39,9 +39,6 @@ services:
       - redis
     networks:
       - my_api_template
-# 声明一下网桥  my_api_template。
-# 重要：将所有服务都挂载在同一网桥即可通过容器名来互相通信了
-# 如nestjs连接mysql和redis，可以通过容器名来互相通信
 networks:
   my_api_template:
     driver: bridge
