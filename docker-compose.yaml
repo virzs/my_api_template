@@ -35,7 +35,7 @@ services:
     env_file:
       - ./prod.env
     depends_on:
-    #   - mongo
+      #   - mongo
       - redis
     networks:
       - my_api_template
