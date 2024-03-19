@@ -1,0 +1,47 @@
+version: '3'
+services:
+  # mongo:
+  #   image: mongo
+  #   ports:
+  #     - '27017:27017'
+  #   restart: on-failure
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: ''
+  #     MONGO_INITDB_ROOT_PASSWORD: ''
+  #     MONGO_INITDB_DATABASE: ''
+  #   networks:
+  #     - my_api_template
+  redis:
+    image: redis
+    command: redis-server --appendonly yes # 开启redis数据持久化
+    ports:
+      - '6379:6379'
+    environment:
+      - TZ=Asia/Shanghai
+    networks:
+      - my_api_template
+    restart: on-failure # 自动重启
+    volumes:
+      - ./deploy/redis/db:/data # 把持久化数据挂载到宿主机
+      - ./deploy/redis/conf/redis.conf:/usr/local/etc/redis/redis.conf # 把redis的配置文件挂载到宿主机
+      - ./deploy/redis/logs:/logs # 用来存放日志
+  nestjs-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '5151:5151'
+    restart: on-failure # 设置自动重启
+    env_file:
+      - ./prod.env
+    depends_on:
+    #   - mongo
+      - redis
+    networks:
+      - my_api_template
+# 声明一下网桥  my_api_template。
+# 重要：将所有服务都挂载在同一网桥即可通过容器名来互相通信了
+# 如nestjs连接mysql和redis，可以通过容器名来互相通信
+networks:
+  my_api_template:
+    driver: bridge

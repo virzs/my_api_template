@@ -44,6 +44,32 @@ $ pnpm run test:e2e
 $ pnpm run test:cov
 ```
 
+## Docker
+
+添加 `prod.env` 文件，按照 `.env.example` 文件填写，redis 配置如下
+
+``` env
+redis_host='redis'
+redis_port=6379
+redis_password=''
+redis_db=0
+redis_ttl=60
+```
+
+mongo docker 配置按需求自行添加，或单独配置 mongo 地址
+
+运行
+
+```bash
+docker-compose up
+```
+
+重新编译
+
+```bash
+docker-compose up --build
+```
+
 ## cli
 
 [NestJS Cli](https://docs.nestjs.com/cli/overview)

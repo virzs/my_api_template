@@ -51,8 +51,10 @@ import rateLimit from 'express-rate-limit';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         store: redisStore,
-        host: config.get('redis.host'),
-        port: config.get('redis.port'),
+        // docker redis 配置时需要 url
+        url: `redis://${config.get('redis.host')}:${config.get('redis.port')}`,
+        // host: config.get('redis.host'),
+        // port: config.get('redis.port'),
         ttl: config.get('redis.ttl'),
         auth_pass: config.get('redis.password'),
         database: config.get('redis.db'),

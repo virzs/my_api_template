@@ -1,18 +1,25 @@
-FROM node:14.17.3 as production
+# 使用官方 Node.js 18+ Alpine 作为基础镜像
+FROM node:alpine
 
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
-
+# 设置工作目录
 WORKDIR /usr/src/app
 
-COPY package*.json ./
+# 复制到工作目录
+COPY . ./
+# 删除 *.env
+RUN rm -rf dev.env
 
-RUN \
-    npm config set registry https://registry.npm.taobao.org \
-    && npm install --only=production
+# 安装项目依赖
+COPY package.json ./package.json
+RUN npm install -g pnpm
+RUN npm install -g @nestjs/cli
+RUN cd ./ && rm -rf ./node_modules && pnpm install
 
-COPY . .
+# 编译项目
+RUN pnpm run build
 
-COPY --from=development /usr/src/app/dist ./dist
+# 暴露应用端口
+EXPOSE 5151
 
-CMD ["node", "dist/main"]
+# 启动应用
+CMD pnpm run start:prod
