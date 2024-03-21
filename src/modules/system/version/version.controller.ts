@@ -12,6 +12,7 @@ import { VersionService } from './version.service';
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { PageDto } from 'src/public/dto/page';
 import { VersionDto } from './dto/version.dto';
+import { User } from 'src/public/decorator/route-user.decoratpr';
 
 @ApiTags('系统/版本管理')
 @Controller('system/version')
@@ -27,14 +28,14 @@ export class VersionController {
 
   @Post('/')
   @ApiOperation({ summary: '创建版本' })
-  create(@Body() body: VersionDto) {
-    return this.versionService.create(body);
+  create(@Body() body: VersionDto, @User('_id') user) {
+    return this.versionService.create(body, user);
   }
 
   @Put('/:id')
   @ApiOperation({ summary: '更新版本' })
-  update(@Param('id') id: string, @Body() body: VersionDto) {
-    return this.versionService.update(id, body);
+  update(@Param('id') id: string, @Body() body: VersionDto, @User('_id') user) {
+    return this.versionService.update(id, body, user);
   }
 
   @Delete('/:id')

@@ -15,7 +15,7 @@ export class VersionService {
   async page(query: PageDto) {
     const { page = 1, pageSize = 10 } = query;
 
-    const roles = await this.versionModel
+    const versions = await this.versionModel
       .find()
       .skip((page - 1) * pageSize)
       .limit(pageSize)
@@ -24,37 +24,43 @@ export class VersionService {
 
     const total = await this.versionModel.countDocuments();
 
-    return Response.page(roles, { page, pageSize, total });
+    return Response.page(versions, { page, pageSize, total });
   }
 
-  async create(body: VersionDto) {
-    const role = await this.versionModel.create(body);
-    return role;
+  async create(body: VersionDto, user: string) {
+    const version = await this.versionModel.create({ ...body, creator: user });
+    return version;
   }
 
-  async update(id: string, body: VersionDto) {
-    const role = await this.versionModel.findByIdAndUpdate(id, body, {
-      new: true,
-    });
-    return role;
+  async update(id: string, body: VersionDto, user: string) {
+    const version = await this.versionModel.findByIdAndUpdate(
+      id,
+      { ...body, updater: user },
+      {
+        new: true,
+      },
+    );
+    return version;
   }
 
   async delete(id: string) {
-    const role = await this.versionModel.findByIdAndDelete(id);
-    return role;
+    const version = await this.versionModel.findByIdAndUpdate(id, {
+      isDelete: true,
+    });
+    return version;
   }
 
   //   获取最新的版本，根据平台
   async latest(platform: string) {
-    const role = await this.versionModel
-      .findOne({ platform })
+    const version = await this.versionModel
+      .findOne({ platform, isDelete: false, releaseTime: { $lte: new Date() } })
       .sort({ createTime: -1 })
       .exec();
-    return role;
+    return version;
   }
 
   async detail(id: string) {
-    const role = await this.versionModel.findById(id);
-    return role;
+    const version = await this.versionModel.findById(id);
+    return version;
   }
 }
