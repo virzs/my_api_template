@@ -54,7 +54,11 @@ export class VersionService {
   //   获取最新的版本，根据平台
   async latest(platform: string) {
     const version = await this.versionModel
-      .findOne({ platform, isDelete: false, releaseTime: { $lte: new Date() } })
+      .findOne({
+        platform,
+        isDelete: false,
+        releaseTime: { $exists: false, $lte: new Date() },
+      })
       .sort({ createTime: -1 })
       .exec();
     return version;
