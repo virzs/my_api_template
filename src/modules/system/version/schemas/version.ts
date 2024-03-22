@@ -12,7 +12,7 @@ export class Version extends BaseSchema {
   @Prop({ type: String, required: true, unique: true })
   version: string;
 
-  //   发布平台
+  //   发布平台 windows, mac
   @Prop({ type: String, required: true })
   platform: string;
 

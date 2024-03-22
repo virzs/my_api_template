@@ -2,8 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import {
   IsDateString,
+  IsIn,
   IsNotEmpty,
-  IsNumberString,
   IsOptional,
   IsString,
   ValidateNested,
@@ -18,13 +18,13 @@ export class VersionDto {
   version: string;
 
   @ApiProperty({ description: '发布平台' })
-  @IsString()
+  @IsIn(['windows', 'mac'], { message: '发布平台不正确' })
   @IsNotEmpty({ message: '发布平台不能为空' })
   @Expose()
   platform: string;
 
   @ApiProperty({ description: '更新方式' })
-  @IsNumberString()
+  @IsIn([1, 2], { message: '更新方式不正确' })
   @IsNotEmpty({ message: '更新方式不能为空' })
   @Expose()
   updateType: string;
