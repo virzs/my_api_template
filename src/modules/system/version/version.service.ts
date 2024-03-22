@@ -64,7 +64,6 @@ export class VersionService {
       })
       .sort({ createTime: -1 })
       .exec();
-    console.log(version);
     return version;
   }
 
