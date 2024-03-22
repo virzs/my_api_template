@@ -18,7 +18,7 @@ export class Version extends BaseSchema {
 
   //   更新方式 1: 强制更新 2: 可选更新
   @Prop({ type: Number, required: true })
-  updateType: string;
+  updateType: number;
 
   //   更新内容
   @Prop({ type: String, required: true })

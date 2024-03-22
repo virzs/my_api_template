@@ -24,7 +24,7 @@ export class VersionDto {
   platform: string;
 
   @ApiProperty({ description: '更新方式' })
-  @IsIn([1, 2], { message: '更新方式不正确' })
+  @IsIn([1, 2, '1', '2'], { message: '更新方式不正确' })
   @IsNotEmpty({ message: '更新方式不能为空' })
   @Expose()
   updateType: string;
