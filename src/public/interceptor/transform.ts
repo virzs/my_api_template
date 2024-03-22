@@ -21,7 +21,7 @@ export class TransformInterceptor implements NestInterceptor {
           method: req.method,
           ip: ip,
           user: req.user,
-          response: data.data,
+          response: data?.data,
         });
 
         Logger.info(logFormat);
