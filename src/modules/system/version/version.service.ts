@@ -19,7 +19,6 @@ export class VersionService {
       .find()
       .skip((page - 1) * pageSize)
       .limit(pageSize)
-      .populate('permissions')
       .exec();
 
     const total = await this.versionModel.countDocuments();
