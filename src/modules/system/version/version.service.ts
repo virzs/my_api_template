@@ -16,7 +16,7 @@ export class VersionService {
     const { page = 1, pageSize = 10 } = query;
 
     const versions = await this.versionModel
-      .find()
+      .find({}, { content: 0 })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .populate('creator')
@@ -57,10 +57,14 @@ export class VersionService {
       .findOne({
         platform,
         isDelete: false,
-        releaseTime: { $exists: false, $lte: new Date() },
+        $or: [
+          { releaseTime: { $exists: false } },
+          { releaseTime: { $lte: new Date() } },
+        ],
       })
       .sort({ createTime: -1 })
       .exec();
+    console.log(version);
     return version;
   }
 
