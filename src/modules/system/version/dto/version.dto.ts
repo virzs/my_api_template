@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import {
+  ArrayNotEmpty,
   IsDateString,
   IsIn,
   IsNotEmpty,
@@ -8,7 +9,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { ResourceDto } from 'src/public/dto/resource.dto';
+import { Platform } from '../schemas/version';
 
 export class VersionDto {
   @ApiProperty({ description: '版本号' })
@@ -18,10 +19,11 @@ export class VersionDto {
   version: string;
 
   @ApiProperty({ description: '发布平台' })
-  @IsIn(['windows', 'mac'], { message: '发布平台不正确' })
-  @IsNotEmpty({ message: '发布平台不能为空' })
+  @ArrayNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => Platform)
   @Expose()
-  platform: string;
+  platforms: Platform[];
 
   @ApiProperty({ description: '更新方式' })
   @IsIn([1, 2, '1', '2'], { message: '更新方式不正确' })
@@ -34,12 +36,6 @@ export class VersionDto {
   @IsNotEmpty({ message: '更新内容不能为空' })
   @Expose()
   content: string;
-
-  @ApiProperty({ description: '附件', type: ResourceDto })
-  @ValidateNested()
-  @IsNotEmpty({ message: '附件不能为空' })
-  @Expose()
-  source: ResourceDto;
 
   @ApiProperty({ description: '发布时间' })
   @IsDateString()

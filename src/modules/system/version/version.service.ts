@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Version, VersionName } from './schemas/version';
+import { LastVersion, Version, VersionName } from './schemas/version';
 import { Model } from 'mongoose';
 import { PageDto } from 'src/public/dto/page';
 import { Response } from 'src/utils/response';
@@ -64,7 +64,22 @@ export class VersionService {
       })
       .sort({ createTime: -1 })
       .exec();
-    return version;
+    const { platforms, ...rest } = version;
+
+    const platformData = platforms.findIndex(
+      (item) => item.platform === platform,
+    );
+
+    if (platformData === -1) {
+      return null;
+    }
+
+    const result = {
+      ...rest,
+      platform: platforms[platformData],
+    } as unknown as LastVersion;
+
+    return result;
   }
 
   async detail(id: string) {
