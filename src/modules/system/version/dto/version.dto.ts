@@ -25,12 +25,6 @@ export class VersionDto {
   @Expose()
   platforms: Platform[];
 
-  @ApiProperty({ description: '更新方式' })
-  @IsIn([1, 2, '1', '2'], { message: '更新方式不正确' })
-  @IsNotEmpty({ message: '更新方式不能为空' })
-  @Expose()
-  updateType: string;
-
   @ApiProperty({ description: '更新内容' })
   @IsString()
   @IsNotEmpty({ message: '更新内容不能为空' })

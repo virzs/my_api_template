@@ -64,6 +64,11 @@ export class VersionService {
       })
       .sort({ createTime: -1 })
       .exec();
+
+    if (!version) {
+      return null;
+    }
+
     const { platforms, ...rest } = version;
 
     const platformData = platforms.findIndex(

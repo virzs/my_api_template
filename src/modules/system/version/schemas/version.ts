@@ -14,6 +14,9 @@ export class Platform {
   platform: string;
   @Prop({ type: Resource, required: true })
   source: Resource;
+  // 更新方式 1: 强制更新 2: 可选更新
+  @Prop({ type: Number, enum: [1, 2, '1', '2'], required: true })
+  updateType: number;
 }
 
 const PlatformSchema = SchemaFactory.createForClass(Platform);
@@ -22,10 +25,6 @@ const PlatformSchema = SchemaFactory.createForClass(Platform);
 export class BaseVersion extends BaseSchema {
   @Prop({ type: String, required: true, unique: true })
   version: string;
-
-  // 更新方式 1: 强制更新 2: 可选更新
-  @Prop({ type: Number, required: true })
-  updateType: number;
 
   // 更新内容
   @Prop({ type: String, required: true })
