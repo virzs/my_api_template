@@ -1,9 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose, Type } from 'class-transformer';
+import { Expose } from 'class-transformer';
 import {
   ArrayNotEmpty,
   IsDateString,
-  IsIn,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -21,7 +20,6 @@ export class VersionDto {
   @ApiProperty({ description: '发布平台' })
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
-  @Type(() => Platform)
   @Expose()
   platforms: Platform[];
 

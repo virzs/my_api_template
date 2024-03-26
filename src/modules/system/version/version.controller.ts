@@ -41,8 +41,8 @@ export class VersionController {
 
   @Delete('/:id')
   @ApiOperation({ summary: '删除版本' })
-  delete(@Param('id') id: string) {
-    return this.versionService.delete(id);
+  delete(@Param('id') id: string, @User('_id') user) {
+    return this.versionService.delete(id, user);
   }
 
   @Get('/latest')

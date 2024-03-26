@@ -44,9 +44,15 @@ export class VersionService {
     return version;
   }
 
-  async delete(id: string) {
+  async delete(id: string, user: string) {
+    const old = await this.versionModel.findById(id);
+    if (!old) {
+      throw new Error('版本不存在');
+    }
     const version = await this.versionModel.findByIdAndUpdate(id, {
       isDelete: true,
+      version: `${old.version}-delete`,
+      updater: user,
     });
     return version;
   }

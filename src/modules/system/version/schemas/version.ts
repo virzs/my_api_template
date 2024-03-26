@@ -1,5 +1,4 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
 import { Resource } from 'src/modules/resource/schemas/resource';
 import BaseSchema, {
   baseSchemaPreFind,
@@ -21,7 +20,7 @@ export class Platform {
 
 const PlatformSchema = SchemaFactory.createForClass(Platform);
 
-@Schema({ timestamps: true })
+@Schema()
 export class BaseVersion extends BaseSchema {
   @Prop({ type: String, required: true, unique: true })
   version: string;
@@ -35,7 +34,7 @@ export class BaseVersion extends BaseSchema {
   releaseTime: Date;
 }
 
-@Schema()
+@Schema({ timestamps: true })
 export class Version extends BaseVersion {
   @Prop({
     type: [PlatformSchema],
