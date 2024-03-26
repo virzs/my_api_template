@@ -61,7 +61,7 @@ export class VersionService {
   async latest(platform: string) {
     const version = await this.versionModel
       .findOne({
-        platform,
+        ...(platform === 'all' ? {} : { platform }),
         isDelete: false,
         $or: [
           { releaseTime: { $exists: false } },
@@ -73,6 +73,10 @@ export class VersionService {
 
     if (!version) {
       return null;
+    }
+
+    if (platform === 'all') {
+      return version;
     }
 
     const { platforms, ...rest } = version;
