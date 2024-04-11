@@ -13,9 +13,16 @@ export class RefreshTokenService {
    * @returns
    */
   createRefreshToken(user: any) {
-    const token = this.jwtService.sign(user, {
-      expiresIn: jwtConfig.refreshToken.expiresIn,
-    });
+    // BUG: https://github.com/nestjs/jwt/issues/1370
+    // sign 时 expireation 会被忽略
+    // 当前时间 + refreshToken 过期时间
+    const expiresIn = Date.now() + ms(jwtConfig.refreshToken.expiresIn);
+    const token = this.jwtService.sign(
+      { ...user, expiresIn },
+      {
+        expiresIn: jwtConfig.refreshToken.expiresIn,
+      },
+    );
     return token;
   }
 
@@ -35,10 +42,11 @@ export class RefreshTokenService {
   async isRefreshTokenExpiresSoon(refreshToken: string) {
     const currentDate = Math.floor(Date.now() / 1000);
     const decoded = await this.jwtService.verifyAsync(refreshToken);
-    const refreshTokenExpiration = new Date(decoded.exp);
+    // 由于 jwt sign 时 expiresIn 会被忽略，所以需要手动计算
+    const refreshTokenExpiration = decoded.expiresIn; //new Date(decoded.exp);
     const refreshTTL = this.getTTL();
 
-    return refreshTokenExpiration.getTime() - currentDate < refreshTTL / 10;
+    return refreshTokenExpiration - currentDate < refreshTTL / 10;
   }
 
   getTTL() {

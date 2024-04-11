@@ -171,13 +171,9 @@ export class AuthService {
     if (decoded.userAgent !== userAgent)
       throw new UnauthorizedException('登录已过期 userAgent changed');
 
-    console.log(decoded);
-
     const cache: RedisTokenCache = await this.cacheManager.get(
       `${RedisConstants.AUTH_REFRESH_TOKEN_KEY}:${decoded._id.toString()}`,
     );
-
-    console.log(cache);
 
     if (!cache) {
       throw new UnauthorizedException('登录已过期 no cache');
