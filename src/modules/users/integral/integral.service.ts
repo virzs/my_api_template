@@ -16,11 +16,11 @@ export class IntegralService {
     @InjectModel(UsersName) private readonly usersModel: Model<User>,
   ) {}
 
-  async page(query: PageDto) {
+  async page(query: PageDto, user: string) {
     const { page = 1, pageSize = 10 } = query;
 
     const users = await this.integralModel
-      .find({}, { password: 0, salt: 0 })
+      .find({ user })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .populate('roles')
