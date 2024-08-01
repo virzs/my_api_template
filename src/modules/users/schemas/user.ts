@@ -41,6 +41,10 @@ export class User extends BaseSchema {
   // 是否启用
   @Prop({ type: Boolean, default: true })
   enable: boolean;
+
+  // 当前积分
+  @Prop({ type: Number, default: 0 })
+  integral: number;
 }
 
 export const UsersSchema = SchemaFactory.createForClass(User);

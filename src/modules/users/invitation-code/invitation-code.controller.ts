@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
 import { InvitationCodeService } from './invitation-code.service';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/public/decorator/route-user.decoratpr';
 import { InvitationCodeDto } from './dto/invitation-code.dto';
 
