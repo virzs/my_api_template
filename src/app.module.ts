@@ -16,16 +16,12 @@ import { JwtService } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { PermissionGuard } from './public/guard/permission.guard';
 import { ProjectModule } from './modules/system/project/project.module';
-import { EngineModule } from './modules/navigate/engine/engine.module';
-import { WebsiteModule } from './modules/navigate/website/website.module';
-import { WebsiteClassifyModule } from './modules/navigate/website-classify/website-classify.module';
-import { BackgroundModule } from './modules/navigate/background/background.module';
-import { UserSettingModule } from './modules/navigate/user-setting/user-setting.module';
 import { ResourceModule } from './modules/resource/resource.module';
 import { TDPrintModule } from './modules/3d-print/3d-print.module';
 import { QiniuModule } from './modules/system/qiniu/qiniu.module';
 import { ReptileModule } from './modules/reptile/reptile.module';
 import { VersionModule } from './modules/system/version/version.module';
+import { TabsModule } from './modules/tabs/tabs.module';
 import qiniu from './config/qiniu';
 import rateLimit from 'express-rate-limit';
 
@@ -66,16 +62,12 @@ import rateLimit from 'express-rate-limit';
     EmailModule,
     RoleModule,
     ProjectModule,
-    EngineModule,
-    WebsiteModule,
-    WebsiteClassifyModule,
-    BackgroundModule,
-    UserSettingModule,
     ResourceModule,
     TDPrintModule,
     QiniuModule,
     ReptileModule,
     VersionModule,
+    TabsModule,
   ],
   providers: [
     JwtService,
