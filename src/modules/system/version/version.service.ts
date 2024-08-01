@@ -51,7 +51,7 @@ export class VersionService {
     }
     const version = await this.versionModel.findByIdAndUpdate(id, {
       isDelete: true,
-      version: `${old.version}-delete`,
+      version: `${old.version}-delete-${new Date().getTime()}`,
       updater: user,
     });
     return version;
