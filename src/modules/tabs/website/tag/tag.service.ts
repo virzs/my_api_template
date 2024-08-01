@@ -1,4 +1,4 @@
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class WebsiteClassifyService {}
+export class TagService {}
