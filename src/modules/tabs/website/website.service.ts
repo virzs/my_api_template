@@ -120,7 +120,7 @@ export class WebsiteService {
   async incrementClick(id: string): Promise<void> {
     const cacheKey = `website:${id}:click`;
     const currentClicks = (await this.cacheManager.get<number>(cacheKey)) || 0;
-    await this.cacheManager.set(cacheKey, currentClicks + 1);
+    await this.cacheManager.set(cacheKey, currentClicks + 1, 2 * 60 * 1000);
   }
 
   /**
@@ -153,7 +153,7 @@ export class WebsiteService {
   @Cron('0 0 * * * *') // 每小时执行一次
   async updateTop50Clicks() {
     const top50Clicks = await this.getTop50Clicks();
-    await this.cacheManager.set('top50Clicks', top50Clicks);
+    await this.cacheManager.set('top50Clicks', top50Clicks, 2 * 60 * 60 * 1000);
     return top50Clicks;
   }
 

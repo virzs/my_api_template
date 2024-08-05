@@ -70,7 +70,11 @@ export class ClassifyService {
    */
   async cacheTree() {
     const tree = await this.getTree();
-    await this.cacheManager.set('website_classify_tree', tree);
+    await this.cacheManager.set(
+      'website_classify_tree',
+      tree,
+      2 * 60 * 60 * 1000,
+    );
     return tree;
   }
 
