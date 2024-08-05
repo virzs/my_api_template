@@ -3,7 +3,7 @@ import BaseSchema, {
   baseSchemaPreFind,
   baseSchemaToJSON,
 } from 'src/public/schema/base.schema';
-import { WebsiteName } from './ref-names';
+import { WebsiteClassifyName, WebsiteName } from './ref-names';
 import mongoose from 'mongoose';
 import { Website } from './website';
 
@@ -26,6 +26,14 @@ export class WebsiteClassify extends BaseSchema {
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: WebsiteName }] })
   websites: Website[];
+
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: WebsiteClassifyName }],
+  })
+  children: WebsiteClassify[];
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: WebsiteClassifyName })
+  parent: WebsiteClassify;
 }
 
 export const WebsiteClassifySchema =

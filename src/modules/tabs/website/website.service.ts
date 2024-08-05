@@ -129,6 +129,7 @@ export class WebsiteService {
   @Cron('0 * * * * *') // 每分钟同步一次点击数
   async syncClicks(): Promise<void> {
     const keys = await this.cacheManager.store.keys('website:*:click');
+    if (!keys) return;
     for (const key of keys) {
       const id = key.split(':')[1];
       const clicks = await this.cacheManager.get<number>(key);
@@ -153,12 +154,16 @@ export class WebsiteService {
   async updateTop50Clicks() {
     const top50Clicks = await this.getTop50Clicks();
     await this.cacheManager.set('top50Clicks', top50Clicks);
+    return top50Clicks;
   }
 
   /**
    * 从缓存中获取前50点击量的记录
    */
   async getTop50ClicksFromCache() {
-    return this.cacheManager.get<Website[]>('top50Clicks');
+    const top = this.cacheManager.get<Website[]>('top50Clicks');
+    if (top) return top;
+    // 缓存中没有则更新一次
+    return await this.updateTop50Clicks();
   }
 }
