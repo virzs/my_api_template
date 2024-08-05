@@ -9,7 +9,7 @@ import {
 } from './schemas/ref-names';
 import { WebsiteSchema } from './schemas/website';
 import { WebsiteClassifySchema } from './schemas/classify';
-import { WebsiteTag } from './schemas/tag';
+import { WebsiteTagSchema } from './schemas/tag';
 import { ClassifyController } from './classify/classify.controller';
 import { TagController } from './tag/tag.controller';
 import { ClassifyService } from './classify/classify.service';
@@ -30,7 +30,7 @@ import { TagService } from './tag/tag.service';
       },
       {
         name: WebsiteTagName,
-        schema: WebsiteTag,
+        schema: WebsiteTagSchema,
       },
     ]),
   ],

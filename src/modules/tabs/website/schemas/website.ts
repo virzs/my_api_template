@@ -28,6 +28,9 @@ export class Website extends BaseSchema {
   @Prop({ type: Boolean, default: true })
   enable: boolean;
 
+  @Prop({ type: Boolean, default: false })
+  public: boolean;
+
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: WebsiteClassifyName })
   classify: WebsiteClassify;
 

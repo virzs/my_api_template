@@ -24,6 +24,7 @@ import { VersionModule } from './modules/system/version/version.module';
 import { TabsModule } from './modules/tabs/tabs.module';
 import qiniu from './config/qiniu';
 import rateLimit from 'express-rate-limit';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -56,6 +57,8 @@ import rateLimit from 'express-rate-limit';
         database: config.get('redis.db'),
       }),
     }),
+    // 定时任务
+    ScheduleModule.forRoot(),
     UsersModule,
     AuthModule,
     PermissionModule,
