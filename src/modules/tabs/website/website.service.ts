@@ -66,6 +66,26 @@ export class WebsiteService {
   }
 
   /**
+   * 我创建的网站分页
+   */
+  async getMyWebsites(query: PageDto, user: string) {
+    const { page = 1, pageSize = 10 } = query;
+
+    const finder = { creator: user };
+
+    const users = await this.websiteModel
+      .find(finder)
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .populate('roles')
+      .exec();
+
+    const total = await this.websiteModel.countDocuments(finder);
+
+    return Response.page(users, { page, pageSize, total });
+  }
+
+  /**
    * 新增网站
    */
   async addWebsite(data: WebsiteDto, user: string) {

@@ -39,6 +39,14 @@ export class WebsiteController {
     return this.websiteService.getWebsitesForUser(query);
   }
 
+  @Get('/my')
+  @ApiOperation({ summary: '我的网站' })
+  @ApiParam({ name: 'page', description: '页码', example: 1 })
+  @ApiParam({ name: 'pageSize', description: '每页数量', example: 10 })
+  getMyWebsite(@Query() query: PageDto, @User('_id') user: string) {
+    return this.websiteService.getMyWebsites(query, user);
+  }
+
   @Post('/')
   @ApiOperation({ summary: '创建网站' })
   createWebsite(@Body() body: WebsiteDto, @User('_id') user: string) {
