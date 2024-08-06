@@ -4,9 +4,9 @@ import {
   IsBoolean,
   IsMongoId,
   IsNumber,
+  IsObject,
   IsOptional,
   IsString,
-  IsUrl,
 } from 'class-validator';
 
 export class WebsiteClassifyDto {
@@ -22,7 +22,7 @@ export class WebsiteClassifyDto {
   description: string;
 
   @ApiProperty({ description: '图标' })
-  @IsUrl()
+  @IsObject()
   @IsOptional()
   @Expose()
   icon: string;

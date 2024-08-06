@@ -1,6 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsMongoId, IsOptional, IsString, IsUrl } from 'class-validator';
+import {
+  IsMongoId,
+  IsObject,
+  IsOptional,
+  IsString,
+  IsUrl,
+} from 'class-validator';
 import { PageDto } from 'src/public/dto/page';
 
 export class WebsitesForUserDto extends PageDto {
@@ -34,7 +40,7 @@ export class WebsiteDto {
   url: string;
 
   @ApiProperty({ description: '图标' })
-  @IsString()
+  @IsObject()
   @IsOptional()
   @Expose()
   icon: string;
