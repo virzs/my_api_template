@@ -16,6 +16,14 @@ export class ClassifyService {
   ) {}
 
   async createClassify(data: WebsiteClassifyDto, user: string) {
+    if (data.parent) {
+      const parent = await this.classifyModel.findById(data.parent);
+      if (!parent) {
+        throw new Error('父分类不存在');
+      } else if (parent.websites.length > 0) {
+        throw new Error('父分类下存在网站，不允许创建子分类');
+      }
+    }
     return await this.classifyModel.create({ ...data, creator: user });
   }
 

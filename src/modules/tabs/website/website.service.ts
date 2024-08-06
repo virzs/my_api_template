@@ -8,12 +8,14 @@ import { Cache } from 'cache-manager';
 import { PageDto } from 'src/public/dto/page';
 import { Response } from 'src/utils/response';
 import { WebsiteDto, WebsitesForUserDto } from './dto/website';
+import { ClassifyService } from './classify/classify.service';
 
 @Injectable()
 export class WebsiteService {
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectModel(WebsiteName) private websiteModel: Model<Website>,
+    private readonly classifyService: ClassifyService,
   ) {}
 
   /**
@@ -111,6 +113,28 @@ export class WebsiteService {
    */
   async deleteWebsite(id: string) {
     return this.websiteModel.findByIdAndUpdate(id, { isDelete: true });
+  }
+
+  /**
+   * 根据分类树获取网站，每个分类前9个
+   */
+  async getWebsitesByClassifyTree() {
+    const tree = await this.classifyService.treeInfo({});
+
+    const deep = (tree: any[]) => {
+      const result: any[] = [];
+      for (const item of tree) {
+        if (item.children && item.children.length > 0) {
+          result.push(...deep(item.children));
+        }
+        if (item.websites && item.websites.length > 0) {
+          result.push(...item.websites.slice(0, 9));
+        }
+      }
+      return result;
+    };
+
+    return deep(tree);
   }
 
   /**

@@ -75,4 +75,11 @@ export class WebsiteController {
   getTop50() {
     return this.websiteService.getTop50ClicksFromCache();
   }
+
+  @Get('/classify')
+  @ApiOperation({ summary: '分类树 (用户)' })
+  @RequireLogin()
+  getClassifyTree() {
+    return this.websiteService.getWebsitesByClassifyTree();
+  }
 }
