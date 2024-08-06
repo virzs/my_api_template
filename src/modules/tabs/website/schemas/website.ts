@@ -7,33 +7,43 @@ import { WebsiteClassifyName, WebsiteTagName } from './ref-names';
 import { WebsiteClassify } from './classify';
 import mongoose from 'mongoose';
 import { WebsiteTag } from './tag';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Schema({ timestamps: true })
 export class Website extends BaseSchema {
+  @ApiProperty({ description: '名称', type: String, required: true })
   @Prop({ type: String, required: true })
   name: string;
 
+  @ApiProperty({ description: '网址', type: String, required: true })
   @Prop({ type: String, required: true })
   url: string;
 
+  @ApiProperty({ description: '图标', type: String })
   @Prop({ type: String })
   icon: string;
 
+  @ApiProperty({ description: '描述', type: String })
   @Prop({ type: String })
   description: string;
 
+  @ApiProperty({ description: '点击量', type: Number, default: 0 })
   @Prop({ type: Number, default: 0 })
   click: number;
 
+  @ApiProperty({ description: '是否启用', type: Boolean, default: true })
   @Prop({ type: Boolean, default: true })
   enable: boolean;
 
+  @ApiProperty({ description: '是否公开', type: Boolean, default: false })
   @Prop({ type: Boolean, default: false })
   public: boolean;
 
+  @ApiProperty({ description: '分类', type: WebsiteClassify })
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: WebsiteClassifyName })
   classify: WebsiteClassify;
 
+  @ApiProperty({ description: '标签', type: [WebsiteTag] })
   @Prop({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: WebsiteTagName }],
   })
