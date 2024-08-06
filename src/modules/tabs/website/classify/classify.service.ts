@@ -67,6 +67,15 @@ export class ClassifyService {
   }
 
   /**
+   * 获取详情
+   */
+  async detail(id: string) {
+    return await this.classifyModel.findById(id, {
+      websites: 0,
+    });
+  }
+
+  /**
    * 获取分类树
    */
   async treeInfo(query: any) {
