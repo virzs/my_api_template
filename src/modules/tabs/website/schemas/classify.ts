@@ -7,6 +7,7 @@ import { WebsiteClassifyName, WebsiteName } from './ref-names';
 import mongoose from 'mongoose';
 import { Website } from './website';
 import { ApiProperty } from '@nestjs/swagger';
+import { Resource } from 'src/modules/resource/schemas/resource';
 
 @Schema({ timestamps: true })
 export class WebsiteClassify extends BaseSchema {
@@ -18,9 +19,9 @@ export class WebsiteClassify extends BaseSchema {
   @Prop({ type: String })
   description: string;
 
-  @ApiProperty({ description: '图标', type: String })
-  @Prop({ type: String })
-  icon: string;
+  @ApiProperty({ description: '图标', type: Resource })
+  @Prop({ type: Resource })
+  icon: Resource;
 
   @ApiProperty({ description: '排序', type: Number, default: 0 })
   @Prop({ type: Number, default: 0 })

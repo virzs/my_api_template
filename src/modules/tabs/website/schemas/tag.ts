@@ -6,6 +6,7 @@ import BaseSchema, {
 import { WebsiteName } from './ref-names';
 import mongoose from 'mongoose';
 import { Website } from './website';
+import { Resource } from 'src/modules/resource/schemas/resource';
 
 @Schema({ timestamps: true })
 export class WebsiteTag extends BaseSchema {
@@ -15,8 +16,8 @@ export class WebsiteTag extends BaseSchema {
   @Prop({ type: String })
   description: string;
 
-  @Prop({ type: String })
-  icon: string;
+  @Prop({ type: Resource })
+  icon: Resource;
 
   @Prop({ type: Number, default: 0 })
   sort: number;
