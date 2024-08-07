@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import {
+  IsBoolean,
   IsMongoId,
   IsObject,
   IsOptional,
@@ -62,4 +63,17 @@ export class WebsiteDto {
   @IsOptional()
   @Expose()
   tags: string[];
+}
+
+export class ParseWebsiteDto {
+  @ApiProperty({ description: 'URL' })
+  @IsUrl()
+  @Expose()
+  url: string;
+
+  @ApiProperty({ description: '是否忽略缓存' })
+  @IsBoolean()
+  @IsOptional()
+  @Expose()
+  ignoreCache: boolean;
 }

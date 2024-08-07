@@ -7,8 +7,10 @@ import { Cron } from '@nestjs/schedule';
 import { Cache } from 'cache-manager';
 import { PageDto } from 'src/public/dto/page';
 import { Response } from 'src/utils/response';
-import { WebsiteDto, WebsitesForUserDto } from './dto/website';
+import { ParseWebsiteDto, WebsiteDto, WebsitesForUserDto } from './dto/website';
 import { ClassifyService } from './classify/classify.service';
+import axios from 'axios';
+import * as cheerio from 'cheerio';
 
 @Injectable()
 export class WebsiteService {
@@ -135,6 +137,41 @@ export class WebsiteService {
     };
 
     return deep(tree);
+  }
+
+  /**
+   * 根据url解析网站meta信息
+   */
+  async parseWebsiteMeta({ url, ignoreCache }: ParseWebsiteDto) {
+    if (!ignoreCache) {
+      // 先从缓存中获取
+      const cacheResult: object = await this.cacheManager.get(
+        `website:meta:${url}`,
+      );
+      if (cacheResult) return { ...cacheResult, isCache: true };
+    }
+
+    const result = await axios
+      .get(url)
+      .then((response) => {
+        const $ = cheerio.load(response.data);
+        const title = $('title').text();
+        const icon = $('link[rel="icon"]').attr('href');
+        const icon2 = $('link[rel="shortcut icon"]').attr('href');
+        const description = $('meta[name="description"]').attr('content');
+
+        return { title, description, icon: icon ?? icon2 };
+      })
+      .catch(() => {
+        return {};
+      });
+    // 如果获取成功，缓存解析结果，有效期1天
+    await this.cacheManager.set(
+      `website:meta:${url}`,
+      result,
+      24 * 60 * 60 * 1000,
+    );
+    return result;
   }
 
   /**

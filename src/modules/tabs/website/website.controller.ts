@@ -12,7 +12,7 @@ import { WebsiteService } from './website.service';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { PageDto } from 'src/public/dto/page';
 import { RequireLogin } from 'src/public/decorator/require_login.decorator';
-import { WebsiteDto, WebsitesForUserDto } from './dto/website';
+import { ParseWebsiteDto, WebsiteDto, WebsitesForUserDto } from './dto/website';
 import { User } from 'src/public/decorator/route-user.decoratpr';
 
 @ApiTags('新标签页/网站')
@@ -81,5 +81,12 @@ export class WebsiteController {
   @RequireLogin()
   getClassifyTree() {
     return this.websiteService.getWebsitesByClassifyTree();
+  }
+
+  @Post('/parse')
+  @ApiOperation({ summary: '解析网站信息' })
+  @RequireLogin()
+  parseWebsite(@Body() body: ParseWebsiteDto) {
+    return this.websiteService.parseWebsiteMeta(body);
   }
 }
