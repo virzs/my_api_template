@@ -6,20 +6,23 @@ import BaseSchema, {
 
 @Schema({ timestamps: true })
 export class Resource extends BaseSchema {
-  @Prop({ type: String, required: true })
+  @Prop({ type: String })
   name: string;
 
-  @Prop({ type: String, required: true })
+  @Prop({ type: String })
   key: string;
 
-  @Prop({ type: String, required: true })
+  @Prop({ type: String })
   mimetype: string;
 
-  @Prop({ type: String, required: true })
+  @Prop({ type: String })
   dir: string;
 
-  @Prop({ type: Number, required: true })
+  @Prop({ type: Number })
   size: number;
+
+  @Prop({ type: String })
+  url: string;
 }
 
 export const ResourceSchema = SchemaFactory.createForClass(Resource);

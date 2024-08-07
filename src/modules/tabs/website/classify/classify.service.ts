@@ -1,11 +1,12 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
-import { WebsiteClassifyName } from '../schemas/ref-names';
+import { WebsiteClassifyName, WebsiteName } from '../schemas/ref-names';
 import { WebsiteClassify } from '../schemas/classify';
 import { Cache } from 'cache-manager';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Cron } from '@nestjs/schedule';
 import { WebsiteClassifyDto } from '../dto/classify';
+import { Website } from '../schemas/website';
 
 @Injectable()
 export class ClassifyService {
@@ -13,6 +14,7 @@ export class ClassifyService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectModel(WebsiteClassifyName)
     private classifyModel: Model<WebsiteClassify>,
+    @InjectModel(WebsiteName) private websiteModel: Model<Website>,
   ) {}
 
   async createClassify(data: WebsiteClassifyDto, user: string) {
@@ -35,7 +37,37 @@ export class ClassifyService {
   }
 
   async deleteClassify(id: string) {
-    return await this.classifyModel.findByIdAndDelete(id);
+    // 如果有子分类 禁止删除
+    const children = await this.classifyModel.find({ parent: id });
+    if (children.length > 0) {
+      throw new Error('存在子分类，不允许删除');
+    }
+    const result = await this.classifyModel.findByIdAndUpdate(id, {
+      isDelete: true,
+    });
+
+    // 如果分类删除 取消对应的关联
+    await this.websiteModel.updateMany(
+      { classify: id },
+      { $set: { classify: null } },
+    );
+
+    return result;
+  }
+
+  async toggleWebsite(classifyId: string, websiteId: string) {
+    const classify = await this.classifyModel.findById(classifyId);
+    if (!classify) {
+      throw new Error('分类未找到');
+    }
+
+    const updateOperation = classify.websites.includes(
+      websiteId as unknown as any,
+    )
+      ? { $pull: { websites: websiteId } }
+      : { $addToSet: { websites: websiteId } };
+
+    await this.classifyModel.findByIdAndUpdate(classifyId, updateOperation);
   }
 
   async getTree(params?: any, parentId = null) {

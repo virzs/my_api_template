@@ -56,7 +56,7 @@ export class WebsiteController {
   @Put('/:id')
   @ApiOperation({ summary: '更新网站' })
   updateWebsite(
-    @Param(':id') id: string,
+    @Param('id') id: string,
     @Body() body: WebsiteDto,
     @User('_id') user: string,
   ) {
@@ -65,7 +65,7 @@ export class WebsiteController {
 
   @Delete('/:id')
   @ApiOperation({ summary: '删除网站' })
-  deleteWebsite(@Param(':id') id: string) {
+  deleteWebsite(@Param('id') id: string) {
     return this.websiteService.deleteWebsite(id);
   }
 

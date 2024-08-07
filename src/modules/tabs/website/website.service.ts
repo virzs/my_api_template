@@ -30,7 +30,7 @@ export class WebsiteService {
       .find({})
       .skip((page - 1) * pageSize)
       .limit(pageSize)
-      .populate('roles')
+      .populate('classify')
       .exec();
 
     const total = await this.websiteModel.countDocuments({});
@@ -61,7 +61,6 @@ export class WebsiteService {
       .find(finder)
       .skip((page - 1) * pageSize)
       .limit(pageSize)
-      .populate('roles')
       .exec();
 
     const total = await this.websiteModel.countDocuments(finder);
@@ -81,7 +80,6 @@ export class WebsiteService {
       .find(finder)
       .skip((page - 1) * pageSize)
       .limit(pageSize)
-      .populate('roles')
       .exec();
 
     const total = await this.websiteModel.countDocuments(finder);
@@ -93,28 +91,46 @@ export class WebsiteService {
    * 新增网站
    */
   async addWebsite(data: WebsiteDto, user: string) {
-    const website = new this.websiteModel({
+    const website = await this.websiteModel.create({
       ...data,
       creator: user,
     });
-    return website.save();
+    if (data.classify) {
+      await this.classifyService.toggleWebsite(data.classify, website._id);
+    }
+    return website;
   }
 
   /**
    * 更新网站
    */
   async updateWebsite(id: string, data: WebsiteDto, user: string) {
-    return this.websiteModel.findByIdAndUpdate(id, {
+    const result = this.websiteModel.findByIdAndUpdate(id, {
       ...data,
       updater: user,
     });
+
+    if (data.classify) {
+      await this.classifyService.toggleWebsite(data.classify, id);
+    }
+
+    return result;
   }
 
   /**
    * 删除网站
    */
   async deleteWebsite(id: string) {
-    return this.websiteModel.findByIdAndUpdate(id, { isDelete: true });
+    const result = await this.websiteModel.findByIdAndUpdate(id, {
+      isDelete: true,
+    });
+    if (result.classify) {
+      await this.classifyService.toggleWebsite(
+        result.classify as unknown as string,
+        id,
+      );
+    }
+    return result;
   }
 
   /**
