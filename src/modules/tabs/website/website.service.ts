@@ -128,6 +128,8 @@ export class WebsiteService {
   async updateWebsitePublic(body: UpdateWebsitePublicDto) {
     const { ids, isPublic } = body;
 
+    console.log(ids, isPublic, 'xxxxxxxxxx');
+
     const result = await this.websiteModel.updateMany(
       { _id: { $in: ids } },
       { public: isPublic },

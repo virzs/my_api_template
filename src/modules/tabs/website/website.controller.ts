@@ -58,6 +58,12 @@ export class WebsiteController {
     return this.websiteService.addWebsite(body, user);
   }
 
+  @Put('/public')
+  @ApiOperation({ summary: '修改网站公开状态' })
+  putWebsitePublic(@Body() body: UpdateWebsitePublicDto) {
+    return this.websiteService.updateWebsitePublic(body);
+  }
+
   @Put('/:id')
   @ApiOperation({ summary: '更新网站' })
   updateWebsite(
@@ -78,12 +84,6 @@ export class WebsiteController {
   @ApiOperation({ summary: '网站详情' })
   getWebsiteDetail(@Param('id') id: string) {
     return this.websiteService.detail(id);
-  }
-
-  @Put('/public')
-  @ApiOperation({ summary: '修改网站公开状态' })
-  putWebsitePublic(@Body() body: UpdateWebsitePublicDto) {
-    return this.websiteService.updateWebsitePublic(body);
   }
 
   @Get('/top50')

@@ -81,7 +81,6 @@ export class ParseWebsiteDto {
 export class UpdateWebsitePublicDto {
   @ApiProperty({ description: 'IDS' })
   @IsMongoId({ each: true })
-  @IsOptional()
   @Expose()
   ids: string[];
 
