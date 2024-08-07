@@ -7,7 +7,12 @@ import { Cron } from '@nestjs/schedule';
 import { Cache } from 'cache-manager';
 import { PageDto } from 'src/public/dto/page';
 import { Response } from 'src/utils/response';
-import { ParseWebsiteDto, WebsiteDto, WebsitesForUserDto } from './dto/website';
+import {
+  ParseWebsiteDto,
+  UpdateWebsitePublicDto,
+  WebsiteDto,
+  WebsitesForUserDto,
+} from './dto/website';
 import { ClassifyService } from './classify/classify.service';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
@@ -118,6 +123,24 @@ export class WebsiteService {
   }
 
   /**
+   * 修改是否公开 可批量
+   */
+  async updateWebsitePublic(body: UpdateWebsitePublicDto) {
+    const { ids, isPublic } = body;
+
+    const result = await this.websiteModel.updateMany(
+      { _id: { $in: ids } },
+      { public: isPublic },
+    );
+
+    if (result) {
+      return Response.success();
+    } else {
+      throw new Error('修改失败');
+    }
+  }
+
+  /**
    * 删除网站
    */
   async deleteWebsite(id: string) {
@@ -131,6 +154,13 @@ export class WebsiteService {
       );
     }
     return result;
+  }
+
+  /**
+   * 详情
+   */
+  async detail(id: string) {
+    return this.websiteModel.findById(id).exec();
   }
 
   /**

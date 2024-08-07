@@ -77,3 +77,16 @@ export class ParseWebsiteDto {
   @Expose()
   ignoreCache: boolean;
 }
+
+export class UpdateWebsitePublicDto {
+  @ApiProperty({ description: 'IDS' })
+  @IsMongoId({ each: true })
+  @IsOptional()
+  @Expose()
+  ids: string[];
+
+  @ApiProperty({ description: '是否公开' })
+  @IsBoolean()
+  @Expose()
+  isPublic: boolean;
+}

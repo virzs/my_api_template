@@ -12,7 +12,12 @@ import { WebsiteService } from './website.service';
 import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { PageDto } from 'src/public/dto/page';
 import { RequireLogin } from 'src/public/decorator/require_login.decorator';
-import { ParseWebsiteDto, WebsiteDto, WebsitesForUserDto } from './dto/website';
+import {
+  ParseWebsiteDto,
+  UpdateWebsitePublicDto,
+  WebsiteDto,
+  WebsitesForUserDto,
+} from './dto/website';
 import { User } from 'src/public/decorator/route-user.decoratpr';
 
 @ApiTags('新标签页/网站')
@@ -67,6 +72,18 @@ export class WebsiteController {
   @ApiOperation({ summary: '删除网站' })
   deleteWebsite(@Param('id') id: string) {
     return this.websiteService.deleteWebsite(id);
+  }
+
+  @Get('/:id')
+  @ApiOperation({ summary: '网站详情' })
+  getWebsiteDetail(@Param('id') id: string) {
+    return this.websiteService.detail(id);
+  }
+
+  @Put('/public')
+  @ApiOperation({ summary: '修改网站公开状态' })
+  putWebsitePublic(@Body() body: UpdateWebsitePublicDto) {
+    return this.websiteService.updateWebsitePublic(body);
   }
 
   @Get('/top50')

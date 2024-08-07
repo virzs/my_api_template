@@ -9,4 +9,10 @@ export class Response {
       pageSize: Number(pageSize),
     };
   }
+
+  static success() {
+    return {
+      success: true,
+    };
+  }
 }
