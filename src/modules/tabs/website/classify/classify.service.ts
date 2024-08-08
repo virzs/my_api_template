@@ -22,8 +22,6 @@ export class ClassifyService {
       const parent = await this.classifyModel.findById(data.parent);
       if (!parent) {
         throw new Error('父分类不存在');
-      } else if (parent.websites.length > 0) {
-        throw new Error('父分类下存在网站，不允许创建子分类');
       }
     }
     return await this.classifyModel.create({ ...data, creator: user });
@@ -40,7 +38,10 @@ export class ClassifyService {
     // 如果有子分类 禁止删除
     const children = await this.classifyModel.find({ parent: id });
     if (children.length > 0) {
-      throw new Error('存在子分类，不允许删除');
+      // 递归删掉子分类
+      for (let i = 0; i < children.length; i++) {
+        await this.deleteClassify(children[i]._id);
+      }
     }
     const result = await this.classifyModel.findByIdAndUpdate(id, {
       isDelete: true,
