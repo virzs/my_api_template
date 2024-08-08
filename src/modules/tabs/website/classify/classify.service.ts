@@ -19,9 +19,7 @@ export class ClassifyService {
 
   async createClassify(data: WebsiteClassifyDto, user: string) {
     if (data.parent) {
-      const parent = await this.classifyModel.findById(data.parent, {
-        isDelete: false,
-      });
+      const parent = await this.classifyModel.findById(data.parent);
       if (!parent) {
         throw new Error('父分类不存在');
       }
@@ -40,7 +38,6 @@ export class ClassifyService {
     // 如果有子分类 禁止删除
     const children = await this.classifyModel.find({
       parent: id,
-      isDelete: false,
     });
     if (children.length > 0) {
       // 递归删掉子分类

@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import BaseSchema, {
-  baseSchemaPreFind,
-  baseSchemaToJSON,
+  baseSchemaMiddleware,
 } from 'src/public/schema/base.schema';
 import { WebsiteClassifyName, WebsiteName } from './ref-names';
 import mongoose from 'mongoose';
@@ -49,6 +48,4 @@ export class WebsiteClassify extends BaseSchema {
 export const WebsiteClassifySchema =
   SchemaFactory.createForClass(WebsiteClassify);
 
-WebsiteClassifySchema.pre('find', baseSchemaPreFind);
-
-WebsiteClassifySchema.methods.toJSON = baseSchemaToJSON;
+baseSchemaMiddleware(WebsiteClassifySchema);
