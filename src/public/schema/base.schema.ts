@@ -38,8 +38,41 @@ export const baseSchemaPreFind = function () {
 // 默认 toJSON 中间件函数
 // BaseSchema.methods.toJSON = function () {};
 export const baseSchemaToJSON = function () {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { isDelete, __v, ...data } = this.toObject();
   return data;
+};
+
+// 整合默认查询中间件函数和默认 toJSON 中间件函数 参数为 Schema
+export const baseSchemaMiddleware = (
+  schema: mongoose.Schema,
+  options?: {
+    preFind?: () => void;
+    preFindOne?: () => void;
+    preFindOneAndUpdate?: () => void;
+    preUpdate?: () => void;
+    preUpdateOne?: () => void;
+    preUpdateMany?: () => void;
+    toJSON?: () => any;
+  },
+) => {
+  const {
+    preFind,
+    preFindOne,
+    preFindOneAndUpdate,
+    preUpdate,
+    preUpdateOne,
+    preUpdateMany,
+    toJSON,
+  } = options ?? {};
+
+  schema.pre('find', preFind ?? baseSchemaPreFind);
+  schema.pre('findOne', preFindOne ?? baseSchemaPreFind);
+  schema.pre('findOneAndUpdate', preFindOneAndUpdate ?? baseSchemaPreFind);
+  schema.pre('update', preUpdate ?? baseSchemaPreFind);
+  schema.pre('updateOne', preUpdateOne ?? baseSchemaPreFind);
+  schema.pre('updateMany', preUpdateMany ?? baseSchemaPreFind);
+  schema.methods.toJSON = toJSON ?? baseSchemaToJSON;
 };
 
 export default BaseSchema;
