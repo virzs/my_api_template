@@ -74,10 +74,12 @@ export class ClassifyService {
   }
 
   async getTree(params?: any, parentId = null) {
-    const result = await this.classifyModel.find({
-      parent: parentId,
-      name: new RegExp(params?.name ?? '', 'i'),
-    });
+    const result = await this.classifyModel
+      .find({
+        parent: parentId,
+        name: new RegExp(params?.name ?? '', 'i'),
+      })
+      .exec();
     for (let i = 0; i < result.length; i++) {
       const children = await this.getTree(params, result[i]._id);
       if (children.length > 0) {

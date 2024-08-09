@@ -166,28 +166,6 @@ export class WebsiteService {
   }
 
   /**
-   * 根据分类树获取网站，每个分类前9个
-   */
-  async getWebsitesByClassifyTree() {
-    const tree = await this.classifyService.treeInfo({});
-
-    const deep = (tree: any[]) => {
-      const result: any[] = [];
-      for (const item of tree) {
-        if (item.children && item.children.length > 0) {
-          result.push(...deep(item.children));
-        }
-        if (item.websites && item.websites.length > 0) {
-          result.push(...item.websites.slice(0, 9));
-        }
-      }
-      return result;
-    };
-
-    return deep(tree);
-  }
-
-  /**
    * 根据url解析网站meta信息
    */
   async parseWebsiteMeta({ url, ignoreCache }: ParseWebsiteDto) {

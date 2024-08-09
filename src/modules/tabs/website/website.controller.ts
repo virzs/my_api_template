@@ -71,13 +71,6 @@ export class WebsiteController {
     return this.websiteService.getTop50ClicksFromCache();
   }
 
-  @Get('/classify')
-  @ApiOperation({ summary: '分类树 (用户)' })
-  @RequireLogin()
-  getClassifyTree() {
-    return this.websiteService.getWebsitesByClassifyTree();
-  }
-
   @Put('/:id')
   @ApiOperation({ summary: '更新网站' })
   updateWebsite(
