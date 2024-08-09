@@ -73,13 +73,37 @@ export class ClassifyService {
     await this.classifyModel.findByIdAndUpdate(classifyId, updateOperation);
   }
 
-  async getTree(params?: any, parentId = null) {
-    const result = await this.classifyModel
-      .find({
-        parent: parentId,
-        name: new RegExp(params?.name ?? '', 'i'),
-      })
-      .exec();
+  async getTree(
+    params?: {
+      name?: string;
+      populate?: string;
+    },
+    parentId = null,
+  ) {
+    let result = [];
+    const { populate } = params;
+    if (populate) {
+      result = await this.classifyModel
+        .find({
+          parent: parentId,
+          name: new RegExp(params?.name ?? '', 'i'),
+        })
+        .populate({
+          path: populate,
+          options: {
+            limit: 9,
+            sort: { click: -1 },
+          },
+        })
+        .exec();
+    } else {
+      result = await this.classifyModel
+        .find({
+          parent: parentId,
+          name: new RegExp(params?.name ?? '', 'i'),
+        })
+        .exec();
+    }
     for (let i = 0; i < result.length; i++) {
       const children = await this.getTree(params, result[i]._id);
       if (children.length > 0) {
@@ -123,7 +147,10 @@ export class ClassifyService {
    * 缓存分类树
    */
   async cacheTree() {
-    const tree = await this.getTree();
+    // 缓存这里默认获取每个分类下前9个网站
+    const tree = await this.getTree({
+      populate: 'websites',
+    });
     await this.cacheManager.set(
       'website_classify_tree',
       tree,
