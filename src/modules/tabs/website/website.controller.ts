@@ -64,6 +64,20 @@ export class WebsiteController {
     return this.websiteService.updateWebsitePublic(body);
   }
 
+  @Get('/top50')
+  @ApiOperation({ summary: '网站点击排行' })
+  @RequireLogin()
+  getTop50() {
+    return this.websiteService.getTop50ClicksFromCache();
+  }
+
+  @Get('/classify')
+  @ApiOperation({ summary: '分类树 (用户)' })
+  @RequireLogin()
+  getClassifyTree() {
+    return this.websiteService.getWebsitesByClassifyTree();
+  }
+
   @Put('/:id')
   @ApiOperation({ summary: '更新网站' })
   updateWebsite(
@@ -84,20 +98,6 @@ export class WebsiteController {
   @ApiOperation({ summary: '网站详情' })
   getWebsiteDetail(@Param('id') id: string) {
     return this.websiteService.detail(id);
-  }
-
-  @Get('/top50')
-  @ApiOperation({ summary: '网站点击排行' })
-  @RequireLogin()
-  getTop50() {
-    return this.websiteService.getTop50ClicksFromCache();
-  }
-
-  @Get('/classify')
-  @ApiOperation({ summary: '分类树 (用户)' })
-  @RequireLogin()
-  getClassifyTree() {
-    return this.websiteService.getWebsitesByClassifyTree();
   }
 
   @Post('/parse')
