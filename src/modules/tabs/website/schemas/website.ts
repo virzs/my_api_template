@@ -48,6 +48,10 @@ export class Website extends BaseSchema {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: WebsiteTagName }],
   })
   tags: WebsiteTag[];
+
+  @ApiProperty({ description: '主题色', type: String })
+  @Prop({ type: String })
+  themeColor: string;
 }
 
 export const WebsiteSchema = SchemaFactory.createForClass(Website);

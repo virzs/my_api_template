@@ -5,6 +5,7 @@ import {
   IsMongoId,
   IsObject,
   IsOptional,
+  IsRgbColor,
   IsString,
   IsUrl,
 } from 'class-validator';
@@ -63,6 +64,12 @@ export class WebsiteDto {
   @IsOptional()
   @Expose()
   tags: string[];
+
+  @ApiProperty({ description: '主题色' })
+  @IsRgbColor()
+  @IsOptional()
+  @Expose()
+  themeColor: string;
 }
 
 export class ParseWebsiteDto {
