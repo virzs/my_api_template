@@ -191,12 +191,14 @@ export class WebsiteService {
       .catch(() => {
         return {};
       });
-    // 如果获取成功，缓存解析结果，有效期1天
-    await this.cacheManager.set(
-      `website:meta:${url}`,
-      result,
-      24 * 60 * 60 * 1000,
-    );
+    if (Object.keys(result).length !== 0) {
+      // 如果获取成功，缓存解析结果，有效期1天
+      await this.cacheManager.set(
+        `website:meta:${url}`,
+        result,
+        24 * 60 * 60 * 1000,
+      );
+    }
     return result;
   }
 
