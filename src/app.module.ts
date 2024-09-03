@@ -25,6 +25,7 @@ import { TabsModule } from './modules/tabs/tabs.module';
 import qiniu from './config/qiniu';
 import rateLimit from 'express-rate-limit';
 import { ScheduleModule } from '@nestjs/schedule';
+import { MySiteModule } from './modules/my-site/my-site.module';
 
 @Module({
   imports: [
@@ -71,6 +72,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     ReptileModule,
     VersionModule,
     TabsModule,
+    MySiteModule,
   ],
   providers: [
     JwtService,
