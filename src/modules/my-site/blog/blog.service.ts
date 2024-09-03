@@ -59,4 +59,23 @@ export class BlogService {
       isDelete: true,
     });
   }
+
+  /**
+   * 详情 后台
+   */
+  async getBlogDetail(id: string) {
+    return await this.blogModel.findById(id).exec();
+  }
+
+  /**
+   * 详情 用户
+   */
+  async getBlogDetailForUser(id: string) {
+    return await this.blogModel
+      .findById(id, {
+        creator: 0,
+        updater: 0,
+      })
+      .exec();
+  }
 }

@@ -41,6 +41,21 @@ export class BlogController {
     return this.blogService.getBlogs(query);
   }
 
+  @Get('/user/::id')
+  @ApiOperation({ summary: '博客详情 (用户)' })
+  @ApiParam({ name: 'id', description: '博客ID' })
+  @RequireLogin()
+  getBlogDetailForUser(@Param('id') id: string) {
+    return this.blogService.getBlogDetailForUser(id);
+  }
+
+  @Get('/:id')
+  @ApiOperation({ summary: '博客详情' })
+  @ApiParam({ name: 'id', description: '博客ID' })
+  getBlogDetail(@Param('id') id: string) {
+    return this.blogService.getBlogDetail(id);
+  }
+
   @Post('/')
   @ApiOperation({ summary: '创建博客' })
   @ApiBody({ type: BlogDto })
