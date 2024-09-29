@@ -49,6 +49,13 @@ export class BlogController {
     return this.blogService.getBlogDetailForUser(id);
   }
 
+  @Put('/publish/:id')
+  @ApiOperation({ summary: '发布博客' })
+  @ApiParam({ name: 'id', description: '博客ID' })
+  publishBlog(@Param('id') id: string, @User('_id') user: string) {
+    return this.blogService.publishBlog(id, user);
+  }
+
   @Get('/:id')
   @ApiOperation({ summary: '博客详情' })
   @ApiParam({ name: 'id', description: '博客ID' })

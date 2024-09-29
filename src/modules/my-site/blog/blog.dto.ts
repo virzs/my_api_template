@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsObject, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsObject, IsOptional, IsString } from 'class-validator';
 import { Resource } from 'src/modules/resource/schemas/resource';
 
 export class BlogDto {
@@ -19,4 +19,10 @@ export class BlogDto {
   @IsOptional()
   @Expose()
   cover: Resource;
+
+  @ApiProperty({ description: '是否发布' })
+  @IsBoolean()
+  @IsOptional()
+  @Expose()
+  isPublish: boolean;
 }

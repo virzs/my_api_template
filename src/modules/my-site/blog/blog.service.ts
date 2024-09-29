@@ -20,13 +20,31 @@ export class BlogService {
     const { page = 1, pageSize = 10 } = query;
 
     const users = await this.blogModel
-      .find({})
+      .find({}, { content: 0 })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
-      .populate('classify')
       .exec();
 
     const total = await this.blogModel.countDocuments({});
+
+    return Response.page(users, { page, pageSize, total });
+  }
+
+  /**
+   * 分页获取博客 用户
+   */
+  async getBlogsForUser(query: PageDto) {
+    const { page = 1, pageSize = 10 } = query;
+
+    const users = await this.blogModel
+      .find({ isPublish: true })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .exec();
+
+    const total = await this.blogModel.countDocuments({
+      isPublish: true,
+    });
 
     return Response.page(users, { page, pageSize, total });
   }
@@ -48,6 +66,7 @@ export class BlogService {
     return await this.blogModel.findByIdAndUpdate(id, {
       ...body,
       updater,
+      isPublish: false,
     });
   }
 
@@ -58,6 +77,19 @@ export class BlogService {
     return await this.blogModel.findByIdAndUpdate(id, {
       isDelete: true,
     });
+  }
+
+  /**
+   * 发布
+   */
+  async publishBlog(id: string, user: string) {
+    return await this.blogModel
+      .findByIdAndUpdate(id, {
+        isPublish: true,
+        publishTime: new Date(),
+        publisher: user,
+      })
+      .exec();
   }
 
   /**
@@ -72,10 +104,13 @@ export class BlogService {
    */
   async getBlogDetailForUser(id: string) {
     return await this.blogModel
-      .findById(id, {
-        creator: 0,
-        updater: 0,
-      })
+      .findOne(
+        { _id: id, isPublish: true },
+        {
+          creator: 0,
+          updater: 0,
+        },
+      )
       .exec();
   }
 }
