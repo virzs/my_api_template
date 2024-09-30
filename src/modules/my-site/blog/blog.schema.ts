@@ -9,6 +9,34 @@ import BaseSchema, {
 
 export const MySiteBlogSchemaName = 'MySiteBlog';
 
+export const MySiteBlogOperationRecordSchemaName = 'MySiteBlogOperationRecord';
+
+@Schema({ timestamps: true })
+export class MySiteBlogOperationRecord extends BaseSchema {
+  @ApiProperty({ description: '操作类型', type: String, required: true })
+  @Prop({ type: String, required: true })
+  type: 'edit' | 'publish' | 'unpublish';
+
+  @ApiProperty({
+    description: '操作人',
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, required: true })
+  operator: string;
+
+  @ApiProperty({ description: '变更信息', type: Object })
+  @Prop({ type: Object })
+  change: object;
+
+  @ApiProperty({
+    description: '文章id',
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+  })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: MySiteBlogSchemaName })
+  blogId: string;
+}
 @Schema({ timestamps: true })
 export class MySiteBlog extends BaseSchema {
   @ApiProperty({ description: '标题', type: String, required: true })
@@ -34,8 +62,25 @@ export class MySiteBlog extends BaseSchema {
   @ApiProperty({ description: '发布者', type: String })
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: UsersName })
   publisher: string;
+
+  @ApiProperty({ description: '操作记录', type: [MySiteBlogOperationRecord] })
+  @Prop({
+    type: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: MySiteBlogOperationRecordSchemaName,
+      },
+    ],
+  })
+  operationRecord: MySiteBlogOperationRecord[];
 }
 
 export const MySiteBlogSchema = SchemaFactory.createForClass(MySiteBlog);
 
+export const MySiteBlogOperationRecordSchema = SchemaFactory.createForClass(
+  MySiteBlogOperationRecord,
+);
+
 baseSchemaMiddleware(MySiteBlogSchema);
+
+baseSchemaMiddleware(MySiteBlogOperationRecordSchema);

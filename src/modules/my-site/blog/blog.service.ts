@@ -1,16 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { MySiteBlog, MySiteBlogSchemaName } from './blog.schema';
+import {
+  MySiteBlog,
+  MySiteBlogOperationRecord,
+  MySiteBlogOperationRecordSchemaName,
+  MySiteBlogSchemaName,
+} from './blog.schema';
 import { Model } from 'mongoose';
 import { PageDto } from 'src/public/dto/page';
 import { Response } from 'src/utils/response';
 import { BlogDto } from './blog.dto';
+import { UsersName } from 'src/modules/users/schemas/ref-names';
 
 @Injectable()
 export class BlogService {
   constructor(
     @InjectModel(MySiteBlogSchemaName)
     private readonly blogModel: Model<MySiteBlog>,
+    @InjectModel(MySiteBlogOperationRecordSchemaName)
+    private readonly blogRecordModel: Model<MySiteBlogOperationRecord>,
   ) {}
 
   /**
@@ -63,10 +71,21 @@ export class BlogService {
    * 更新
    */
   async updateBlog(id: string, body: BlogDto, updater: string) {
+    const old = await this.blogModel.findById(id);
+
+    const newOperationRecord = {
+      operator: updater,
+      type: 'update',
+      change: old,
+    };
+
+    const record = await this.blogRecordModel.create(newOperationRecord);
+
     return await this.blogModel.findByIdAndUpdate(id, {
       ...body,
       updater,
       isPublish: false,
+      $push: { operationRecord: record._id },
     });
   }
 
@@ -83,11 +102,21 @@ export class BlogService {
    * 发布
    */
   async publishBlog(id: string, user: string) {
+    const old = await this.blogModel.findById(id);
+
+    const newOperationRecord = {
+      operator: user,
+      type: old.isPublish ? 'unpublish' : 'publish',
+    };
+
+    const record = await this.blogRecordModel.create(newOperationRecord);
+
     return await this.blogModel
       .findByIdAndUpdate(id, {
-        isPublish: true,
-        publishTime: new Date(),
-        publisher: user,
+        isPublish: !old.isPublish,
+        publishTime: !old.isPublish ? null : new Date(),
+        publisher: !old.isPublish ? null : user,
+        $push: { operationRecord: record._id },
       })
       .exec();
   }
@@ -96,7 +125,18 @@ export class BlogService {
    * 详情 后台
    */
   async getBlogDetail(id: string) {
-    return await this.blogModel.findById(id).exec();
+    return await this.blogModel
+      .findById(id)
+      .populate({
+        path: 'operationRecord',
+        options: { sort: { createdAt: -1 } },
+        populate: {
+          path: 'operator',
+          model: UsersName,
+          select: 'username email _id',
+        },
+      })
+      .exec();
   }
 
   /**

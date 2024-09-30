@@ -5,7 +5,12 @@ import { ClassifyModule } from './classify/classify.module';
 import { TagModule } from './tag/tag.module';
 import { ReviewModule } from './review/review.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { MySiteBlogSchema, MySiteBlogSchemaName } from './blog.schema';
+import {
+  MySiteBlogOperationRecordSchema,
+  MySiteBlogOperationRecordSchemaName,
+  MySiteBlogSchema,
+  MySiteBlogSchemaName,
+} from './blog.schema';
 
 @Module({
   controllers: [BlogController],
@@ -15,6 +20,10 @@ import { MySiteBlogSchema, MySiteBlogSchemaName } from './blog.schema';
       {
         name: MySiteBlogSchemaName,
         schema: MySiteBlogSchema,
+      },
+      {
+        name: MySiteBlogOperationRecordSchemaName,
+        schema: MySiteBlogOperationRecordSchema,
       },
     ]),
     ClassifyModule,
