@@ -1,4 +1,4 @@
-import { CacheModule, MiddlewareConsumer, Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import db from './config/db';
@@ -26,6 +26,9 @@ import qiniu from './config/qiniu';
 import rateLimit from 'express-rate-limit';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MySiteModule } from './modules/my-site/my-site.module';
+import { CloudflareR2Module } from './modules/system/cloudflare-r2/cloudflare-r2.module';
+import cloudflareR2 from './config/cloudflare-r2';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -34,7 +37,7 @@ import { MySiteModule } from './modules/my-site/my-site.module';
       ignoreEnvFile: false,
       ignoreEnvVars: false,
       isGlobal: true,
-      load: [db, redis, email, qiniu],
+      load: [db, redis, email, qiniu, cloudflareR2],
     }),
     // mongoDB 连接配置
     MongooseModule.forRootAsync({
@@ -73,6 +76,7 @@ import { MySiteModule } from './modules/my-site/my-site.module';
     VersionModule,
     TabsModule,
     MySiteModule,
+    CloudflareR2Module,
   ],
   providers: [
     JwtService,
