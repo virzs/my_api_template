@@ -29,7 +29,7 @@ interface RedisTokenCache {
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(User.name) private readonly usersModel: Model<any>,
+    @InjectModel(User.name) private readonly usersModel: Model<User>,
     private readonly refreshTokenService: RefreshTokenService,
     private readonly jwtService: JwtService,
     private readonly invitationCodeService: InvitationCodeService,

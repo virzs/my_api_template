@@ -69,7 +69,7 @@ export const baseSchemaMiddleware = (
   schema.pre('find', preFind ?? baseSchemaPreFind);
   schema.pre('findOne', preFindOne ?? baseSchemaPreFind);
   schema.pre('findOneAndUpdate', preFindOneAndUpdate ?? baseSchemaPreFind);
-  schema.pre('update', preUpdate ?? baseSchemaPreFind);
+  schema.pre('findOneAndUpdate', preUpdate ?? baseSchemaPreFind);
   schema.pre('updateOne', preUpdateOne ?? baseSchemaPreFind);
   schema.pre('updateMany', preUpdateMany ?? baseSchemaPreFind);
   schema.methods.toJSON = toJSON ?? baseSchemaToJSON;
