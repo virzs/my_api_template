@@ -3,12 +3,14 @@ import {
   Get,
   Param,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { ResourceService } from './resource.service';
 import { FileInterceptor } from '@nestjs/platform-express/multer';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { GetVisitUrlsDto } from './dto/upload.dto';
 
 @ApiTags('资源')
 @Controller('resource')
@@ -23,8 +25,15 @@ export class ResourceController {
     @Param('dirs') dir: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    console.log(dir);
     const result = await this.resourceService.uploadFile(dir, file);
+    return result;
+  }
+
+  // 批量获取访问链接
+  @Get('/urls')
+  @ApiOperation({ summary: '批量获取访问链接' })
+  async getVisitUrls(@Query() query: GetVisitUrlsDto) {
+    const result = await this.resourceService.getVisitUrls(query.ids);
     return result;
   }
 

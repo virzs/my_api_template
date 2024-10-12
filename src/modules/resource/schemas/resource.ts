@@ -23,6 +23,10 @@ export class Resource extends BaseSchema {
 
   @Prop({ type: String })
   url: string;
+
+  // 存储服务
+  @Prop({ type: String })
+  service: 'qiniu' | 'r2';
 }
 
 export const ResourceSchema = SchemaFactory.createForClass(Resource);

@@ -12,3 +12,10 @@ export class UploadDto {
   @Expose()
   file: any;
 }
+
+export class GetVisitUrlsDto {
+  @ApiProperty({ description: '文件id' })
+  @IsString({ each: true })
+  @Expose()
+  ids: string[];
+}

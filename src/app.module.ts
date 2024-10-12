@@ -29,23 +29,56 @@ import { MySiteModule } from './modules/my-site/my-site.module';
 import { CloudflareR2Module } from './modules/system/cloudflare-r2/cloudflare-r2.module';
 import cloudflareR2 from './config/cloudflare-r2';
 import { CacheModule } from '@nestjs/cache-manager';
+import storageService from './config/storage-service';
 
 @Module({
   imports: [
+    /**
+     * 加载配置文件 参考 .env.example
+     */
     ConfigModule.forRoot({
       envFilePath: ['dev.env', 'prod.env'],
       ignoreEnvFile: false,
       ignoreEnvVars: false,
       isGlobal: true,
-      load: [db, redis, email, qiniu, cloudflareR2],
+      load: [
+        /**
+         * 数据库 配置
+         */
+        db,
+        /**
+         * redis 配置
+         */
+        redis,
+        /**
+         * 邮箱 配置
+         */
+        email,
+        /**
+         * 七牛云 配置
+         */
+        qiniu,
+        /**
+         * cloudflare 配置
+         */
+        cloudflareR2,
+        /**
+         * 存储服务 配置
+         */
+        storageService,
+      ],
     }),
-    // mongoDB 连接配置
+    /**
+     * mongoDB 连接配置
+     */
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => config.get('MongoConfig'),
       inject: [ConfigService],
     }),
-    // 缓存配置 redis
+    /**
+     * 缓存配置 redis
+     */
     CacheModule.registerAsync<RedisClientOptions>({
       isGlobal: true,
       imports: [ConfigModule],

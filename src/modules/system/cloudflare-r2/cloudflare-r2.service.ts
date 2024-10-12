@@ -1,4 +1,5 @@
 import {
+  DeleteObjectCommand,
   GetObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -30,7 +31,7 @@ export class CloudflareR2Service {
     });
   }
 
-  private async getS3Client(): Promise<S3Client> {
+  private async getS3Client() {
     if (!this.s3Client) {
       await this.initializeS3Client();
     }
@@ -62,5 +63,17 @@ export class CloudflareR2Service {
 
     const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
     return url;
+  }
+
+  async deleteFile(key: string) {
+    const s3Client = await this.getS3Client();
+    const config = await this.getConfig();
+
+    const command = new DeleteObjectCommand({
+      Bucket: config.bucket,
+      Key: key,
+    });
+
+    return s3Client.send(command);
   }
 }
