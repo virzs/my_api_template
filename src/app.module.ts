@@ -18,7 +18,6 @@ import { PermissionGuard } from './public/guard/permission.guard';
 import { ProjectModule } from './modules/system/project/project.module';
 import { ResourceModule } from './modules/resource/resource.module';
 import { TDPrintModule } from './modules/3d-print/3d-print.module';
-import { QiniuModule } from './modules/system/qiniu/qiniu.module';
 import { ReptileModule } from './modules/reptile/reptile.module';
 import { VersionModule } from './modules/system/version/version.module';
 import { TabsModule } from './modules/tabs/tabs.module';
@@ -26,10 +25,10 @@ import qiniu from './config/qiniu';
 import rateLimit from 'express-rate-limit';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MySiteModule } from './modules/my-site/my-site.module';
-import { CloudflareR2Module } from './modules/system/cloudflare-r2/cloudflare-r2.module';
 import cloudflareR2 from './config/cloudflare-r2';
 import { CacheModule } from '@nestjs/cache-manager';
 import storageService from './config/storage-service';
+import { StorageServiceModule } from './modules/system/storage-service/storage-service.module';
 
 @Module({
   imports: [
@@ -104,12 +103,11 @@ import storageService from './config/storage-service';
     ProjectModule,
     ResourceModule,
     TDPrintModule,
-    QiniuModule,
     ReptileModule,
     VersionModule,
     TabsModule,
     MySiteModule,
-    CloudflareR2Module,
+    StorageServiceModule,
   ],
   providers: [
     JwtService,

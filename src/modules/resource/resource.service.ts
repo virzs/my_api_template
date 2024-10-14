@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { QiniuService } from '../system/qiniu/qiniu.service';
+import { QiniuService } from '../system/storage-service/qiniu/qiniu.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Resource } from 'src/modules/resource/schemas/resource';
 import { ResourceName } from './schemas/ref-names';
-import { CloudflareR2Service } from '../system/cloudflare-r2/cloudflare-r2.service';
+import { CloudflareR2Service } from '../system/storage-service/cloudflare-r2/cloudflare-r2.service';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
