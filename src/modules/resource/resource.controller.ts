@@ -9,8 +9,10 @@ import {
 } from '@nestjs/common';
 import { ResourceService } from './resource.service';
 import { FileInterceptor } from '@nestjs/platform-express/multer';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { GetVisitUrlsDto } from './dto/upload.dto';
+import { PageDto } from 'src/public/dto/page';
+import { User } from 'src/public/decorator/route-user.decoratpr';
 
 @ApiTags('资源')
 @Controller('resource')
@@ -24,8 +26,9 @@ export class ResourceController {
   async uploadFile(
     @Param('dirs') dir: string,
     @UploadedFile() file: Express.Multer.File,
+    @User('_id') user: string,
   ) {
-    const result = await this.resourceService.uploadFile(dir, file);
+    const result = await this.resourceService.uploadFile(dir, file, user);
     return result;
   }
 
@@ -38,10 +41,19 @@ export class ResourceController {
   }
 
   // 获取访问链接
-  @Get('/:id')
+  @Get('/url/:id')
   @ApiOperation({ summary: '获取访问链接' })
   async getVisitUrl(@Param('id') id: string) {
     const result = await this.resourceService.getVisitUrl(id);
     return result;
+  }
+
+  // 列表
+  @Get('/:service?')
+  @ApiOperation({ summary: '列表' })
+  @ApiParam({ name: 'page', description: '页码', example: 1 })
+  @ApiParam({ name: 'pageSize', description: '每页数量', example: 10 })
+  async list(@Param('service') service: string, @Query() query: PageDto) {
+    return await this.resourceService.list(query, service);
   }
 }

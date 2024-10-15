@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  CACHE_MANAGER,
   Inject,
   Injectable,
   UnauthorizedException,
@@ -21,6 +20,7 @@ import { InvitationCodeService } from '../users/invitation-code/invitation-code.
 import { ProjectService } from '../system/project/project.service';
 import { SendEmailDto } from '../system/email/dtos/send.dto';
 import { EmailService } from '../system/email/email.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 interface RedisTokenCache {
   [key: string]: string;
@@ -42,7 +42,10 @@ export class AuthService {
   // 验证用户密码
   async validateUser(email: string, password: string): Promise<any> {
     // 根据邮箱查找用户
-    const user = await this.usersModel.findOne({ email }, { salt: 0 }).lean();
+    const user = await this.usersModel
+      .findOne({ email })
+      .select('+password +enable +status +roles +type +projects +integral')
+      .lean();
     if (!user) {
       throw new BadRequestException('邮箱或密码错误');
     }

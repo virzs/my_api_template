@@ -6,6 +6,8 @@ import { Resource } from 'src/modules/resource/schemas/resource';
 import { ResourceName } from './schemas/ref-names';
 import { CloudflareR2Service } from '../system/storage-service/cloudflare-r2/cloudflare-r2.service';
 import { ConfigService } from '@nestjs/config';
+import { PageDto } from 'src/public/dto/page';
+import { Response } from 'src/utils/response';
 
 @Injectable()
 export class ResourceService {
@@ -16,8 +18,24 @@ export class ResourceService {
     @InjectModel(ResourceName) private readonly resourceModel: Model<Resource>,
   ) {}
 
+  async list(query: PageDto, service: string) {
+    const { page = 1, pageSize = 10 } = query;
+
+    const users = await this.resourceModel
+      .find({ service })
+      .populate('creator')
+      .populate('updater')
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .exec();
+
+    const total = await this.resourceModel.countDocuments({ service });
+
+    return Response.page(users, { page, pageSize, total });
+  }
+
   // 上传文件
-  async uploadFile(dir: string, file: Express.Multer.File) {
+  async uploadFile(dir: string, file: Express.Multer.File, user) {
     const config = this.configService.get('storage-service');
 
     let result: Partial<Resource> | null = null;
@@ -57,7 +75,10 @@ export class ResourceService {
       result.url = await this.r2Service.getFileUrl(key);
     }
 
-    const dbResult = await this.resourceModel.create(result);
+    const dbResult = await this.resourceModel.create({
+      ...result,
+      creator: user,
+    });
 
     return dbResult;
   }

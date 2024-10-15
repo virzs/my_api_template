@@ -19,7 +19,8 @@ export class UsersService {
     const { page = 1, pageSize = 10 } = query;
 
     const users = await this.usersModel
-      .find({}, { password: 0, salt: 0 })
+      .find({})
+      .select('+type +status +enable')
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .populate('roles')
@@ -69,7 +70,8 @@ export class UsersService {
     const { _id } = user;
 
     const result = await this.usersModel
-      .findById(_id, { password: 0, salt: 0 })
+      .findById(_id)
+      .select('+roles +type')
       .populate({
         path: 'roles',
         populate: {
@@ -99,15 +101,17 @@ export class UsersService {
 
   // 启用或禁用账号 enable
   async changeEnable(id: string) {
-    const user = await this.usersModel.findById(id);
+    const user = await this.usersModel.findById(id).select('+enable');
 
     if (!user) {
       throw new BadRequestException('用户不存在');
     }
 
-    const result = await this.usersModel.findByIdAndUpdate(id, {
-      enable: !user.enable,
-    });
+    const result = await this.usersModel
+      .findByIdAndUpdate(id, {
+        enable: !user.enable,
+      })
+      .select('+enable');
 
     return result;
   }
