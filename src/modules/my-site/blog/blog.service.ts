@@ -168,4 +168,153 @@ export class BlogService {
       )
       .exec();
   }
+
+  /**
+   * 数据统计
+   */
+  async getBlogStatistics() {
+    const today = new Date();
+
+    const todayNewCount = await this.blogModel.countDocuments({
+      isDelete: false,
+      createdAt: {
+        $gte: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+      },
+    });
+
+    const yesterdayNewCount = await this.blogModel.countDocuments({
+      isDelete: false,
+      createdAt: {
+        $gte: new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate() - 1,
+        ),
+        $lt: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+      },
+    });
+
+    const totalCount = await this.blogModel.countDocuments({
+      isDelete: false,
+    });
+
+    const nowMonthCount = await this.blogModel.countDocuments({
+      isDelete: false,
+      createdAt: {
+        $gte: new Date(today.getFullYear(), today.getMonth(), 1),
+      },
+    });
+
+    const lastMonthCount = await this.blogModel.countDocuments({
+      isDelete: false,
+      createdAt: {
+        $gte: new Date(today.getFullYear(), today.getMonth() - 1, 1),
+        $lt: new Date(today.getFullYear(), today.getMonth(), 1),
+      },
+    });
+
+    const nowWeekCount = await this.blogModel.countDocuments({
+      isDelete: false,
+      createdAt: {
+        $gte: new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate() - today.getDay(),
+        ),
+      },
+    });
+
+    const lastWeekCount = await this.blogModel.countDocuments({
+      isDelete: false,
+      createdAt: {
+        $gte: new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate() - today.getDay() - 7,
+        ),
+        $lt: new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate() - today.getDay(),
+        ),
+      },
+    });
+
+    // 过去30天每天新增文章数量
+    const last30Days = await Promise.all(
+      Array.from({ length: 30 }).map(async (_, index) => {
+        const date = new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate() - index,
+        );
+        const count = await this.blogModel.countDocuments({
+          isDelete: false,
+          createdAt: {
+            $gte: date,
+            $lt: new Date(
+              date.getFullYear(),
+              date.getMonth(),
+              date.getDate() + 1,
+            ),
+          },
+        });
+
+        return {
+          date,
+          count,
+        };
+      }),
+    );
+
+    const oneYearAgo = new Date(
+      today.getFullYear() - 1,
+      today.getMonth(),
+      today.getDate(),
+    );
+
+    // 获取从今天到去年的每一天的日期
+    const dates = [];
+    for (let d = new Date(today); d >= oneYearAgo; d.setDate(d.getDate() - 1)) {
+      dates.push(new Date(d));
+    }
+
+    // 统计每一天的新增文章数
+    const dailyCounts = await Promise.all(
+      dates.map(async (date) => {
+        const count = await this.blogModel.countDocuments({
+          isDelete: false,
+          createdAt: {
+            $gte: new Date(date.getFullYear(), date.getMonth(), date.getDate()),
+            $lt: new Date(
+              date.getFullYear(),
+              date.getMonth(),
+              date.getDate() + 1,
+            ),
+          },
+        });
+
+        return {
+          date,
+          count,
+        };
+      }),
+    );
+
+    return {
+      todayNewCount,
+      yesterdayNewCount,
+      totalCount,
+      nowMonthCount,
+      lastMonthCount,
+      nowWeekCount,
+      lastWeekCount,
+      last30Days: (await Promise.all(last30Days)).sort((a, b) => {
+        return a.date.getTime() - b.date.getTime();
+      }),
+      dailyCounts: dailyCounts.sort(
+        (a, b) => a.date.getTime() - b.date.getTime(),
+      ),
+    };
+  }
 }

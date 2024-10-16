@@ -56,6 +56,12 @@ export class BlogController {
     return this.blogService.publishBlog(id, user);
   }
 
+  @Get('/statistics')
+  @ApiOperation({ summary: '博客统计' })
+  getBlogStatistics() {
+    return this.blogService.getBlogStatistics();
+  }
+
   @Get('/:id')
   @ApiOperation({ summary: '博客详情' })
   @ApiParam({ name: 'id', description: '博客ID' })
