@@ -48,6 +48,13 @@ export class ResourceController {
     return result;
   }
 
+  // 资源详情
+  @Get('/objects/:id')
+  @ApiOperation({ summary: '资源详情' })
+  async detail(@Param('id') id: string) {
+    return await this.resourceService.getResourceDetail(id);
+  }
+
   // 列表
   @Get('/:service?')
   @ApiOperation({ summary: '列表' })
@@ -55,5 +62,12 @@ export class ResourceController {
   @ApiParam({ name: 'pageSize', description: '每页数量', example: 10 })
   async list(@Param('service') service: string, @Query() query: PageDto) {
     return await this.resourceService.list(query, service);
+  }
+
+  // 获取单个资源所有关联数据
+  @Get('/association/:id')
+  @ApiOperation({ summary: '获取单个资源所有关联数据' })
+  async getAssociation(@Param('id') id: string) {
+    return await this.resourceService.getAssociatedData(id);
   }
 }

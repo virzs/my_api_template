@@ -3,11 +3,14 @@ import { QiniuService } from '../system/storage-service/qiniu/qiniu.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Resource } from 'src/modules/resource/schemas/resource';
-import { ResourceName } from './schemas/ref-names';
+import { ResourceAssociationName, ResourceName } from './schemas/ref-names';
 import { CloudflareR2Service } from '../system/storage-service/cloudflare-r2/cloudflare-r2.service';
 import { ConfigService } from '@nestjs/config';
 import { PageDto } from 'src/public/dto/page';
 import { Response } from 'src/utils/response';
+import { ResourceAssociation } from './schemas/association';
+import { MySiteBlogSchemaName } from '../my-site/blog/blog.schema';
+import { BlogService } from '../my-site/blog/blog.service';
 
 @Injectable()
 export class ResourceService {
@@ -16,6 +19,9 @@ export class ResourceService {
     private readonly r2Service: CloudflareR2Service,
     private readonly configService: ConfigService,
     @InjectModel(ResourceName) private readonly resourceModel: Model<Resource>,
+    @InjectModel(ResourceAssociationName)
+    private readonly associationModel: Model<ResourceAssociation>,
+    private readonly blogservice: BlogService,
   ) {}
 
   async list(query: PageDto, service: string) {
@@ -83,27 +89,31 @@ export class ResourceService {
     return dbResult;
   }
 
-  //   获取访问链接
-  async getVisitUrl(id: string) {
+  private async getVisitUrlByDetail(detail: Resource) {
+    const service = detail.service;
+
     let url: string | null = null;
 
-    const config = this.configService.get('storage-service');
+    if (service === 'qiniu') {
+      url = await this.qiniuService.getVisitUrl(detail.key);
+    }
 
+    if (service === 'r2') {
+      url = await this.r2Service.getFileUrl(detail.key);
+    }
+
+    return url;
+  }
+
+  //   获取访问链接
+  async getVisitUrl(id: string) {
     const result = await this.resourceModel.findById(id);
 
     if (!result) {
       throw new BadRequestException('资源不存在');
     }
 
-    if (config.service === 'qiniu') {
-      url = await this.qiniuService.getVisitUrl(result.key);
-    }
-
-    if (config.service === 'r2') {
-      url = await this.r2Service.getFileUrl(result.key);
-    }
-
-    return url;
+    return this.getVisitUrlByDetail(result);
   }
 
   /**
@@ -147,5 +157,94 @@ export class ResourceService {
 
       return result;
     }
+  }
+
+  // 关联数据和资源
+  async associateDataAndResource({
+    resourceIds,
+    associatedDataId,
+    associatedDataFrom,
+  }: {
+    resourceIds: string[];
+    associatedDataId: string;
+    associatedDataFrom: string;
+  }) {
+    const result = await this.associationModel.create(
+      resourceIds.map((resourceId) => ({
+        resourceId,
+        associatedDataId,
+        associatedDataFrom,
+      })),
+    );
+
+    return result;
+  }
+
+  // 取消关联数据和资源
+  async disassociateDataAndResource(
+    resourceId: string,
+    associatedDataId: string,
+  ): Promise<any> {
+    return await this.associationModel.deleteOne({
+      resourceId,
+      associatedDataId,
+    });
+  }
+
+  private async getServiceByName(modelName: string, id: string) {
+    switch (modelName) {
+      case MySiteBlogSchemaName:
+        return await this.blogservice.getBlogDetail(id);
+      default:
+        throw new BadRequestException(`未知的模型名: ${modelName}`);
+    }
+  }
+
+  // 获取关联数据
+  async getAssociatedData(resourceId: string) {
+    const associations = await this.associationModel.find({ resourceId });
+
+    if (!associations.length) {
+      return [];
+    }
+
+    // 动态填充关联数据
+    const associatedData = await Promise.all(
+      associations.map(async (association) => {
+        const modelName = association.associatedDataFrom;
+        const data = await this.getServiceByName(
+          modelName,
+          association.associatedDataId,
+        );
+        return {
+          resourceId: association.resourceId,
+          associatedDataId: association.associatedDataId,
+          associatedDataFrom: association.associatedDataFrom,
+          data,
+        };
+      }),
+    );
+
+    return associatedData;
+  }
+
+  // 获取资源详情和关联数据
+  async getResourceDetail(id: string): Promise<any> {
+    const resource = await this.resourceModel
+      .findById(id)
+      .populate('creator')
+      .lean();
+
+    if (!resource) {
+      throw new BadRequestException('资源不存在');
+    }
+
+    const associatedData = await this.getAssociatedData(id);
+
+    return {
+      ...resource,
+      url: await this.getVisitUrlByDetail(resource),
+      associatedData,
+    };
   }
 }

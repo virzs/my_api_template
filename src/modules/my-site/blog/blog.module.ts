@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { BlogController } from './blog.controller';
 import { ClassifyModule } from './classify/classify.module';
@@ -11,6 +11,7 @@ import {
   MySiteBlogSchema,
   MySiteBlogSchemaName,
 } from './blog.schema';
+import { ResourceModule } from 'src/modules/resource/resource.module';
 
 @Module({
   controllers: [BlogController],
@@ -29,6 +30,8 @@ import {
     ClassifyModule,
     TagModule,
     ReviewModule,
+    forwardRef(() => ResourceModule),
   ],
+  exports: [BlogService],
 })
 export class BlogModule {}

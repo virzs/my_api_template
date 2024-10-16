@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import {
   MySiteBlog,
@@ -11,6 +11,7 @@ import { PageDto } from 'src/public/dto/page';
 import { Response } from 'src/utils/response';
 import { BlogDto } from './blog.dto';
 import { UsersName } from 'src/modules/users/schemas/ref-names';
+import { ResourceService } from 'src/modules/resource/resource.service';
 
 @Injectable()
 export class BlogService {
@@ -19,6 +20,8 @@ export class BlogService {
     private readonly blogModel: Model<MySiteBlog>,
     @InjectModel(MySiteBlogOperationRecordSchemaName)
     private readonly blogRecordModel: Model<MySiteBlogOperationRecord>,
+    @Inject(forwardRef(() => ResourceService))
+    private readonly resourceService: ResourceService,
   ) {}
 
   /**
@@ -61,10 +64,22 @@ export class BlogService {
    * 新增
    */
   async addBlog(body: BlogDto, creator: string) {
-    return await this.blogModel.create({
+    const result = await this.blogModel.create({
       ...body,
       creator,
     });
+
+    const { cover } = result;
+
+    if (cover) {
+      await this.resourceService.associateDataAndResource({
+        resourceIds: [cover._id],
+        associatedDataId: result._id,
+        associatedDataFrom: MySiteBlogSchemaName,
+      });
+    }
+
+    return result;
   }
 
   /**

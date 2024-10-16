@@ -6,6 +6,6 @@ import { BlogModule } from './blog/blog.module';
 @Module({
   controllers: [MySiteController],
   providers: [MySiteService],
-  imports: [BlogModule]
+  imports: [BlogModule],
 })
 export class MySiteModule {}
