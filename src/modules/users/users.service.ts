@@ -152,7 +152,7 @@ export class UsersService {
     const today1 = new Date();
 
     const last7Days = await Promise.all(
-      Array.from({ length: 30 }).map(async (_, index) => {
+      Array.from({ length: 7 }).map(async (_, index) => {
         const date = new Date(
           today1.getFullYear(),
           today1.getMonth(),
@@ -184,7 +184,9 @@ export class UsersService {
       disabled,
       today,
       yesterday,
-      last7Days,
+      last7Days: (await Promise.all(last7Days)).sort((a, b) => {
+        return a.date.getTime() - b.date.getTime();
+      }),
     };
   }
 }
