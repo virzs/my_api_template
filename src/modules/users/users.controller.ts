@@ -18,6 +18,12 @@ export class UsersController {
     return this.usersService.getNormalUser(query);
   }
 
+  @Get('/statistics')
+  @ApiOperation({ summary: '用户统计' })
+  statistics() {
+    return this.usersService.statistics();
+  }
+
   @Post('/')
   @ApiOperation({ summary: '新增' })
   create(@Body() body: CreateUserDto) {

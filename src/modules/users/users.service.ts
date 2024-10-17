@@ -115,4 +115,76 @@ export class UsersService {
 
     return result;
   }
+
+  // 统计
+  async statistics() {
+    // 总用户数
+    const total = await this.usersModel.countDocuments({ isDelete: false });
+    // 未验证邮箱的用户数
+    const unverified = await this.usersModel.countDocuments({
+      status: 0,
+      isDelete: false,
+    });
+    // 已禁用的用户数
+    const disabled = await this.usersModel.countDocuments({
+      status: 2,
+      isDelete: false,
+    });
+    // 今天注册成功的用户数
+    const today = await this.usersModel.countDocuments({
+      createdAt: {
+        $lt: new Date(),
+        $gte: new Date(new Date().setHours(0, 0, 0, 0)),
+      },
+      status: 1,
+      isDelete: false,
+    });
+    // 昨日注册成功的用户数
+    const yesterday = await this.usersModel.countDocuments({
+      createdAt: {
+        $lt: new Date(new Date().setHours(0, 0, 0, 0)),
+        $gte: new Date(new Date().setDate(new Date().getDate() - 1)),
+      },
+      status: 1,
+      isDelete: false,
+    });
+    // 过去7天注册成功的用户数
+    const today1 = new Date();
+
+    const last7Days = await Promise.all(
+      Array.from({ length: 30 }).map(async (_, index) => {
+        const date = new Date(
+          today1.getFullYear(),
+          today1.getMonth(),
+          today1.getDate() - index,
+        );
+        const count = await this.usersModel.countDocuments({
+          isDelete: false,
+          status: 1,
+          createdAt: {
+            $gte: date,
+            $lt: new Date(
+              date.getFullYear(),
+              date.getMonth(),
+              date.getDate() + 1,
+            ),
+          },
+        });
+
+        return {
+          date,
+          count,
+        };
+      }),
+    );
+
+    return {
+      total,
+      unverified,
+      disabled,
+      today,
+      yesterday,
+      last7Days,
+    };
+  }
 }
