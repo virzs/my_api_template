@@ -38,7 +38,7 @@ export class BlogController {
   @ApiQuery({ type: PageDto })
   @RequireLogin()
   getBlogForUser(@Query() query) {
-    return this.blogService.getBlogs(query);
+    return this.blogService.getBlogsForUser(query);
   }
 
   @Get('/user/::id')

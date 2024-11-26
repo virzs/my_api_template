@@ -12,6 +12,17 @@ import { Response } from 'src/utils/response';
 import { BlogDto } from './blog.dto';
 import { UsersName } from 'src/modules/users/schemas/ref-names';
 import { ResourceService } from 'src/modules/resource/resource.service';
+import { JSDOM } from 'jsdom';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore marked 没有类型定义
+import { parse } from 'marked';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore dompurify 没有类型定义
+import * as DOMPurify from 'dompurify';
+
+// 创建一个 JSDOM 实例
+const window = new JSDOM('').window;
+const purify = DOMPurify(window);
 
 @Injectable()
 export class BlogService {
@@ -32,6 +43,7 @@ export class BlogService {
 
     const users = await this.blogModel
       .find({}, { content: 0 })
+      .sort({ createdAt: -1 })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .exec();
@@ -47,8 +59,9 @@ export class BlogService {
   async getBlogsForUser(query: PageDto) {
     const { page = 1, pageSize = 10 } = query;
 
-    const users = await this.blogModel
+    const blogs = await this.blogModel
       .find({ isPublish: true })
+      .sort({ createdAt: -1 }) // 按时间倒序排列
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .exec();
@@ -57,7 +70,27 @@ export class BlogService {
       isPublish: true,
     });
 
-    return Response.page(users, { page, pageSize, total });
+    // 生成简介
+    const blogsWithSummary = blogs.map((blog) => {
+      const { content, ...rest } = blog.toObject();
+      const sanitizedContent = purify.sanitize(parse(content || '') as string, {
+        ALLOWED_TAGS: ['p'],
+        FORBID_CONTENTS: ['a', 'code', 'img', 'pre', 'table', 'ul', 'ol', 'li'],
+        FORBID_TAGS: ['p'],
+      }); // 解析markdown并仅保留h和p标签
+
+      // 去除所有HTML标签和换行符
+      const plainText = sanitizedContent
+        .replace(/<[^>]+>/g, '')
+        .replace(/\n/g, '');
+
+      return {
+        ...rest,
+        summary: plainText.substring(0, 100), // 截取前100个字符作为简介
+      };
+    });
+
+    return Response.page(blogsWithSummary, { page, pageSize, total });
   }
 
   /**
