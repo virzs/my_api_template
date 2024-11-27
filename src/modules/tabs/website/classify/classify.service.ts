@@ -1,4 +1,4 @@
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { WebsiteClassifyName, WebsiteName } from '../schemas/ref-names';
 import { WebsiteClassify } from '../schemas/classify';
 import { Cache } from 'cache-manager';
@@ -7,6 +7,7 @@ import { Model } from 'mongoose';
 import { Cron } from '@nestjs/schedule';
 import { WebsiteClassifyDto } from '../dto/classify';
 import { Website } from '../schemas/website';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class ClassifyService {
@@ -42,7 +43,7 @@ export class ClassifyService {
     if (children.length > 0) {
       // 递归删掉子分类
       for (let i = 0; i < children.length; i++) {
-        await this.deleteClassify(children[i]._id);
+        await this.deleteClassify(children[i]._id as string);
       }
     }
     const result = await this.classifyModel.findByIdAndUpdate(id, {

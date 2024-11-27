@@ -14,7 +14,7 @@ export class PermissionService {
   ) {}
 
   async list() {
-    return await this.permissionModel.find().lean();
+    return await this.permissionModel.find().exec();
   }
 
   async getTree(params?: TreeDto, parentId = null, level = 0) {

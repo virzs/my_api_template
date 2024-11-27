@@ -12,7 +12,7 @@ export class FilamentColorService {
   ) {}
 
   list() {
-    return this.filamentColorModel.find({ isDelete: false }).lean();
+    return this.filamentColorModel.find({ isDelete: false }).exec();
   }
 
   create(body: FilamentColorDto, user: string) {

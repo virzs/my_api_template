@@ -2,7 +2,6 @@ import * as Path from 'path';
 import * as Log4js from 'log4js';
 import * as Util from 'util';
 import dayjs from 'dayjs';
-import chalk from 'chalk';
 import * as StackTrace from 'stacktrace-js';
 import config from '../config/log4';
 
@@ -29,8 +28,14 @@ export class ContextTrace {
   ) {}
 }
 
+async function loadChalk() {
+  const chalk = await import('chalk');
+  return chalk.default;
+}
+
 Log4js.addLayout('Awesome-nest', (logConfig: any) => {
-  return (logEvent: Log4js.LoggingEvent): string => {
+  return async (logEvent: Log4js.LoggingEvent): Promise<string> => {
+    const chalk = await loadChalk();
     let moduleName = '';
     let position = '';
 

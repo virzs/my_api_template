@@ -1,4 +1,4 @@
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { WebsiteName } from './schemas/ref-names';
 import { Model } from 'mongoose';
@@ -16,6 +16,7 @@ import {
 import { ClassifyService } from './classify/classify.service';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class WebsiteService {
@@ -101,7 +102,10 @@ export class WebsiteService {
       creator: user,
     });
     if (data.classify) {
-      await this.classifyService.toggleWebsite(data.classify, website._id);
+      await this.classifyService.toggleWebsite(
+        data.classify,
+        website._id as string,
+      );
     }
     return website;
   }

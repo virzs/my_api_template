@@ -106,8 +106,8 @@ export class BlogService {
 
     if (cover) {
       await this.resourceService.associateDataAndResource({
-        resourceIds: [cover._id],
-        associatedDataId: result._id,
+        resourceIds: [cover._id as string],
+        associatedDataId: result._id as string,
         associatedDataFrom: MySiteBlogSchemaName,
       });
     }

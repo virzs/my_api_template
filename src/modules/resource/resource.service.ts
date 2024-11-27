@@ -129,7 +129,7 @@ export class ResourceService {
     const result = await Promise.all(
       resources.map(async (resource) => ({
         _id: resource._id,
-        url: await this.getVisitUrl(resource._id),
+        url: await this.getVisitUrl(resource._id as string),
       })),
     );
 
@@ -243,7 +243,7 @@ export class ResourceService {
 
     return {
       ...resource,
-      url: await this.getVisitUrlByDetail(resource),
+      url: await this.getVisitUrlByDetail(resource as Resource),
       associatedData,
     };
   }

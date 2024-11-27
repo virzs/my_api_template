@@ -1,7 +1,6 @@
 import {
   BadGatewayException,
   BadRequestException,
-  CACHE_MANAGER,
   Inject,
   Injectable,
 } from '@nestjs/common';
@@ -15,6 +14,7 @@ import EmailUtil from './email.util';
 import { RedisConstants } from 'src/common/constants/redis';
 import ResetPwdCaptchaTemplate from 'src/public/template/email/resetPwdCaptcha';
 import { UsersService } from 'src/modules/users/users.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class EmailService {

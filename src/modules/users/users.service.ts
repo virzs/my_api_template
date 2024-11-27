@@ -78,7 +78,7 @@ export class UsersService {
           path: 'permissions',
         },
       })
-      .lean();
+      .exec();
 
     if (result.type === 0) {
       return true;
