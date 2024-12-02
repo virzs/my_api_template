@@ -41,7 +41,7 @@ export class BlogController {
     return this.blogService.getBlogsForUser(query);
   }
 
-  @Get('/user/::id')
+  @Get('/user/:id')
   @ApiOperation({ summary: '博客详情 (用户)' })
   @ApiParam({ name: 'id', description: '博客ID' })
   @RequireLogin()
