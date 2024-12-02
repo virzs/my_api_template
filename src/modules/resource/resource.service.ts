@@ -89,7 +89,7 @@ export class ResourceService {
     return dbResult;
   }
 
-  private async getVisitUrlByDetail(detail: Resource) {
+  async getVisitUrlByDetail(detail: Resource) {
     const service = detail.service;
 
     let url: string | null = null;
@@ -246,5 +246,9 @@ export class ResourceService {
       url: await this.getVisitUrlByDetail(resource as Resource),
       associatedData,
     };
+  }
+
+  async getResourceByKey(key: string): Promise<Resource | null> {
+    return this.resourceModel.findOne({ key });
   }
 }

@@ -35,6 +35,24 @@ export class BlogService {
     private readonly resourceService: ResourceService,
   ) {}
 
+  private async replaceImageLinks(content: string): Promise<string> {
+    const imageRegex = /!\[.*?\]\((.*?)\)/g;
+    const matches = [...content.matchAll(imageRegex)];
+
+    for (const match of matches) {
+      const imageUrl = match[1];
+      const url = new URL(imageUrl);
+      const key = url.pathname.split('/').pop(); // 提取文件名部分
+      const resource = await this.resourceService.getResourceByKey(`blog/${key}`);
+      if (resource) {
+        const newUrl = await this.resourceService.getVisitUrlByDetail(resource);
+        content = content.replace(imageUrl, newUrl);
+      }
+    }
+
+    return content;
+  }
+
   /**
    * 分页获取博客
    */
@@ -173,7 +191,7 @@ export class BlogService {
    * 详情 后台
    */
   async getBlogDetail(id: string) {
-    return await this.blogModel
+    const blog = await this.blogModel
       .findById(id)
       .populate({
         path: 'operationRecord',
@@ -185,13 +203,19 @@ export class BlogService {
         },
       })
       .exec();
+
+    if (blog && blog.content) {
+      blog.content = await this.replaceImageLinks(blog.content);
+    }
+
+    return blog;
   }
 
   /**
    * 详情 用户
    */
   async getBlogDetailForUser(id: string) {
-    return await this.blogModel
+    const blog = await this.blogModel
       .findOne(
         { _id: id, isPublish: true },
         {
@@ -200,6 +224,12 @@ export class BlogService {
         },
       )
       .exec();
+
+    if (blog && blog.content) {
+      blog.content = await this.replaceImageLinks(blog.content);
+    }
+
+    return blog;
   }
 
   /**
