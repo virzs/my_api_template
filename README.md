@@ -44,11 +44,30 @@ $ pnpm run test:e2e
 $ pnpm run test:cov
 ```
 
+## Build
+
+```bash
+$ pnpm run build
+```
+
+使用 `@vercel/ncc` 打包（打包文件会包含 `node_modules`，nestjs 默认打包不包含 `node_modules`）
+
+如果项目包含了二进制文件，请使用对应的平台编译，ncc不会处理跨平台
+
+如果需要 linux 版本，windows 平台可以安装 `wsl`，然后在 `wsl` 中执行
+
+`ncc:build` 会重新下载依赖并打包
+
+```bash
+$ pnpm i -g @vercel/ncc
+$ pnpm run ncc:build
+```
+
 ## Docker
 
 添加 `prod.env` 文件，按照 `.env.example` 文件填写，redis 配置如下
 
-``` env
+```env
 redis_host='redis'
 redis_port=6379
 redis_password=''
