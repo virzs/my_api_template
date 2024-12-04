@@ -17,7 +17,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { RequireLogin } from 'src/public/decorator/require_login.decorator';
-import { BlogDto } from './blog.dto';
+import { BlogDto, BlogPageDto } from './blog.dto';
 import { User } from 'src/public/decorator/route-user.decoratpr';
 import { PageDto } from 'src/public/dto/page';
 
@@ -35,9 +35,9 @@ export class BlogController {
 
   @Get('/user')
   @ApiOperation({ summary: '博客分页 (用户)' })
-  @ApiQuery({ type: PageDto })
+  @ApiQuery({ type: BlogPageDto })
   @RequireLogin()
-  getBlogForUser(@Query() query) {
+  getBlogForUser(@Query() query: BlogPageDto) {
     return this.blogService.getBlogsForUser(query);
   }
 

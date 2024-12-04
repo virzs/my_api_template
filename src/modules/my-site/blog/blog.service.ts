@@ -9,7 +9,7 @@ import {
 import { Model } from 'mongoose';
 import { PageDto } from 'src/public/dto/page';
 import { Response } from 'src/utils/response';
-import { BlogDto } from './blog.dto';
+import { BlogDto, BlogPageDto } from './blog.dto';
 import { UsersName } from 'src/modules/users/schemas/ref-names';
 import { ResourceService } from 'src/modules/resource/resource.service';
 import { JSDOM } from 'jsdom';
@@ -43,7 +43,9 @@ export class BlogService {
       const imageUrl = match[1];
       const url = new URL(imageUrl);
       const key = url.pathname.split('/').pop(); // 提取文件名部分
-      const resource = await this.resourceService.getResourceByKey(`blog/${key}`);
+      const resource = await this.resourceService.getResourceByKey(
+        `blog/${key}`,
+      );
       if (resource) {
         const newUrl = await this.resourceService.getVisitUrlByDetail(resource);
         content = content.replace(imageUrl, newUrl);
@@ -74,19 +76,30 @@ export class BlogService {
   /**
    * 分页获取博客 用户
    */
-  async getBlogsForUser(query: PageDto) {
-    const { page = 1, pageSize = 10 } = query;
+  async getBlogsForUser(query: BlogPageDto) {
+    const { page = 1, pageSize = 10, startDate, endDate } = query;
+
+    const dateFilter: any = {};
+    if (startDate) {
+      dateFilter.$gte = new Date(startDate);
+    }
+    if (endDate) {
+      dateFilter.$lte = new Date(endDate);
+    }
+
+    const filter = {
+      isPublish: true,
+      ...(startDate || endDate ? { createdAt: dateFilter } : {}),
+    };
 
     const blogs = await this.blogModel
-      .find({ isPublish: true })
+      .find(filter)
       .sort({ createdAt: -1 }) // 按时间倒序排列
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .exec();
 
-    const total = await this.blogModel.countDocuments({
-      isPublish: true,
-    });
+    const total = await this.blogModel.countDocuments(filter);
 
     // 生成简介
     const blogsWithSummary = blogs.map((blog) => {
