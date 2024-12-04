@@ -19,6 +19,7 @@ import { parse } from 'marked';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore dompurify 没有类型定义
 import * as DOMPurify from 'dompurify';
+import { Resource } from 'src/modules/resource/schemas/resource';
 
 // 创建一个 JSDOM 实例
 const window = new JSDOM('').window;
@@ -53,6 +54,45 @@ export class BlogService {
     }
 
     return content;
+  }
+
+  private async associateResources({
+    blogId,
+    cover,
+    content,
+  }: {
+    blogId: string;
+    cover?: Resource;
+    content: string;
+  }) {
+    const resourceIds: string[] = [];
+
+    if (cover) {
+      resourceIds.push(cover._id as string);
+    }
+
+    const imageRegex = /!\[.*?\]\((.*?)\)/g;
+    const matches = [...content.matchAll(imageRegex)];
+
+    for (const match of matches) {
+      const imageUrl = match[1];
+      const url = new URL(imageUrl);
+      const key = url.pathname.split('/').pop(); // 提取文件名部分
+      const resource = await this.resourceService.getResourceByKey(
+        `blog/${key}`,
+      );
+      if (resource) {
+        resourceIds.push(resource._id as string);
+      }
+    }
+
+    if (resourceIds.length > 0) {
+      await this.resourceService.associateDataAndResource({
+        resourceIds,
+        associatedDataId: blogId,
+        associatedDataFrom: MySiteBlogSchemaName,
+      });
+    }
   }
 
   /**
@@ -133,15 +173,13 @@ export class BlogService {
       creator,
     });
 
-    const { cover } = result;
+    const { cover, content } = result;
 
-    if (cover) {
-      await this.resourceService.associateDataAndResource({
-        resourceIds: [cover._id as string],
-        associatedDataId: result._id as string,
-        associatedDataFrom: MySiteBlogSchemaName,
-      });
-    }
+    await this.associateResources({
+      blogId: result._id as string,
+      cover,
+      content,
+    });
 
     return result;
   }
@@ -160,21 +198,36 @@ export class BlogService {
 
     const record = await this.blogRecordModel.create(newOperationRecord);
 
-    return await this.blogModel.findByIdAndUpdate(id, {
+    const updatedBlog = await this.blogModel.findByIdAndUpdate(id, {
       ...body,
       updater,
       isPublish: false,
       $push: { operationRecord: record._id },
     });
+
+    const { cover, content } = body;
+    await this.associateResources({
+      blogId: id,
+      cover,
+      content,
+    });
+
+    return updatedBlog;
   }
 
   /**
    * 删除
    */
   async deleteBlog(id: string) {
-    return await this.blogModel.findByIdAndUpdate(id, {
+    const blog = await this.blogModel.findByIdAndUpdate(id, {
       isDelete: true,
     });
+
+    if (blog) {
+      await this.resourceService.disassociateDataAndResourceByDataId(id);
+    }
+
+    return blog;
   }
 
   /**

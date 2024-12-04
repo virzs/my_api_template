@@ -191,6 +191,13 @@ export class ResourceService {
     });
   }
 
+  async disassociateDataAndResourceByDataId(associatedDataId: string) {
+    await this.resourceModel.updateMany(
+      { associatedDataId },
+      { $unset: { associatedDataId: 1, associatedDataFrom: 1 } },
+    );
+  }
+
   private async getServiceByName(modelName: string, id: string) {
     switch (modelName) {
       case MySiteBlogSchemaName:
