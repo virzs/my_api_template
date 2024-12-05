@@ -31,6 +31,7 @@ export class ResourceService {
       .find({ service })
       .populate('creator')
       .populate('updater')
+      .sort({ createdAt: -1 }) // 按创建时间倒序
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .exec();
