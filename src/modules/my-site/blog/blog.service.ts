@@ -36,17 +36,27 @@ export class BlogService {
     private readonly resourceService: ResourceService,
   ) {}
 
+  private async getResourceByImageUrl(
+    imageUrl: string,
+  ): Promise<Resource | null> {
+    const url = new URL(imageUrl);
+    const key = url.pathname.split('/').pop(); // 提取文件名部分
+    return await this.resourceService.getResourceByKey(`blog/${key}`);
+  }
+
   private async replaceImageLinks(content: string): Promise<string> {
     const imageRegex = /!\[.*?\]\((.*?)\)/g;
     const matches = [...content.matchAll(imageRegex)];
 
     for (const match of matches) {
       const imageUrl = match[1];
-      const url = new URL(imageUrl);
-      const key = url.pathname.split('/').pop(); // 提取文件名部分
-      const resource = await this.resourceService.getResourceByKey(
-        `blog/${key}`,
-      );
+      // 检查是否为有效的url
+      try {
+        new URL(imageUrl);
+      } catch (e) {
+        continue;
+      }
+      const resource = await this.getResourceByImageUrl(imageUrl);
       if (resource) {
         const newUrl = await this.resourceService.getVisitUrlByDetail(resource);
         content = content.replace(imageUrl, newUrl);
@@ -76,11 +86,12 @@ export class BlogService {
 
     for (const match of matches) {
       const imageUrl = match[1];
-      const url = new URL(imageUrl);
-      const key = url.pathname.split('/').pop(); // 提取文件名部分
-      const resource = await this.resourceService.getResourceByKey(
-        `blog/${key}`,
-      );
+      try {
+        new URL(imageUrl);
+      } catch (e) {
+        continue;
+      }
+      const resource = await this.getResourceByImageUrl(imageUrl);
       if (resource) {
         resourceIds.push(resource._id as string);
       }
@@ -270,8 +281,15 @@ export class BlogService {
       })
       .exec();
 
-    if (blog && blog.content) {
-      blog.content = await this.replaceImageLinks(blog.content);
+    if (blog) {
+      if (blog.content) {
+        blog.content = await this.replaceImageLinks(blog.content);
+      }
+      if (blog.cover) {
+        blog.cover.url = await this.resourceService.getVisitUrlByDetail(
+          blog.cover,
+        );
+      }
     }
 
     return blog;
@@ -291,8 +309,15 @@ export class BlogService {
       )
       .exec();
 
-    if (blog && blog.content) {
-      blog.content = await this.replaceImageLinks(blog.content);
+    if (blog) {
+      if (blog.content) {
+        blog.content = await this.replaceImageLinks(blog.content);
+      }
+      if (blog.cover) {
+        blog.cover.url = await this.resourceService.getVisitUrlByDetail(
+          blog.cover,
+        );
+      }
     }
 
     return blog;
