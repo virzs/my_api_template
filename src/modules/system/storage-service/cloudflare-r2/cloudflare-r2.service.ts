@@ -62,6 +62,23 @@ export class CloudflareR2Service {
     });
 
     const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+
+    // 使用自定义域名替换默认的 Cloudflare R2 域名
+    const customDomain = config.customDomain;
+    if (customDomain) {
+      console.log(
+        '🚀 ~ CloudflareR2Service ~ getFileUrl ~ url:',
+        url.replace(
+          `${config.bucket}.${config.accountId}.r2.cloudflarestorage.com`,
+          customDomain,
+        ),
+      );
+      return url.replace(
+        `${config.bucket}.${config.accountId}.r2.cloudflarestorage.com`,
+        customDomain,
+      );
+    }
+
     return url;
   }
 
