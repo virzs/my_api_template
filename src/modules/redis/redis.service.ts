@@ -9,8 +9,8 @@ export class RedisService {
     private cacheManager: Cache,
   ) {}
 
-  async set(key: string, value: string): Promise<void> {
-    await this.cacheManager.set(key, value);
+  async set(key: string, value: string, ttl: number): Promise<void> {
+    await this.cacheManager.set(key, value, ttl);
   }
 
   async get(key: string): Promise<string | null> {

@@ -7,12 +7,16 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { RedisService } from 'src/modules/redis/redis.service';
 
 @Injectable()
 export class CloudflareR2Service {
   private s3Client: S3Client | null = null;
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly redisService: RedisService,
+  ) {}
 
   private async getConfig() {
     return await this.configService.get('r2');
@@ -53,6 +57,11 @@ export class CloudflareR2Service {
   }
 
   async getFileUrl(key: string) {
+    const cachedUrl = await this.redisService.get(key);
+    if (cachedUrl) {
+      return cachedUrl;
+    }
+
     const s3Client = await this.getS3Client();
     const config = await this.getConfig();
 
@@ -65,14 +74,18 @@ export class CloudflareR2Service {
 
     // 使用自定义域名替换默认的 Cloudflare R2 域名
     const customDomain = config.customDomain;
+    let finalUrl = url;
     if (customDomain) {
-      return url.replace(
+      finalUrl = url.replace(
         `${config.bucket}.${config.accountId}.r2.cloudflarestorage.com`,
         customDomain,
       );
     }
 
-    return url;
+    // 缓存 URL
+    await this.redisService.set(key, finalUrl, 3200);
+
+    return finalUrl;
   }
 
   async deleteFile(key: string) {
