@@ -90,6 +90,14 @@ export class ResourceService {
     return dbResult;
   }
 
+  // 批量上传文件
+  async uploadFiles(dir: string, files: Express.Multer.File[], user) {
+    const results = await Promise.all(
+      files.map((file) => this.uploadFile(dir, file, user)),
+    );
+    return results;
+  }
+
   async getVisitUrlByDetail(detail: Resource) {
     const service = detail.service;
 

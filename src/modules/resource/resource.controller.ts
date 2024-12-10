@@ -5,11 +5,15 @@ import {
   Post,
   Query,
   UploadedFile,
+  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
 import { ResourceService } from './resource.service';
-import { FileInterceptor } from '@nestjs/platform-express/multer';
-import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import {
+  FileInterceptor,
+  FilesInterceptor,
+} from '@nestjs/platform-express/multer';
+import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { GetVisitUrlsDto } from './dto/upload.dto';
 import { PageDto } from 'src/public/dto/page';
 import { User } from 'src/public/decorator/route-user.decoratpr';
@@ -29,6 +33,35 @@ export class ResourceController {
     @User('_id') user: string,
   ) {
     const result = await this.resourceService.uploadFile(dir, file, user);
+    return result;
+  }
+
+  // 批量上传文件
+  @Post('/batch/:dirs')
+  @ApiOperation({ summary: '批量上传文件' })
+  @ApiParam({ name: 'dirs', description: '目录', example: 'test' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        files: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
+    },
+  })
+  @UseInterceptors(FilesInterceptor('files[]'))
+  async uploadFiles(
+    @Param('dirs') dir: string,
+    @UploadedFiles() files: Express.Multer.File[],
+    @User('_id') user: string,
+  ) {
+    console.log('🚀 ~ ResourceController ~ files:', files);
+    const result = await this.resourceService.uploadFiles(dir, files, user);
     return result;
   }
 
