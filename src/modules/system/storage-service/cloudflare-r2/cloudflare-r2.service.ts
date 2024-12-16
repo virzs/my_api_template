@@ -83,7 +83,7 @@ export class CloudflareR2Service {
     }
 
     // 缓存 URL
-    await this.redisService.set(key, finalUrl, 3200);
+    await this.redisService.set(key, finalUrl, 3200 * 1000);
 
     return finalUrl;
   }
