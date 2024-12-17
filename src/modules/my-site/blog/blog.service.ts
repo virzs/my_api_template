@@ -298,7 +298,13 @@ export class BlogService {
   /**
    * 详情 用户
    */
-  async getBlogDetailForUser(id: string) {
+  async getBlogDetailForUser(id: string): Promise<
+    | (MySiteBlog & {
+        prev: { _id: string; title: string } | null;
+        next: { _id: string; title: string } | null;
+      })
+    | null
+  > {
     const blog = await this.blogModel
       .findOne(
         { _id: id, isPublish: true },
@@ -310,17 +316,43 @@ export class BlogService {
       .exec();
 
     if (blog) {
-      if (blog.content) {
-        blog.content = await this.replaceImageLinks(blog.content);
+      const blogObject = blog.toObject() as MySiteBlog & {
+        prev: { _id: string; title: string } | null;
+        next: { _id: string; title: string } | null;
+      };
+
+      if (blogObject.content) {
+        blogObject.content = await this.replaceImageLinks(blogObject.content);
       }
-      if (blog.cover) {
-        blog.cover.url = await this.resourceService.getVisitUrlByDetail(
-          blog.cover,
+      if (blogObject.cover) {
+        blogObject.cover.url = await this.resourceService.getVisitUrlByDetail(
+          blogObject.cover,
         );
       }
+
+      // 获取上一篇博客
+      const prevBlog = await this.blogModel
+        .findOne({ _id: { $lt: id }, isPublish: true })
+        .sort({ _id: -1 })
+        .exec();
+
+      // 获取下一篇博客
+      const nextBlog = await this.blogModel
+        .findOne({ _id: { $gt: id }, isPublish: true })
+        .sort({ _id: 1 })
+        .exec();
+
+      blogObject.prev = prevBlog
+        ? { _id: prevBlog._id as string, title: prevBlog.title }
+        : null;
+      blogObject.next = nextBlog
+        ? { _id: nextBlog._id as string, title: nextBlog.title }
+        : null;
+
+      return blogObject;
     }
 
-    return blog;
+    return null;
   }
 
   /**
