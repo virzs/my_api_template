@@ -2,6 +2,20 @@ import { Prop, Schema } from '@nestjs/mongoose';
 import mongoose, { Document } from 'mongoose';
 import { UsersName } from 'src/modules/users/schemas/ref-names';
 
+// 扩展 mongoose 的 QueryOptions 接口
+declare module 'mongoose' {
+  interface QueryOptions {
+    /**
+     * 跳过中间件
+     */
+    skipMiddleware?: boolean;
+    /**
+     * 跳过 toJSON 中间件
+     */
+    skipToJSON?: boolean;
+  }
+}
+
 /**
  * 默认 Schema 添加 创建人 创建时间 更新人 更新时间
  */
@@ -54,25 +68,42 @@ export const baseSchemaMiddleware = (
     preUpdateOne?: () => void;
     preUpdateMany?: () => void;
     toJSON?: () => any;
+    enableSkipMiddleware?: boolean; // 新增: 是否启用跳过中间件功能
   },
 ) => {
   const {
     preFind,
     preFindOne,
     preFindOneAndUpdate,
-    preUpdate,
     preUpdateOne,
     preUpdateMany,
     toJSON,
+    enableSkipMiddleware = false,
   } = options ?? {};
 
-  schema.pre('find', preFind ?? baseSchemaPreFind);
-  schema.pre('findOne', preFindOne ?? baseSchemaPreFind);
-  schema.pre('findOneAndUpdate', preFindOneAndUpdate ?? baseSchemaPreFind);
-  schema.pre('findOneAndUpdate', preUpdate ?? baseSchemaPreFind);
-  schema.pre('updateOne', preUpdateOne ?? baseSchemaPreFind);
-  schema.pre('updateMany', preUpdateMany ?? baseSchemaPreFind);
-  schema.methods.toJSON = toJSON ?? baseSchemaToJSON;
+  // 默认的 preFind 处理函数
+  const defaultPreFind = function () {
+    if (enableSkipMiddleware && this.getOptions()?.skipMiddleware) {
+      return;
+    }
+    baseSchemaPreFind.call(this);
+  };
+
+  // 默认的 toJSON 处理函数
+  const defaultToJSON = function () {
+    if (enableSkipMiddleware && this.getOptions()?.skipToJSON) {
+      return this.toObject();
+    }
+    return baseSchemaToJSON.call(this);
+  };
+
+  // 应用中间件
+  schema.pre('find', preFind ?? defaultPreFind);
+  schema.pre('findOne', preFindOne ?? defaultPreFind);
+  schema.pre('findOneAndUpdate', preFindOneAndUpdate ?? defaultPreFind);
+  schema.pre('updateOne', preUpdateOne ?? defaultPreFind);
+  schema.pre('updateMany', preUpdateMany ?? defaultPreFind);
+  schema.methods.toJSON = toJSON ?? defaultToJSON;
 };
 
 export default BaseSchema;
