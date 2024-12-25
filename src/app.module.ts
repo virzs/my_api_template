@@ -29,6 +29,7 @@ import cloudflareR2 from './config/cloudflare-r2';
 import { CacheModule } from '@nestjs/cache-manager';
 import storageService from './config/storage-service';
 import { StorageServiceModule } from './modules/system/storage-service/storage-service.module';
+import { CleanupService } from './public/service/cleanup.service';
 
 @Module({
   imports: [
@@ -119,6 +120,7 @@ import { StorageServiceModule } from './modules/system/storage-service/storage-s
       provide: APP_GUARD,
       useClass: PermissionGuard,
     },
+    CleanupService,
   ],
 })
 export class AppModule {
