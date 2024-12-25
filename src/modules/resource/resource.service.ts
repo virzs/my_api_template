@@ -169,10 +169,13 @@ export class ResourceService {
   }
 
   // 根据 id 彻底删除文件，不可恢复
+  // src\public\service\cleanup.service.ts
   async deleteFilePermanent(id: string) {
     const config = this.configService.get('storage-service');
 
-    const resource = await this.resourceModel.findById(id);
+    const resource = await this.resourceModel
+      .findById(id)
+      .setOptions({ skipMiddleware: true });
 
     if (!resource) {
       throw new BadRequestException('资源不存在');
