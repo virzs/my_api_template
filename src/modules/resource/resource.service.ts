@@ -27,7 +27,7 @@ export class ResourceService {
   async list(query: PageDto, service: string) {
     const { page = 1, pageSize = 10 } = query;
 
-    const users = await this.resourceModel
+    const resources = await this.resourceModel
       .find({ service })
       .populate('creator')
       .populate('updater')
@@ -38,7 +38,30 @@ export class ResourceService {
 
     const total = await this.resourceModel.countDocuments({ service });
 
-    return Response.page(users, { page, pageSize, total });
+    return Response.page(resources, { page, pageSize, total });
+  }
+
+  async recycle(query: PageDto) {
+    const { page = 1, pageSize = 10 } = query;
+    const condition = {
+      $or: [{ isDelete: true }, { isDelete: { $exists: false } }],
+    };
+
+    const total = await this.resourceModel.countDocuments(condition);
+
+    // 添加 skipMiddleware 选项来禁用默认的查询中间件
+    const resources = await this.resourceModel
+      .find(condition)
+      .setOptions({ skipMiddleware: true, skipToJson: true })
+      .populate('creator')
+      .populate('updater')
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .lean()
+      .exec();
+
+    return Response.page(resources, { page, pageSize, total });
   }
 
   // 上传文件
@@ -145,8 +168,8 @@ export class ResourceService {
     return result;
   }
 
-  // 根据 id 删除文件
-  async deleteFile(id: string) {
+  // 根据 id 彻底删除文件，不可恢复
+  async deleteFilePermanent(id: string) {
     const config = this.configService.get('storage-service');
 
     const resource = await this.resourceModel.findById(id);
@@ -164,8 +187,30 @@ export class ResourceService {
     if (config.service === 'r2') {
       const result = await this.r2Service.deleteFile(resource.key);
 
+      if (result.$metadata.httpStatusCode === 204) {
+        await this.resourceModel.findByIdAndDelete(id);
+      }
+
       return result;
     }
+  }
+
+  // 根据 id 删除文件
+  async deleteFile(id: string) {
+    const result = await this.resourceModel.findByIdAndUpdate(id, {
+      isDelete: true,
+    });
+
+    return result;
+  }
+
+  // 回收站还原
+  async restore(id: string) {
+    const result = await this.resourceModel.findByIdAndUpdate(id, {
+      isDelete: false,
+    });
+
+    return result;
   }
 
   // 关联数据和资源

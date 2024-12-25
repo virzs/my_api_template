@@ -1,8 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ApiProperty } from '@nestjs/swagger';
 import BaseSchema, {
-  baseSchemaPreFind,
-  baseSchemaToJSON,
+  baseSchemaMiddleware,
 } from 'src/public/schema/base.schema';
 
 @Schema({ timestamps: true })
@@ -38,6 +37,7 @@ export class Resource extends BaseSchema {
 
 export const ResourceSchema = SchemaFactory.createForClass(Resource);
 
-ResourceSchema.pre('find', baseSchemaPreFind);
-
-ResourceSchema.methods.toJSON = baseSchemaToJSON;
+// 使用通用的中间件配置，启用跳过功能
+baseSchemaMiddleware(ResourceSchema, {
+  enableSkipMiddleware: true, // 启用跳过中间件功能
+});

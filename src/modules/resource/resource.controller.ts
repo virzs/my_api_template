@@ -1,8 +1,10 @@
 import {
   Controller,
+  Delete,
   Get,
   Param,
   Post,
+  Put,
   Query,
   UploadedFile,
   UploadedFiles,
@@ -86,6 +88,36 @@ export class ResourceController {
   @ApiOperation({ summary: '资源详情' })
   async detail(@Param('id') id: string) {
     return await this.resourceService.getResourceDetail(id);
+  }
+
+  // 删除资源
+  @Delete('/:id')
+  @ApiOperation({ summary: '删除资源' })
+  async delete(@Param('id') id: string) {
+    return await this.resourceService.deleteFile(id);
+  }
+
+  // 删除资源，不可恢复
+  @Delete('/recycle/:id')
+  @ApiOperation({ summary: '删除资源，不可恢复' })
+  async deletePermanent(@Param('id') id: string) {
+    return await this.resourceService.deleteFilePermanent(id);
+  }
+
+  // 回收站 列表
+  @Get('/recycle')
+  @ApiOperation({ summary: '回收站列表' })
+  @ApiParam({ name: 'page', description: '页码', example: 1 })
+  @ApiParam({ name: 'pageSize', description: '每页数量', example: 10 })
+  async recycle(@Query() query: PageDto) {
+    return await this.resourceService.recycle(query);
+  }
+
+  // 回收站还原
+  @Put('/recycle/restore/:id')
+  @ApiOperation({ summary: '回收站还原' })
+  async restore(@Param('id') id: string) {
+    return await this.resourceService.restore(id);
   }
 
   // 列表
