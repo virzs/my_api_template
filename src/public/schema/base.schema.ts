@@ -67,6 +67,7 @@ export const baseSchemaMiddleware = (
     preUpdate?: () => void;
     preUpdateOne?: () => void;
     preUpdateMany?: () => void;
+    preCountDocuments?: () => void;
     toJSON?: () => any;
     enableSkipMiddleware?: boolean; // 新增: 是否启用跳过中间件功能
   },
@@ -77,13 +78,14 @@ export const baseSchemaMiddleware = (
     preFindOneAndUpdate,
     preUpdateOne,
     preUpdateMany,
+    preCountDocuments,
     toJSON,
     enableSkipMiddleware = false,
   } = options ?? {};
 
   // 默认的 preFind 处理函数
   const defaultPreFind = function () {
-    if (enableSkipMiddleware && this.getOptions()?.skipMiddleware) {
+    if (enableSkipMiddleware && this.getOptions?.()?.skipMiddleware) {
       return;
     }
     baseSchemaPreFind.call(this);
@@ -91,7 +93,7 @@ export const baseSchemaMiddleware = (
 
   // 默认的 toJSON 处理函数
   const defaultToJSON = function () {
-    if (enableSkipMiddleware && this.getOptions()?.skipToJSON) {
+    if (enableSkipMiddleware && this.getOptions?.()?.skipToJSON) {
       return this.toObject();
     }
     return baseSchemaToJSON.call(this);
@@ -103,6 +105,7 @@ export const baseSchemaMiddleware = (
   schema.pre('findOneAndUpdate', preFindOneAndUpdate ?? defaultPreFind);
   schema.pre('updateOne', preUpdateOne ?? defaultPreFind);
   schema.pre('updateMany', preUpdateMany ?? defaultPreFind);
+  schema.pre('countDocuments', preCountDocuments ?? defaultPreFind);
   schema.methods.toJSON = toJSON ?? defaultToJSON;
 };
 
