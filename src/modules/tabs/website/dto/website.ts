@@ -14,10 +14,10 @@ import { PageDto } from 'src/public/dto/page';
 
 export class WebsiteForAdminDto extends PageDto {
   @ApiProperty({ description: '所属分类' })
-  @IsArray()
+  @IsString()
   @IsOptional()
   @Expose()
-  classifyIds: string[];
+  classifyIds: string;
 }
 
 export class WebsitesForUserDto extends PageDto {

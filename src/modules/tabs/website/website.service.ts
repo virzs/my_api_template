@@ -33,8 +33,12 @@ export class WebsiteService {
   async getWebsites(query: WebsiteForAdminDto) {
     const { page = 1, pageSize = 10, classifyIds } = query;
 
+    const classifyIdsArr = ![null, undefined, ''].includes(classifyIds)
+      ? classifyIds.split(',')
+      : [];
+
     const finder = {
-      ...(classifyIds?.length > 0 && { classify: { $in: classifyIds } }),
+      ...(classifyIdsArr.length > 0 && { classify: { $in: classifyIdsArr } }),
     };
 
     const users = await this.websiteModel
