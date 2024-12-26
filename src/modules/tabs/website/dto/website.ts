@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import {
+  IsArray,
   IsBoolean,
   IsMongoId,
   IsObject,
@@ -10,6 +11,14 @@ import {
   IsUrl,
 } from 'class-validator';
 import { PageDto } from 'src/public/dto/page';
+
+export class WebsiteForAdminDto extends PageDto {
+  @ApiProperty({ description: '所属分类' })
+  @IsArray()
+  @IsOptional()
+  @Expose()
+  classifyIds: string[];
+}
 
 export class WebsitesForUserDto extends PageDto {
   @ApiProperty({ description: '分类' })

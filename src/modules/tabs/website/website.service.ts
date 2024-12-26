@@ -11,6 +11,7 @@ import {
   ParseWebsiteDto,
   UpdateWebsitePublicDto,
   WebsiteDto,
+  WebsiteForAdminDto,
   WebsitesForUserDto,
 } from './dto/website';
 import { ClassifyService } from './classify/classify.service';
@@ -29,17 +30,21 @@ export class WebsiteService {
   /**
    * 获取网站分页 后台
    */
-  async getWebsites(query: PageDto) {
-    const { page = 1, pageSize = 10 } = query;
+  async getWebsites(query: WebsiteForAdminDto) {
+    const { page = 1, pageSize = 10, classifyIds } = query;
+
+    const finder = {
+      ...(classifyIds?.length > 0 && { classify: { $in: classifyIds } }),
+    };
 
     const users = await this.websiteModel
-      .find({})
+      .find(finder)
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .populate('classify')
       .exec();
 
-    const total = await this.websiteModel.countDocuments({});
+    const total = await this.websiteModel.countDocuments(finder);
 
     return Response.page(users, { page, pageSize, total });
   }

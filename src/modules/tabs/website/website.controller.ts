@@ -16,6 +16,7 @@ import {
   ParseWebsiteDto,
   UpdateWebsitePublicDto,
   WebsiteDto,
+  WebsiteForAdminDto,
   WebsitesForUserDto,
 } from './dto/website';
 import { User } from 'src/public/decorator/route-user.decoratpr';
@@ -29,7 +30,7 @@ export class WebsiteController {
   @ApiOperation({ summary: '网站分页 (后台)' })
   @ApiParam({ name: 'page', description: '页码', example: 1 })
   @ApiParam({ name: 'pageSize', description: '每页数量', example: 10 })
-  getWebsite(@Query() query: PageDto) {
+  getWebsite(@Query() query: WebsiteForAdminDto) {
     return this.websiteService.getWebsites(query);
   }
 
