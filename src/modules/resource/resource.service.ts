@@ -192,6 +192,7 @@ export class ResourceService {
 
       if (result.$metadata.httpStatusCode === 204) {
         await this.resourceModel.findByIdAndDelete(id);
+        await this.associationModel.deleteMany({ resourceId: id });
       }
 
       return result;
