@@ -209,9 +209,11 @@ export class ResourceService {
 
   // 回收站还原
   async restore(id: string) {
-    const result = await this.resourceModel.findByIdAndUpdate(id, {
-      isDelete: false,
-    });
+    const result = await this.resourceModel
+      .findByIdAndUpdate(id, {
+        isDelete: false,
+      })
+      .setOptions({ skipMiddleware: true });
 
     return result;
   }
