@@ -183,7 +183,6 @@ export class WebsiteService {
    */
   async parseWebsiteMeta({ url, ignoreCache }: ParseWebsiteDto) {
     if (!ignoreCache) {
-      // 先从缓存中获取
       const cacheResult: object = await this.cacheManager.get(
         `website:meta:${url}`,
       );
@@ -195,17 +194,26 @@ export class WebsiteService {
       .then((response) => {
         const $ = cheerio.load(response.data);
         const title = $('title').text();
-        const icon = $('link[rel="icon"]').attr('href');
-        const icon2 = $('link[rel="shortcut icon"]').attr('href');
         const description = $('meta[name="description"]').attr('content');
 
-        return { title, description, icon: icon ?? icon2 };
+        // 收集所有可能的图标
+        const icons = [
+          $('link[rel="icon"]').attr('href'),
+          $('link[rel="shortcut icon"]').attr('href'),
+          $('link[rel="apple-touch-icon"]').attr('href'),
+          $('link[rel="apple-touch-icon-precomposed"]').attr('href'),
+        ].filter(Boolean);
+
+        // 使用第一个有效的图标
+        const icon = icons.length > 0 ? icons[0] : null;
+
+        return { title, description, icon, icons };
       })
       .catch(() => {
         return {};
       });
+
     if (Object.keys(result).length !== 0) {
-      // 如果获取成功，缓存解析结果，有效期1天
       await this.cacheManager.set(
         `website:meta:${url}`,
         result,
