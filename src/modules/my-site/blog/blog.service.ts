@@ -44,68 +44,6 @@ export class BlogService {
     return await this.resourceService.getResourceByKey(`blog/${key}`);
   }
 
-  private async replaceImageLinks(content: string): Promise<string> {
-    const imageRegex = /!\[.*?\]\((.*?)\)/g;
-    const matches = [...content.matchAll(imageRegex)];
-
-    for (const match of matches) {
-      const imageUrl = match[1];
-      // 检查是否为有效的url
-      try {
-        new URL(imageUrl);
-      } catch (e) {
-        continue;
-      }
-      const resource = await this.getResourceByImageUrl(imageUrl);
-      if (resource) {
-        const newUrl = await this.resourceService.getVisitUrlByDetail(resource);
-        content = content.replace(imageUrl, newUrl);
-      }
-    }
-
-    return content;
-  }
-
-  private async associateResources({
-    blogId,
-    cover,
-    content,
-  }: {
-    blogId: string;
-    cover?: Resource;
-    content: string;
-  }) {
-    const resourceIds: string[] = [];
-
-    if (cover) {
-      resourceIds.push(cover._id as string);
-    }
-
-    const imageRegex = /!\[.*?\]\((.*?)\)/g;
-    const matches = [...content.matchAll(imageRegex)];
-
-    for (const match of matches) {
-      const imageUrl = match[1];
-      try {
-        new URL(imageUrl);
-      } catch (e) {
-        continue;
-      }
-      const resource = await this.getResourceByImageUrl(imageUrl);
-      if (resource) {
-        resourceIds.push(resource._id as string);
-      }
-    }
-
-    if (resourceIds.length > 0) {
-      await this.resourceService.associateDataAndResource({
-        resourceIds,
-        associatedDataId: blogId,
-        associatedDataFrom: MySiteBlogSchemaName,
-      });
-    }
-  }
-
   /**
    * 分页获取博客
    */
@@ -186,9 +124,10 @@ export class BlogService {
 
     const { cover, content } = result;
 
-    await this.associateResources({
-      blogId: result._id as string,
-      cover,
+    await this.resourceService.associateResourcesFromStringOrArray({
+      associatedDataId: result._id as string,
+      associatedDataFrom: MySiteBlogSchemaName,
+      resources: [cover],
       content,
     });
 
@@ -217,9 +156,11 @@ export class BlogService {
     });
 
     const { cover, content } = body;
-    await this.associateResources({
-      blogId: id,
-      cover,
+
+    await this.resourceService.associateResourcesFromStringOrArray({
+      associatedDataId: id,
+      associatedDataFrom: MySiteBlogSchemaName,
+      resources: [cover],
       content,
     });
 
@@ -283,7 +224,9 @@ export class BlogService {
 
     if (blog) {
       if (blog.content) {
-        blog.content = await this.replaceImageLinks(blog.content);
+        blog.content = await this.resourceService.replaceImageLinks(
+          blog.content,
+        );
       }
       if (blog.cover) {
         blog.cover.url = await this.resourceService.getVisitUrlByDetail(
@@ -322,7 +265,9 @@ export class BlogService {
       };
 
       if (blogObject.content) {
-        blogObject.content = await this.replaceImageLinks(blogObject.content);
+        blogObject.content = await this.resourceService.replaceImageLinks(
+          blogObject.content,
+        );
       }
       if (blogObject.cover) {
         blogObject.cover.url = await this.resourceService.getVisitUrlByDetail(
