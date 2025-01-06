@@ -240,22 +240,22 @@ export class ResourceService {
     return result;
   }
 
-  // 取消关联数据和资源
-  async disassociateDataAndResource(
-    resourceId: string,
-    associatedDataId: string,
-  ): Promise<any> {
-    return await this.associationModel.deleteOne({
-      resourceId,
-      associatedDataId,
-    });
-  }
-
   async disassociateDataAndResourceByDataId(associatedDataId: string) {
-    await this.resourceModel.updateMany(
-      { associatedDataId },
-      { $unset: { associatedDataId: 1, associatedDataFrom: 1 } },
+    // 先找到所有关联的资源ID
+    const associations = await this.associationModel.find({ associatedDataId });
+    const resourceIds = associations.map(
+      (association) => association.resourceId,
     );
+
+    if (resourceIds.length > 0) {
+      // 将这些资源标记为已删除
+      await this.resourceModel.updateMany(
+        { _id: { $in: resourceIds } },
+        { isDelete: true },
+      );
+      // 删除关联关系
+      await this.associationModel.deleteMany({ associatedDataId });
+    }
   }
 
   private async getServiceByName(modelName: string, id: string) {
@@ -317,5 +317,94 @@ export class ResourceService {
 
   async getResourceByKey(key: string): Promise<Resource | null> {
     return this.resourceModel.findOne({ key });
+  }
+
+  /**
+   * 从图片链接获取对应的资源
+   */
+  async getResourceByImageUrl(imageUrl: string): Promise<Resource | null> {
+    const url = new URL(imageUrl);
+    const key = url.pathname.split('/').pop(); // 提取文件名部分
+    return await this.getResourceByKey(`blog/${key}`);
+  }
+
+  async replaceImageLinks(content: string): Promise<string> {
+    const imageRegex = /!\[.*?\]\((.*?)\)/g;
+    const matches = [...content.matchAll(imageRegex)];
+
+    for (const match of matches) {
+      const imageUrl = match[1];
+      // 检查是否为有效的url
+      try {
+        new URL(imageUrl);
+      } catch (e) {
+        continue;
+      }
+      const resource = await this.getResourceByImageUrl(imageUrl);
+      if (resource) {
+        const newUrl = await this.getVisitUrlByDetail(resource);
+        content = content.replace(imageUrl, newUrl);
+      }
+    }
+
+    return content;
+  }
+
+  /**
+   * 从给定的String中获取所有资源并关联，允许附加资源数组作为额外关联数据
+   */
+  async associateResourcesFromStringOrArray({
+    associatedDataId,
+    associatedDataFrom,
+    content,
+    resources = [],
+    resourceIds = [],
+  }: {
+    associatedDataId: string;
+    associatedDataFrom: string;
+    content?: string;
+    resources?: Resource[];
+    resourceIds?: string[];
+  }) {
+    const needAssociateResourceIds = [];
+
+    if (content) {
+      const imageRegex = /!\[.*?\]\((.*?)\)/g;
+      const matches = [...content.matchAll(imageRegex)];
+      for (const match of matches) {
+        const imageUrl = match[1];
+        try {
+          new URL(imageUrl);
+        } catch (e) {
+          continue;
+        }
+
+        const resource = await this.getResourceByImageUrl(imageUrl);
+        if (resource) {
+          resourceIds.push(resource._id as string);
+        }
+      }
+    }
+
+    if (resources.length) {
+      const resourceIds = resources.map((resource) => resource._id);
+      needAssociateResourceIds.push(...resourceIds);
+    }
+
+    if (resourceIds.length) {
+      needAssociateResourceIds.push(...resourceIds);
+    }
+
+    if (needAssociateResourceIds.length) {
+      const result = await this.associateDataAndResource({
+        resourceIds: needAssociateResourceIds,
+        associatedDataId,
+        associatedDataFrom,
+      });
+
+      return result;
+    }
+
+    return [];
   }
 }
