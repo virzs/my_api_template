@@ -56,7 +56,14 @@ export class FaqService {
    */
   async findAllUser() {
     return this.faqModel
-      .find({}, { createdAt: -1, creator: -1, updatedAt: -1, updater: -1 })
+      .find({})
+      .select({
+        createdAt: 0,
+        creator: 0,
+        updatedAt: 0,
+        updater: 0,
+        isPublic: 0,
+      })
       .exec();
   }
 
@@ -112,5 +119,23 @@ export class FaqService {
     return this.faqModel.findByIdAndUpdate(id, {
       isDelete: true,
     });
+  }
+
+  /**
+   * 公开或取消公开FAQ
+   */
+  async public(id: string, user: string) {
+    const res = await this.faqModel.findById(id);
+
+    if (!res) {
+      throw new BadRequestException('数据不存在');
+    }
+
+    return this.faqModel
+      .findByIdAndUpdate(id, {
+        isPublic: !res.isPublic,
+        updater: user,
+      })
+      .exec();
   }
 }

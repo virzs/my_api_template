@@ -26,18 +26,18 @@ export class FaqController {
     return this.faqService.findAll(query);
   }
 
-  @Get('/:id')
-  @ApiOperation({ summary: '获取FAQ详情' })
-  @ApiParam({ name: 'id', description: 'FAQ ID' })
-  async findOne(@Param('id') id: string) {
-    return this.faqService.findOne(id);
-  }
-
   @Get('/list')
   @ApiOperation({ summary: '获取所有FAQ 用户' })
   @RequireLogin()
   async findAllUser() {
     return this.faqService.findAllUser();
+  }
+
+  @Get('/:id')
+  @ApiOperation({ summary: '获取FAQ详情' })
+  @ApiParam({ name: 'id', description: 'FAQ ID' })
+  async findOne(@Param('id') id: string) {
+    return this.faqService.findOne(id);
   }
 
   @Post()
@@ -64,5 +64,12 @@ export class FaqController {
   @ApiParam({ name: 'id', description: 'FAQ ID' })
   async delete(@Param('id') id: string) {
     return this.faqService.delete(id);
+  }
+
+  @Put('/public/:id')
+  @ApiOperation({ summary: '更新FAQ公开状态' })
+  @ApiParam({ name: 'id', description: 'FAQ ID' })
+  async updatePublic(@Param('id') id: string, @User('_id') user: string) {
+    return this.faqService.public(id, user);
   }
 }
