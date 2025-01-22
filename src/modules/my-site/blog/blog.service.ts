@@ -127,7 +127,7 @@ export class BlogService {
     await this.resourceService.associateResourcesFromStringOrArray({
       associatedDataId: result._id as string,
       associatedDataFrom: MySiteBlogSchemaName,
-      resources: [cover],
+      resources: cover ? [cover] : [],
       content,
     });
 
@@ -160,7 +160,7 @@ export class BlogService {
     await this.resourceService.associateResourcesFromStringOrArray({
       associatedDataId: id,
       associatedDataFrom: MySiteBlogSchemaName,
-      resources: [cover],
+      resources: cover ? [cover] : [],
       content,
     });
 
