@@ -8,6 +8,9 @@ import { UsersName } from './ref-names';
 
 @Schema({ timestamps: true })
 export class User extends BaseSchema {
+  @Prop({ type: String, unique: true })
+  nickname: string;
+
   @Prop({ type: String, required: true, unique: true })
   username: string;
 

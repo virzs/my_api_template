@@ -24,6 +24,13 @@ export class UsersController {
     return this.usersService.statistics();
   }
 
+  @Get('/search')
+  @ApiOperation({ summary: '搜索用户' })
+  @ApiParam({ name: 'keyWords', description: '搜索关键词', example: 'test' })
+  searchUsers(@Query('keyWords') keyWords: string) {
+    return this.usersService.searchUsers(keyWords);
+  }
+
   @Post('/')
   @ApiOperation({ summary: '新增' })
   create(@Body() body: CreateUserDto) {

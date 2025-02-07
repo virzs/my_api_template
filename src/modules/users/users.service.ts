@@ -116,6 +116,25 @@ export class UsersService {
     return result;
   }
 
+  // 搜索用户
+  async searchUsers(keyWords: string) {
+    if (!keyWords) {
+      return [];
+    }
+
+    const regex = new RegExp(keyWords, 'i');
+    const users = await this.usersModel
+      .find({
+        $or: [{ username: regex }, { email: regex }, { nickname: regex }],
+        isDelete: false,
+      })
+      .select('+type +status +enable')
+      .populate('roles')
+      .exec();
+
+    return users;
+  }
+
   // 统计
   async statistics() {
     // 总用户数
