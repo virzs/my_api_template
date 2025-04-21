@@ -21,6 +21,7 @@ import { ProjectService } from '../system/project/project.service';
 import { SendEmailDto } from '../system/email/dtos/send.dto';
 import { EmailService } from '../system/email/email.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { MessageService } from '../system/message/message.service';
 
 interface RedisTokenCache {
   [key: string]: string;
@@ -35,6 +36,7 @@ export class AuthService {
     private readonly invitationCodeService: InvitationCodeService,
     private readonly projectService: ProjectService,
     private readonly emailService: EmailService,
+    private readonly messageService: MessageService,
     @Inject(CACHE_MANAGER)
     private cacheManager: Cache,
   ) {}
@@ -94,12 +96,23 @@ export class AuthService {
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    await this.usersModel.create({
+    const newUser = await this.usersModel.create({
       ...rest,
       password: hashedPassword,
       salt,
       email,
       roles: codeData?.roles,
+    });
+
+    // 发送欢迎消息
+    await this.messageService.sendMessageToUser(newUser._id.toString(), {
+      module: 'auth',
+      title: '注册成功',
+      content: '欢迎使用系统！',
+      extra: {
+        email: newUser.email,
+        registerTime: new Date(),
+      },
     });
 
     return { message: '注册成功' };
@@ -190,9 +203,8 @@ export class AuthService {
       );
     }
 
-    const isExpired = await this.refreshTokenService.isRefreshTokenExpired(
-      refreshToken,
-    );
+    const isExpired =
+      await this.refreshTokenService.isRefreshTokenExpired(refreshToken);
 
     const isExpiresSoon =
       await this.refreshTokenService.isRefreshTokenExpiresSoon(refreshToken);
