@@ -19,7 +19,10 @@ export class Feedback extends BaseSchema {
   @Prop({ type: String, required: true })
   content: string;
 
-  @ApiProperty({ description: '反馈类型', type: mongoose.Schema.Types.ObjectId })
+  @ApiProperty({
+    description: '反馈类型',
+    type: mongoose.Schema.Types.ObjectId,
+  })
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: FeedbackTypeName })
   type: string;
 

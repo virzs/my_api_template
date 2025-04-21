@@ -11,15 +11,15 @@ export const FeedbackRecordName = 'FeedbackRecord';
 
 @Schema({ timestamps: true })
 export class FeedbackRecord extends BaseSchema {
-  @ApiProperty({ 
-    description: '所属反馈', 
+  @ApiProperty({
+    description: '所属反馈',
     type: mongoose.Schema.Types.ObjectId,
-    required: true 
+    required: true,
   })
-  @Prop({ 
-    type: mongoose.Schema.Types.ObjectId, 
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
     ref: FeedbackSchemaName,
-    required: true 
+    required: true,
   })
   feedback: string;
 
@@ -28,10 +28,10 @@ export class FeedbackRecord extends BaseSchema {
   operator: string;
 
   @ApiProperty({ description: '操作类型', type: String, required: true })
-  @Prop({ 
-    type: String, 
+  @Prop({
+    type: String,
     required: true,
-    enum: ['create', 'update', 'reply', 'close', 'reopen'] 
+    enum: ['create', 'update', 'reply', 'close', 'reopen'],
   })
   action: 'create' | 'update' | 'reply' | 'close' | 'reopen';
 
@@ -44,6 +44,7 @@ export class FeedbackRecord extends BaseSchema {
   metadata: Record<string, any>;
 }
 
-export const FeedbackRecordSchema = SchemaFactory.createForClass(FeedbackRecord);
+export const FeedbackRecordSchema =
+  SchemaFactory.createForClass(FeedbackRecord);
 
 baseSchemaMiddleware(FeedbackRecordSchema);

@@ -30,6 +30,8 @@ import { CacheModule } from '@nestjs/cache-manager';
 import storageService from './config/storage-service';
 import { StorageServiceModule } from './modules/system/storage-service/storage-service.module';
 import { CleanupService } from './public/service/cleanup.service';
+import { FeedbackModule } from './modules/feedback/feedback.module';
+import { MessageModule } from './modules/system/message/message.module';
 
 @Module({
   imports: [
@@ -109,6 +111,8 @@ import { CleanupService } from './public/service/cleanup.service';
     TabsModule,
     MySiteModule,
     StorageServiceModule,
+    FeedbackModule,
+    MessageModule,
   ],
   providers: [
     JwtService,

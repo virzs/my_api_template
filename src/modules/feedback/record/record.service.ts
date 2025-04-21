@@ -12,7 +12,10 @@ export class RecordService {
     private readonly recordModel: Model<FeedbackRecord>,
   ) {}
 
-  async create(createRecordDto: CreateRecordDto, userId: string): Promise<FeedbackRecord> {
+  async create(
+    createRecordDto: CreateRecordDto,
+    userId: string,
+  ): Promise<FeedbackRecord> {
     const record = new this.recordModel({
       ...createRecordDto,
       operator: userId,
@@ -22,15 +25,15 @@ export class RecordService {
 
   async findAll(query: RecordQueryDto): Promise<FeedbackRecord[]> {
     const filter: any = {};
-    
+
     if (query.feedback) {
       filter.feedback = query.feedback;
     }
-    
+
     if (query.action) {
       filter.action = query.action;
     }
-    
+
     if (query.operator) {
       filter.operator = query.operator;
     }

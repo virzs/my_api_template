@@ -2,7 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Feedback, FeedbackSchemaName } from './feedback.schema';
-import { CreateFeedbackDto, FeedbackQueryDto, UpdateFeedbackDto } from './dto/feedback.dto';
+import {
+  CreateFeedbackDto,
+  FeedbackQueryDto,
+  UpdateFeedbackDto,
+} from './dto/feedback.dto';
 import { RecordService } from './record/record.service';
 import { FeedbackTypeName } from './type/type.schema';
 import { UsersName } from 'src/modules/users/schemas/ref-names';
@@ -15,7 +19,10 @@ export class FeedbackService {
     private readonly recordService: RecordService,
   ) {}
 
-  async create(createFeedbackDto: CreateFeedbackDto, userId: string): Promise<Feedback> {
+  async create(
+    createFeedbackDto: CreateFeedbackDto,
+    userId: string,
+  ): Promise<Feedback> {
     // 创建新的反馈
     const feedback = new this.feedbackModel({
       ...createFeedbackDto,
@@ -38,7 +45,9 @@ export class FeedbackService {
     return savedFeedback;
   }
 
-  async findAll(query: FeedbackQueryDto): Promise<{ items: Feedback[]; total: number }> {
+  async findAll(
+    query: FeedbackQueryDto,
+  ): Promise<{ items: Feedback[]; total: number }> {
     const filter: any = {};
 
     if (query.status) {
@@ -87,7 +96,11 @@ export class FeedbackService {
     return { feedback, records };
   }
 
-  async update(id: string, updateFeedbackDto: UpdateFeedbackDto, userId: string): Promise<Feedback> {
+  async update(
+    id: string,
+    updateFeedbackDto: UpdateFeedbackDto,
+    userId: string,
+  ): Promise<Feedback> {
     const feedback = await this.feedbackModel.findById(id);
     if (!feedback) {
       throw new NotFoundException(`ID为 ${id} 的反馈不存在`);
@@ -95,15 +108,21 @@ export class FeedbackService {
 
     // 状态转换逻辑
     if (updateFeedbackDto.status) {
-      const action = this.getActionByStatus(feedback.status, updateFeedbackDto.status);
-      
+      const action = this.getActionByStatus(
+        feedback.status,
+        updateFeedbackDto.status,
+      );
+
       // 创建状态变更记录
       await this.recordService.create(
         {
           feedback: id,
           action,
           content: `状态从 ${feedback.status} 变更为 ${updateFeedbackDto.status}`,
-          metadata: { previous: feedback.status, current: updateFeedbackDto.status },
+          metadata: {
+            previous: feedback.status,
+            current: updateFeedbackDto.status,
+          },
         },
         userId,
       );
@@ -118,7 +137,11 @@ export class FeedbackService {
       .exec();
 
     // 如果更新了反馈内容或标题等信息，记录这些变更
-    if (updateFeedbackDto.title || updateFeedbackDto.content || updateFeedbackDto.type) {
+    if (
+      updateFeedbackDto.title ||
+      updateFeedbackDto.content ||
+      updateFeedbackDto.type
+    ) {
       await this.recordService.create(
         {
           feedback: id,
@@ -135,13 +158,16 @@ export class FeedbackService {
 
   // 根据状态转换确定操作类型
   private getActionByStatus(
-    previousStatus: string, 
-    currentStatus: string
+    previousStatus: string,
+    currentStatus: string,
   ): 'update' | 'reply' | 'close' | 'reopen' {
     if (currentStatus === 'closed') {
       return 'close';
     }
-    if (currentStatus === 'reopened' || (previousStatus === 'closed' && currentStatus !== 'closed')) {
+    if (
+      currentStatus === 'reopened' ||
+      (previousStatus === 'closed' && currentStatus !== 'closed')
+    ) {
       return 'reopen';
     }
     if (currentStatus === 'replied') {
@@ -150,11 +176,7 @@ export class FeedbackService {
     return 'update';
   }
 
-  async reply(
-    id: string, 
-    content: string, 
-    userId: string
-  ): Promise<Feedback> {
+  async reply(id: string, content: string, userId: string): Promise<Feedback> {
     const feedback = await this.feedbackModel.findById(id);
     if (!feedback) {
       throw new NotFoundException(`ID为 ${id} 的反馈不存在`);
@@ -173,9 +195,9 @@ export class FeedbackService {
     // 更新反馈状态为已回复
     const updatedFeedback = await this.feedbackModel
       .findByIdAndUpdate(
-        id, 
-        { status: 'replied', handler: userId }, 
-        { new: true }
+        id,
+        { status: 'replied', handler: userId },
+        { new: true },
       )
       .populate('type', 'type description', FeedbackTypeName)
       .populate('submitter', 'username avatar', UsersName)
@@ -186,9 +208,9 @@ export class FeedbackService {
   }
 
   async assignHandler(
-    id: string, 
-    handlerId: string, 
-    userId: string
+    id: string,
+    handlerId: string,
+    userId: string,
   ): Promise<Feedback> {
     const feedback = await this.feedbackModel.findById(id);
     if (!feedback) {
@@ -209,12 +231,13 @@ export class FeedbackService {
     // 更新反馈处理人
     const updatedFeedback = await this.feedbackModel
       .findByIdAndUpdate(
-        id, 
-        { 
-          handler: handlerId, 
-          status: feedback.status === 'pending' ? 'processing' : feedback.status 
-        }, 
-        { new: true }
+        id,
+        {
+          handler: handlerId,
+          status:
+            feedback.status === 'pending' ? 'processing' : feedback.status,
+        },
+        { new: true },
       )
       .populate('type', 'type description', FeedbackTypeName)
       .populate('submitter', 'username avatar', UsersName)

@@ -6,8 +6,6 @@ import {
   Patch,
   Param,
   Query,
-  UseGuards,
-  Req,
 } from '@nestjs/common';
 import { FeedbackService } from './feedback.service';
 import { ApiOperation, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
@@ -16,6 +14,7 @@ import {
   FeedbackQueryDto,
   UpdateFeedbackDto,
 } from './dto/feedback.dto';
+import { User } from 'src/public/decorator/route-user.decoratpr';
 
 @ApiTags('反馈')
 @Controller('feedback')
@@ -25,8 +24,8 @@ export class FeedbackController {
   @Post()
   @ApiBearerAuth()
   @ApiOperation({ summary: '创建反馈' })
-  create(@Body() createFeedbackDto: CreateFeedbackDto, @Req() req) {
-    return this.feedbackService.create(createFeedbackDto, req.user._id);
+  create(@Body() createFeedbackDto: CreateFeedbackDto, @User('_id') userId) {
+    return this.feedbackService.create(createFeedbackDto, userId);
   }
 
   @Get()
@@ -49,16 +48,20 @@ export class FeedbackController {
   update(
     @Param('id') id: string,
     @Body() updateFeedbackDto: UpdateFeedbackDto,
-    @Req() req,
+    @User('_id') userId,
   ) {
-    return this.feedbackService.update(id, updateFeedbackDto, req.user._id);
+    return this.feedbackService.update(id, updateFeedbackDto, userId);
   }
 
   @Post(':id/reply')
   @ApiBearerAuth()
   @ApiOperation({ summary: '回复反馈' })
-  reply(@Param('id') id: string, @Body('content') content: string, @Req() req) {
-    return this.feedbackService.reply(id, content, req.user._id);
+  reply(
+    @Param('id') id: string,
+    @Body('content') content: string,
+    @User('_id') userId,
+  ) {
+    return this.feedbackService.reply(id, content, userId);
   }
 
   @Post(':id/assign/:handlerId')
@@ -67,8 +70,8 @@ export class FeedbackController {
   assignHandler(
     @Param('id') id: string,
     @Param('handlerId') handlerId: string,
-    @Req() req,
+    @User('_id') userId,
   ) {
-    return this.feedbackService.assignHandler(id, handlerId, req.user._id);
+    return this.feedbackService.assignHandler(id, handlerId, userId);
   }
 }
