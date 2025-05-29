@@ -42,10 +42,16 @@ export class MySiteBlog extends BaseSchema {
   @ApiProperty({ description: '标题', type: String, required: true })
   @Prop({ type: String, required: true })
   title: string;
-
-  @ApiProperty({ description: '内容', type: String, required: true })
-  @Prop({ type: String, required: true })
-  content: string;
+  @ApiProperty({
+    description: '内容',
+    oneOf: [
+      { type: 'string', description: 'Markdown 文本内容（旧格式）' },
+      { type: 'object', description: '富文本编辑器内容（新格式）' },
+    ],
+    required: true,
+  })
+  @Prop({ type: mongoose.Schema.Types.Mixed, required: true })
+  content: string | object;
 
   @ApiProperty({ description: '封面', type: String })
   @Prop({ type: Resource })

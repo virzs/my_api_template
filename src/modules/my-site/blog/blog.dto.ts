@@ -10,10 +10,16 @@ export class BlogDto {
   @Expose()
   title: string;
 
-  @ApiProperty({ description: '内容', type: String, required: true })
-  @IsString()
+  @ApiProperty({
+    description: '内容',
+    oneOf: [
+      { type: 'string', description: 'Markdown 文本内容（旧格式）' },
+      { type: 'object', description: '富文本编辑器内容（新格式）' },
+    ],
+    required: true,
+  })
   @Expose()
-  content: string;
+  content: string | object;
 
   @ApiProperty({ description: '封面', type: Resource })
   @IsObject()

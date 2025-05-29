@@ -45,6 +45,102 @@ export class BlogService {
   }
 
   /**
+   * 从 Tiptap/ProseMirror 格式的富文本内容中提取纯文本（仅标题和段落）
+   */
+  private extractTextFromRichContent(content: any): string {
+    if (!content || typeof content !== 'object') {
+      return '';
+    }
+
+    let text = '';
+
+    // 递归处理内容节点
+    const processNode = (node: any): void => {
+      if (!node) return;
+
+      // 如果是文本节点，直接添加文本
+      if (node.type === 'text' && node.text) {
+        text += node.text;
+        return;
+      }
+
+      // 只处理标题和段落节点
+      switch (node.type) {
+        case 'heading':
+          // 标题节点 - 处理内容并在后面添加空格
+          if (node.content && Array.isArray(node.content)) {
+            node.content.forEach((child: any) => processNode(child));
+            text += ' ';
+          }
+          break;
+
+        case 'paragraph':
+          // 段落节点 - 处理内容并在后面添加空格
+          if (node.content && Array.isArray(node.content)) {
+            node.content.forEach((child: any) => processNode(child));
+            text += ' ';
+          }
+          break;
+
+        default:
+          // 对于其他节点类型，如果有内容数组，继续递归查找标题和段落
+          if (node.content && Array.isArray(node.content)) {
+            node.content.forEach((child: any) => processNode(child));
+          }
+          break;
+      }
+    };
+
+    // 处理根节点
+    if (content.content && Array.isArray(content.content)) {
+      content.content.forEach((node: any) => processNode(node));
+    } else {
+      processNode(content);
+    }
+
+    // 清理多余的空白字符
+    return text
+      .replace(/\s+/g, ' ') // 合并多个空格
+      .trim();
+  }
+
+  /**
+   * 从 Tiptap/ProseMirror 格式的富文本内容中提取图片链接
+   */
+  private extractImageUrlsFromRichContent(content: any): string[] {
+    if (!content || typeof content !== 'object') {
+      return [];
+    }
+
+    const imageUrls: string[] = [];
+
+    // 递归处理内容节点
+    const processNode = (node: any): void => {
+      if (!node) return;
+
+      // 如果是图片节点，提取src
+      if (node.type === 'image' && node.attrs && node.attrs.src) {
+        imageUrls.push(node.attrs.src);
+        return;
+      }
+
+      // 如果节点有内容数组，递归处理
+      if (node.content && Array.isArray(node.content)) {
+        node.content.forEach((child: any) => processNode(child));
+      }
+    };
+
+    // 处理根节点
+    if (content.content && Array.isArray(content.content)) {
+      content.content.forEach((node: any) => processNode(node));
+    } else {
+      processNode(content);
+    }
+
+    return imageUrls;
+  }
+
+  /**
    * 分页获取博客
    */
   async getBlogs(query: PageDto) {
@@ -93,20 +189,42 @@ export class BlogService {
     // 生成简介
     const blogsWithSummary = blogs.map((blog) => {
       const { content, ...rest } = blog.toObject();
-      const sanitizedContent = purify.sanitize(parse(content || '') as string, {
-        ALLOWED_TAGS: ['p'],
-        FORBID_CONTENTS: ['a', 'code', 'img', 'pre', 'table', 'ul', 'ol', 'li'],
-        FORBID_TAGS: ['p'],
-      }); // 解析markdown并仅保留h和p标签
 
-      // 去除所有HTML标签和换行符
-      const plainText = sanitizedContent
-        .replace(/<[^>]+>/g, '')
-        .replace(/\n/g, '');
+      // 简单的摘要生成逻辑
+      let summary = '';
+      if (typeof content === 'string') {
+        // Markdown 内容的简单处理
+        const sanitizedContent = purify.sanitize(
+          parse(content || '') as string,
+          {
+            ALLOWED_TAGS: ['p'],
+            FORBID_CONTENTS: [
+              'a',
+              'code',
+              'img',
+              'pre',
+              'table',
+              'ul',
+              'ol',
+              'li',
+            ],
+            FORBID_TAGS: ['p'],
+          },
+        );
+
+        summary = sanitizedContent
+          .replace(/<[^>]+>/g, '')
+          .replace(/\n/g, '')
+          .substring(0, 100);
+      } else {
+        // 富文本内容处理 - 提取纯文本
+        const extractedText = this.extractTextFromRichContent(content);
+        summary = extractedText.substring(0, 100);
+      }
 
       return {
         ...rest,
-        summary: plainText.substring(0, 100), // 截取前100个字符作为简介
+        summary,
       };
     });
 
@@ -124,11 +242,14 @@ export class BlogService {
 
     const { cover, content } = result;
 
+    // 只有当内容是字符串时才传递给资源服务
+    const contentForResource = typeof content === 'string' ? content : '';
+
     await this.resourceService.associateResourcesFromStringOrArray({
       associatedDataId: result._id as string,
       associatedDataFrom: MySiteBlogSchemaName,
       resources: cover ? [cover] : [],
-      content,
+      content: contentForResource,
     });
 
     return result;
@@ -157,11 +278,14 @@ export class BlogService {
 
     const { cover, content } = body;
 
+    // 只有当内容是字符串时才传递给资源服务
+    const contentForResource = typeof content === 'string' ? content : '';
+
     await this.resourceService.associateResourcesFromStringOrArray({
       associatedDataId: id,
       associatedDataFrom: MySiteBlogSchemaName,
       resources: cover ? [cover] : [],
-      content,
+      content: contentForResource,
     });
 
     return updatedBlog;
@@ -223,7 +347,8 @@ export class BlogService {
       .exec();
 
     if (blog) {
-      if (blog.content) {
+      // 只有当内容是字符串类型（markdown）时才进行图片链接替换
+      if (blog.content && typeof blog.content === 'string') {
         blog.content = await this.resourceService.replaceImageLinks(
           blog.content,
         );
@@ -264,7 +389,8 @@ export class BlogService {
         next: { _id: string; title: string } | null;
       };
 
-      if (blogObject.content) {
+      // 只有当内容是字符串类型（markdown）时才进行图片链接替换
+      if (blogObject.content && typeof blogObject.content === 'string') {
         blogObject.content = await this.resourceService.replaceImageLinks(
           blogObject.content,
         );
