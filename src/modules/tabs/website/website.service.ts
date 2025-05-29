@@ -32,14 +32,17 @@ export class WebsiteService {
    */
   async getWebsites(query: WebsiteForAdminDto) {
     const { page = 1, pageSize = 10, classifyIds } = query;
-
     const classifyIdsArr = ![null, undefined, ''].includes(classifyIds)
       ? classifyIds.split(',')
       : [];
 
-    const finder = {
-      ...(classifyIdsArr.length > 0 && { classify: { $in: classifyIdsArr } }),
-    };
+    // 构建查询条件
+    const finder = {};
+
+    // 处理分类筛选
+    if (classifyIdsArr.length > 0) {
+      finder['classify'] = { $in: classifyIdsArr };
+    }
 
     const users = await this.websiteModel
       .find(finder)
@@ -58,12 +61,11 @@ export class WebsiteService {
    */
   async getWebsitesForUser(query: WebsitesForUserDto) {
     const { page = 1, pageSize = 10, tags, classify, search } = query;
-
     const finder = {
       enable: true,
       public: true,
       ...(tags && { tags: { $all: tags } }),
-      ...(classify && { classify }),
+      ...(classify && { classify }), // 保持这个不变，只有当指定了分类时才筛选
       ...(search && {
         $or: [
           { name: { $regex: search, $options: 'i' } },
@@ -123,13 +125,36 @@ export class WebsiteService {
    * 更新网站
    */
   async updateWebsite(id: string, data: WebsiteDto, user: string) {
-    const result = this.websiteModel.findByIdAndUpdate(id, {
+    // 先获取当前网站的信息，以便检查分类是否有变化
+    const currentWebsite = await this.websiteModel.findById(id);
+    if (!currentWebsite) {
+      throw new Error('网站不存在');
+    }
+
+    // 获取当前网站的分类ID（如果有）
+    const oldClassifyId = currentWebsite.classify
+      ? (currentWebsite.classify as unknown as string)
+      : null;
+
+    // 获取新的分类ID（如果有）
+    const newClassifyId = data.classify || null;
+
+    // 更新网站信息
+    const result = await this.websiteModel.findByIdAndUpdate(id, {
       ...data,
       updater: user,
-    });
+    }); // 处理分类变更
+    // 如果旧分类与新分类不同，需要进行处理
+    if (oldClassifyId !== newClassifyId) {
+      // 如果旧分类存在，需要从旧分类中移除网站
+      if (oldClassifyId) {
+        await this.classifyService.toggleWebsite(oldClassifyId, id);
+      }
 
-    if (data.classify) {
-      await this.classifyService.toggleWebsite(data.classify, id);
+      // 如果新分类存在，需要将网站添加到新分类
+      if (newClassifyId) {
+        await this.classifyService.toggleWebsite(newClassifyId, id);
+      }
     }
 
     return result;

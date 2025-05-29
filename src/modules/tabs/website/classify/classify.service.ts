@@ -21,24 +21,77 @@ export class ClassifyService {
   async createClassify(data: WebsiteClassifyDto, user: string) {
     if (data.parent) {
       const parent = await this.classifyModel.findById(data.parent);
-      if (!parent) {
+      if (!parent || parent.isDelete) {
         throw new Error('父分类不存在');
       }
+
+      // 检查当前分类层级，最多允许2层（根分类为第0层）
+      if (parent.parent) {
+        // 如果父分类已经有父分类，说明父分类是第1层
+        // 当前分类将是第2层，再创建子分类将超过2层限制
+        throw new Error('分类最多只能创建2层');
+      }
     }
-    return await this.classifyModel.create({ ...data, creator: user });
+    const result = await this.classifyModel.create({
+      ...data,
+      creator: user,
+      isDelete: false, // 确保新创建的分类isDelete字段为false
+    });
+
+    // 创建后更新缓存的分类树
+    await this.cacheTree();
+
+    return result;
   }
 
   async updateClassify(id: string, data: WebsiteClassifyDto, user: string) {
-    return await this.classifyModel.findByIdAndUpdate(id, {
+    // 检查当前分类是否存在且未被删除
+    const currentClassify = await this.classifyModel.findById(id);
+    if (!currentClassify || currentClassify.isDelete) {
+      throw new Error('分类不存在或已被删除');
+    }
+
+    // 如果要更新父分类，需要检查是否会超过层级限制
+    if (data.parent) {
+      const parent = await this.classifyModel.findById(data.parent);
+      if (!parent || parent.isDelete) {
+        throw new Error('父分类不存在或已被删除');
+      }
+
+      // 检查更新后是否会超过2层限制
+      if (parent.parent) {
+        // 如果父分类已经有父分类，说明父分类是第1层
+        // 当前分类将是第2层，无法设置为其他分类的父分类
+        throw new Error('分类最多只能创建2层');
+      }
+
+      // 检查当前分类是否有子分类
+      const hasChildren = await this.classifyModel.exists({
+        parent: id,
+        isDelete: { $ne: true }, // 只检查未删除的子分类
+      });
+      if (hasChildren) {
+        // 如果当前分类有子分类，且尝试将其设为第2层分类，会导致子分类成为第3层
+        throw new Error('当前分类已有子分类，无法设置为第2层分类');
+      }
+    }
+
+    const result = await this.classifyModel.findByIdAndUpdate(id, {
       ...data,
       updater: user,
     });
+
+    // 更新后刷新缓存的分类树
+    await this.cacheTree();
+
+    return result;
   }
 
   async deleteClassify(id: string) {
-    // 如果有子分类 禁止删除
+    // 查找未被删除的子分类
     const children = await this.classifyModel.find({
       parent: id,
+      isDelete: { $ne: true },
     });
     if (children.length > 0) {
       // 递归删掉子分类
@@ -56,22 +109,53 @@ export class ClassifyService {
       { $set: { classify: null } },
     );
 
+    // 删除后更新缓存的分类树
+    await this.cacheTree();
+
     return result;
   }
 
   async toggleWebsite(classifyId: string, websiteId: string) {
     const classify = await this.classifyModel.findById(classifyId);
-    if (!classify) {
-      throw new Error('分类未找到');
+    if (!classify || classify.isDelete) {
+      throw new Error('分类未找到或已被删除');
     }
 
-    const updateOperation = classify.websites.includes(
-      websiteId as unknown as any,
-    )
+    // 先检查网站是否已经在该分类中
+    const isWebsiteInClassify = classify.websites.some(
+      (id) => id.toString() === websiteId,
+    );
+
+    // 如果网站已经在该分类中，则移除；如果不在，则添加
+    const updateOperation = isWebsiteInClassify
       ? { $pull: { websites: websiteId } }
       : { $addToSet: { websites: websiteId } };
 
     await this.classifyModel.findByIdAndUpdate(classifyId, updateOperation);
+
+    // 更新网站的分类信息
+    // 如果是添加操作，将该分类设为网站的分类
+    if (!isWebsiteInClassify) {
+      await this.websiteModel.findByIdAndUpdate(websiteId, {
+        classify: classifyId,
+      });
+    }
+    // 如果是移除操作，清除网站的分类（仅当网站的当前分类是这个分类时）
+    else {
+      const website = await this.websiteModel.findById(websiteId);
+      if (
+        website &&
+        website.classify &&
+        website.classify.toString() === classifyId
+      ) {
+        await this.websiteModel.findByIdAndUpdate(websiteId, {
+          classify: null,
+        });
+      }
+    }
+
+    // 更新网站关联后更新缓存的分类树
+    await this.cacheTree();
   }
 
   async getTree(
@@ -83,12 +167,16 @@ export class ClassifyService {
   ) {
     let result = [];
     const { populate } = params;
+    // 添加过滤条件，排除已删除的分类
+    const query = {
+      parent: parentId,
+      name: new RegExp(params?.name ?? '', 'i'),
+      isDelete: { $ne: true }, // 排除isDelete为true的记录
+    };
+
     if (populate) {
       result = await this.classifyModel
-        .find({
-          parent: parentId,
-          name: new RegExp(params?.name ?? '', 'i'),
-        })
+        .find(query)
         .populate({
           path: populate,
           options: {
@@ -98,12 +186,7 @@ export class ClassifyService {
         })
         .exec();
     } else {
-      result = await this.classifyModel
-        .find({
-          parent: parentId,
-          name: new RegExp(params?.name ?? '', 'i'),
-        })
-        .exec();
+      result = await this.classifyModel.find(query).exec();
     }
     for (let i = 0; i < result.length; i++) {
       const children = await this.getTree(params, result[i]._id);
@@ -132,9 +215,10 @@ export class ClassifyService {
    * 获取详情
    */
   async detail(id: string) {
-    return await this.classifyModel.findById(id, {
-      websites: 0,
-    });
+    return await this.classifyModel.findOne(
+      { _id: id, isDelete: { $ne: true } },
+      { websites: 0 },
+    );
   }
 
   /**
@@ -172,7 +256,7 @@ export class ClassifyService {
    * 从缓存中获取分类树，没有则重新获取并缓存
    */
   async getClassifyTree() {
-    const tree = await this.cacheManager.get('website_classify_tree');
+    const tree = null; // await this.cacheManager.get('website_classify_tree');
     if (!tree) {
       return await this.cacheTree();
     }
