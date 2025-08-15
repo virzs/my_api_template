@@ -1,12 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { WebsiteName } from './schemas/ref-names';
+import { WebsiteName, WebsiteTagName } from './schemas/ref-names';
 import { Model } from 'mongoose';
 import { Website } from './schemas/website';
+import { WebsiteTag } from './schemas/tag';
 import { Cron } from '@nestjs/schedule';
 import { Cache } from 'cache-manager';
 import { PageDto } from 'src/public/dto/page';
-import { Response } from 'src/utils/response';
 import {
   ParseWebsiteDto,
   UpdateWebsitePublicDto,
@@ -24,6 +24,7 @@ export class WebsiteService {
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectModel(WebsiteName) private websiteModel: Model<Website>,
+    @InjectModel(WebsiteTagName) private tagModel: Model<WebsiteTag>,
     private readonly classifyService: ClassifyService,
   ) {}
 
@@ -53,7 +54,7 @@ export class WebsiteService {
 
     const total = await this.websiteModel.countDocuments(finder);
 
-    return Response.page(users, { page, pageSize, total });
+    return { data: users, page, pageSize, total };
   }
 
   /**
@@ -82,7 +83,7 @@ export class WebsiteService {
 
     const total = await this.websiteModel.countDocuments(finder);
 
-    return Response.page(users, { page, pageSize, total });
+    return { data: users, page, pageSize, total };
   }
 
   /**
@@ -101,7 +102,7 @@ export class WebsiteService {
 
     const total = await this.websiteModel.countDocuments(finder);
 
-    return Response.page(users, { page, pageSize, total });
+    return { data: users, page, pageSize, total };
   }
 
   /**
@@ -118,6 +119,10 @@ export class WebsiteService {
         website._id as string,
       );
     }
+    // 处理标签关联
+    if (data.tags && data.tags.length > 0) {
+      await this.updateWebsiteTags(website._id as string, data.tags, 'add');
+    }
     return website;
   }
 
@@ -125,8 +130,10 @@ export class WebsiteService {
    * 更新网站
    */
   async updateWebsite(id: string, data: WebsiteDto, user: string) {
-    // 先获取当前网站的信息，以便检查分类是否有变化
-    const currentWebsite = await this.websiteModel.findById(id);
+    // 先获取当前网站的信息，以便检查分类和标签是否有变化
+    const currentWebsite = await this.websiteModel
+      .findById(id)
+      .populate('tags');
     if (!currentWebsite) {
       throw new Error('网站不存在');
     }
@@ -139,12 +146,19 @@ export class WebsiteService {
     // 获取新的分类ID（如果有）
     const newClassifyId = data.classify || null;
 
+    // 获取当前网站的标签ID列表
+    const oldTagIds = currentWebsite.tags
+      ? currentWebsite.tags.map((tag: any) => tag._id.toString())
+      : [];
+    const newTagIds = data.tags || [];
+
     // 更新网站信息
     const result = await this.websiteModel.findByIdAndUpdate(id, {
       ...data,
       updater: user,
-    }); // 处理分类变更
-    // 如果旧分类与新分类不同，需要进行处理
+    });
+
+    // 处理分类变更
     if (oldClassifyId !== newClassifyId) {
       // 如果旧分类存在，需要从旧分类中移除网站
       if (oldClassifyId) {
@@ -155,6 +169,22 @@ export class WebsiteService {
       if (newClassifyId) {
         await this.classifyService.toggleWebsite(newClassifyId, id);
       }
+    }
+
+    // 处理标签变更
+    const tagsToRemove = oldTagIds.filter(
+      (tagId) => !newTagIds.includes(tagId),
+    );
+    const tagsToAdd = newTagIds.filter((tagId) => !oldTagIds.includes(tagId));
+
+    // 移除不再关联的标签
+    if (tagsToRemove.length > 0) {
+      await this.updateWebsiteTags(id, tagsToRemove, 'remove');
+    }
+
+    // 添加新关联的标签
+    if (tagsToAdd.length > 0) {
+      await this.updateWebsiteTags(id, tagsToAdd, 'add');
     }
 
     return result;
@@ -174,7 +204,7 @@ export class WebsiteService {
     );
 
     if (result) {
-      return Response.success();
+      return result;
     } else {
       throw new Error('修改失败');
     }
@@ -184,15 +214,31 @@ export class WebsiteService {
    * 删除网站
    */
   async deleteWebsite(id: string) {
+    // 获取网站信息以处理关联关系
+    const website = await this.websiteModel.findById(id).populate('tags');
+    if (!website) {
+      throw new Error('网站不存在');
+    }
+
+    // 软删除网站
     const result = await this.websiteModel.findByIdAndUpdate(id, {
       isDelete: true,
     });
+
+    // 处理分类关联
     if (result.classify) {
       await this.classifyService.toggleWebsite(
         result.classify as unknown as string,
         id,
       );
     }
+
+    // 处理标签关联 - 从所有关联的标签中移除此网站
+    if (website.tags && website.tags.length > 0) {
+      const tagIds = website.tags.map((tag: any) => tag._id.toString());
+      await this.updateWebsiteTags(id, tagIds, 'remove');
+    }
+
     return result;
   }
 
@@ -300,5 +346,41 @@ export class WebsiteService {
     if (top) return top;
     // 缓存中没有则更新一次
     return await this.updateTop50Clicks();
+  }
+
+  /**
+   * 私有方法：更新网站的标签关联
+   * @param websiteId 网站ID
+   * @param tagIds 标签ID数组
+   * @param action 操作类型：add-添加关联，remove-移除关联
+   */
+  private async updateWebsiteTags(
+    websiteId: string,
+    tagIds: string[],
+    action: 'add' | 'remove',
+  ) {
+    // 根据操作类型确定更新操作
+    const websiteUpdateOperation =
+      action === 'add'
+        ? { $addToSet: { tags: { $each: tagIds } } }
+        : { $pull: { tags: { $in: tagIds } } };
+
+    // 更新网站的标签字段
+    await this.websiteModel.findByIdAndUpdate(
+      websiteId,
+      websiteUpdateOperation,
+    );
+
+    // 同时更新标签的网站字段
+    const tagUpdateOperation =
+      action === 'add'
+        ? { $addToSet: { websites: websiteId } }
+        : { $pull: { websites: websiteId } };
+
+    // 批量更新所有相关标签
+    await this.tagModel.updateMany(
+      { _id: { $in: tagIds } },
+      tagUpdateOperation,
+    );
   }
 }
