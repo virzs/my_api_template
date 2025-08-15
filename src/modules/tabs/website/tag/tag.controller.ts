@@ -21,8 +21,8 @@ import {
   BatchUpdateTagStatusDto,
 } from '../dto/tag';
 
-@ApiTags('新标签页/标签')
-@Controller('tabs/website/tag')
+@ApiTags('新标签页/网站/标签')
+@Controller('tabs/website_tag')
 export class TagController {
   constructor(private readonly tagService: TagService) {}
 
